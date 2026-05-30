@@ -61,7 +61,7 @@ def _press_enter(text: str = "Press Enter to continue...") -> None:
 def _legend_intro_card(legend: dict[str, Any]) -> str:
     p = legend["profile_summary"]["profile"]
     diag = legend["diagnosis_years"]
-    diag_str = f"diagnosed {int(diag)} year{'s' if int(diag) != 1 else ''} ago" if diag >= 0.5 else "newly diagnosed"
+    diag_str = f"diagnosed {int(diag)} year{'s' if int(diag) != 1 else ''} ago" if diag >= 1 else "newly diagnosed"
     return (
         f"\n━━━ Meet {legend['name']} ━━━\n"
         f"  Age: {legend['age']}, {diag_str}\n"
@@ -98,13 +98,13 @@ def _legend_current_cgm_card(cgm: dict[str, Any]) -> str:
     )
 
 
-def _legend_question_card(legend: dict[str, Any], question_type: str, question: str) -> list[str]:
+async def _legend_question_card(legend: dict[str, Any], question_type: str, question: str) -> list[str]:
     """Route the legend's question through the companion pipeline."""
-    return question_to_cards(question, question_type=question_type, anchor=legend["anchor_type"],
+    return await question_to_cards(question, question_type=question_type, anchor=legend["anchor_type"],
                               profile_config=legend.get("profile_config", {}) | {"anchor_label": legend.get("anchor_label", legend["anchor_type"])})
 
 
-def question_to_cards(text: str, *, question_type: str | None = None, anchor: str = "well_controlled",
+async def question_to_cards(text: str, *, question_type: str | None = None, anchor: str = "well_controlled",
                       profile_config: dict[str, Any] | None = None) -> list[str]:
     """Route a question through the companion system and return cards."""
     if question_type is None:
@@ -112,9 +112,9 @@ def question_to_cards(text: str, *, question_type: str | None = None, anchor: st
         question_type = intent.value if intent != Intent.UNKNOWN else "meal"
 
     if question_type in ("meal",):
-        return _run_meal_scenario(text, anchor, profile_config=profile_config)
+        return await _run_meal_scenario(text, anchor, profile_config=profile_config)
     if question_type in ("what_if",):
-        return _run_what_if(text, anchor)
+        return await _run_what_if(text, anchor, profile_config=profile_config)
     if question_type == "troubleshoot_high":
         return troubleshoot_card("high")
     if question_type == "troubleshoot_low":
@@ -132,10 +132,8 @@ def question_to_cards(text: str, *, question_type: str | None = None, anchor: st
     return [f"\n━━━ Unknown ━━━\n\nCan't handle that yet."]
 
 
-def _run_meal_scenario(text: str, anchor: str, *, profile_config: dict[str, Any] | None = None) -> list[str]:
-    result = asyncio.run(
-        run_companion_scenario(text, anchor=anchor, use_llm_parse=True, profile_config=profile_config)
-    )
+async def _run_meal_scenario(text: str, anchor: str, *, profile_config: dict[str, Any] | None = None) -> list[str]:
+    result = await run_companion_scenario(text, anchor=anchor, use_llm_parse=True, profile_config=profile_config)
     if result.get("database_error"):
         return [f"\n{result['response']}"]
 
@@ -161,12 +159,12 @@ def _run_meal_scenario(text: str, anchor: str, *, profile_config: dict[str, Any]
     )
 
 
-def _run_what_if(text: str, anchor: str) -> list[str]:
+async def _run_what_if(text: str, anchor: str, *, profile_config: dict[str, Any] | None = None) -> list[str]:
     import re
     cleaned = re.sub(r"\b(can|i|what|if|is|it|ok|safe|fine|to|should|have|eat|a|an|the)\b", "", text, flags=re.IGNORECASE).strip()
     if not cleaned:
         cleaned = text
-    result = asyncio.run(run_companion_scenario(cleaned, anchor=anchor, use_llm_parse=False))
+    result = await run_companion_scenario(cleaned, anchor=anchor, use_llm_parse=False, profile_config=profile_config)
     if result.get("database_error"):
         return [f"\nCannot forecast that."]
     totals = result["meal_totals"]
@@ -189,7 +187,7 @@ def _show_cards(cards: list[str]) -> None:
             _press_enter()
 
 
-def run_showcase() -> None:
+async def run_showcase() -> None:
     """Pick a random legend and walk through their data."""
     legends = _load_legends()
     rng = random.Random()
@@ -226,7 +224,7 @@ def run_showcase() -> None:
     _press_enter()
 
     # Card 5+: Answer cards
-    cards = _legend_question_card(legend, question_type, question)
+    cards = await _legend_question_card(legend, question_type, question)
     _show_cards(cards)
 
     print(f"\n━━━ End of {legend['name']}'s Showcase ━━━")
@@ -246,10 +244,10 @@ def main() -> None:
     args = ap.parse_args()
 
     if not args.text:
-        run_showcase()
+        asyncio.run(run_showcase())
         return
 
-    cards = question_to_cards(args.text, anchor=args.anchor)
+    cards = asyncio.run(question_to_cards(args.text, anchor=args.anchor))
     _show_cards(cards)
 
 

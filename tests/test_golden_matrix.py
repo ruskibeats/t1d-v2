@@ -8,7 +8,7 @@ import re
 from app.ai.safety import SafetyScaffold
 from app.simulator import AnchorType, generate_patient_config
 from src.forecast_engine import ForecastStage, MealTotals
-from src.runner import parse_meal_text
+from src.runner import _parse_deterministic as parse_meal_text
 
 
 def test_all_12_profiles_forecast():

@@ -158,7 +158,7 @@ def meal_pipeline_section(
         lines.append(f"  {qty} {unit} {name}")
     cards.append(_separator("Step 1: Parsed Foods") + "\n" + "\n".join(lines))
 
-    # Card 2: Food evidence
+    # Card 2: Food evidence with top contributor and uncertainty
     lines = []
     for item in food_evidence:
         p = item.get("parsed", {})
@@ -174,6 +174,9 @@ def meal_pipeline_section(
         lines.append(f"  {icon} {qty} {unit} {name} | {carbs}g carbs  {fat}g fat  {sugars}g sugar  conf: {conf}")
         for warning in item.get("warnings") or []:
             lines.append(f"    ⚠ {warning}")
+        top_reason = item.get("top_uncertainty_reason", "")
+        if top_reason:
+            lines.append(f"    💡 Main uncertainty: {top_reason}")
     cards.append(_separator("Step 2: Food Evidence") + "\n" + "\n".join(lines))
 
     # Card 3: Forecast
@@ -185,8 +188,16 @@ def meal_pipeline_section(
     tr = band.get("peak_time_range_minutes", [peak_time, peak_time])
     carbs = meal_totals.get("carbs_g", 0)
     fat = meal_totals.get("fat_g", 0)
+    sugars = meal_totals.get("sugars_g", 0)
+    top_carb = meal_totals.get("top_carb_contributor", "")
+    absorption = meal_totals.get("absorption_profile", "standard")
+    uncertainty_items = meal_totals.get("top_uncertainty_items", [])
+    profile_tags = {"fast": "fast spike risk", "delayed": "late rise risk", "mixed": "mixed absorption", "standard": "standard absorption"}
+    tag = profile_tags.get(absorption, "")
     lines = [
-        f"  Meal: {carbs}g carbs, {fat}g fat",
+        f"  Meal: {carbs}g carbs, {fat}g fat, {sugars}g sugars",
+        f"  → Absorption: {tag}",
+        f"  → Top driver: {top_carb}",
         f"  → Peak: ~{peak} mg/dL at ~{peak_time} min",
         f"  → Range: {pr[0]}–{pr[1]} mg/dL",
         f"  → Timing: {tr[0]}–{tr[1]} min",
@@ -199,9 +210,10 @@ def meal_pipeline_section(
         hist_count = historical_context["similar_meals_count"]
         avg_rise = historical_context.get("avg_peak_rise_mg_dl", "?")
         avg_time = historical_context.get("avg_peak_time_minutes", "?")
+        rise_range = historical_context.get("peak_rise_range_mg_dl", None)
         lines = [
             f"  {hist_count} similar meals found.",
-            f"  • Avg rise: {avg_rise} mg/dL" if avg_rise else "",
+            f"  • Avg rise: {avg_rise} mg/dL (range {rise_range[0]}–{rise_range[1]} mg/dL)" if avg_rise and rise_range and rise_range[0] else "",
             f"  • Avg peak: {avg_time} min" if avg_time else "",
         ]
         for obs in (historical_context.get("case_based_observations") or [])[:2]:
@@ -221,6 +233,8 @@ def meal_pipeline_section(
             lines.append("  ⚠ Alcohol can increase delayed low risk.")
         elif flag == "rapid_sugar_spike":
             lines.append("  ⚠ Rapid sugar spike likely — monitor early.")
+    for u in uncertainty_items[:1]:
+        lines.append(f"  💡 Key uncertainty: {u}")
     if not lines:
         lines.append("  Watch the expected peak window and compare with your trend.")
     lines.append("\n  Educational simulation only — not medical advice.")

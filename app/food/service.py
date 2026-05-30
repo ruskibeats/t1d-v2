@@ -38,6 +38,11 @@ class FoodEvidence:
     confidence: str
     warnings: list[str] = field(default_factory=list)
     carb_range_g: tuple[float, float] = (0.0, 0.0)
+    # Decomposed uncertainty
+    identity_confidence: str = ""          # how sure we are this is the right food
+    portion_uncertainty_pct: float = 0.0  # 0.0-0.5 (0=exact, 0.5=very uncertain)
+    nutrition_variance_pct: float = 0.0   # spread across candidate matches
+    top_uncertainty_reason: str = ""       # user-facing: "portion of fries unclear"
 
 
 _PORTION_BY_UNIT_G: dict[str, float] = {
@@ -263,6 +268,33 @@ def calculate_food_evidence(food: ParsedFood, candidates: list[dict[str, Any]]) 
     carbs = computed["carbs_g"]
     carb_range = (round(max(0.0, carbs * (1 - uncertainty)), 1), round(carbs * (1 + uncertainty), 1))
 
+    uncertainty = 0.10 if confidence == "high" else 0.25 if confidence == "medium" else 0.45
+    carbs = computed["carbs_g"]
+    carb_range = (round(max(0.0, carbs * (1 - uncertainty)), 1), round(carbs * (1 + uncertainty), 1))
+
+    # Decomposed identity confidence
+    identity_conf = confidence
+
+    # Portion uncertainty: no explicit unit or generic unit = high uncertainty
+    portion_uncertainty = 0.35 if not food.unit or _clean(food.unit) in {"", "serving", "portion"} else 0.10
+
+    # Nutrition variance from candidate spread
+    nutrition_variance = 0.15
+    if len(candidates) > 1:
+        candidate_carbs = [
+            float(c.get("carbs_per_100g", 0)) * (float(c.get("estimated_serving_g", 100)) / 100.0)
+            for c in candidates[:3]
+        ]
+        if candidate_carbs:
+            nutrition_variance = round((max(candidate_carbs) - min(candidate_carbs)) / max(max(candidate_carbs), 1), 2)
+
+    # Top uncertainty reason
+    top_reason = ""
+    if not food.unit or _clean(food.unit) in {"", "serving", "portion"}:
+        top_reason = f"portion of {food.item} unclear"
+    elif confidence == "low":
+        top_reason = f"food match for {food.item} uncertain"
+
     return FoodEvidence(
         parsed={"item": food.item, "quantity": food.quantity, "unit": food.unit, "estimated_serving_g": round(grams, 1)},
         selected_match=selected,
@@ -270,6 +302,10 @@ def calculate_food_evidence(food: ParsedFood, candidates: list[dict[str, Any]]) 
         confidence=confidence,
         warnings=warnings,
         carb_range_g=carb_range,
+        identity_confidence=identity_conf,
+        portion_uncertainty_pct=portion_uncertainty,
+        nutrition_variance_pct=nutrition_variance,
+        top_uncertainty_reason=top_reason,
     )
 
 
@@ -280,6 +316,9 @@ def combine_food_evidence(evidence_items: list[FoodEvidence]) -> dict[str, Any]:
     carb_high = 0.0
     warnings: list[str] = []
     confidences: list[str] = []
+    top_carb_contributor = ""
+    top_uncertainty_items: list[str] = []
+    max_carbs = 0.0
 
     for evidence in evidence_items:
         confidences.append(evidence.confidence)
@@ -287,15 +326,39 @@ def combine_food_evidence(evidence_items: list[FoodEvidence]) -> dict[str, Any]:
         if evidence.computed:
             for key in totals:
                 totals[key] += float(evidence.computed.get(key, 0.0) or 0.0)
+            item_carbs = float(evidence.computed.get("carbs_g", 0) or 0)
+            if item_carbs > max_carbs:
+                max_carbs = item_carbs
+                top_carb_contributor = f"{evidence.parsed.get('item', '')} ({item_carbs}g carbs)"
         carb_low += evidence.carb_range_g[0]
         carb_high += evidence.carb_range_g[1]
+        if evidence.top_uncertainty_reason:
+            top_uncertainty_items.append(evidence.top_uncertainty_reason)
 
     confidence_rank = {"low": 0, "medium": 1, "high": 2}
     overall = min(confidences, key=lambda c: confidence_rank.get(c, 0)) if confidences else "low"
+
+    # Aggregate absorption profile
+    total_fat = totals.get("fat_g", 0)
+    total_sugars = totals.get("sugars_g", 0)
+    total_carbs = totals.get("carbs_g", 0)
+    sugar_ratio = total_sugars / max(total_carbs, 1)
+    if total_fat >= 20 and sugar_ratio < 0.3:
+        absorption_profile = "delayed"
+    elif sugar_ratio >= 0.5:
+        absorption_profile = "fast"
+    elif total_fat >= 10:
+        absorption_profile = "mixed"
+    else:
+        absorption_profile = "standard"
+
     return {
         "totals": {key: round(value, 1) for key, value in totals.items()},
         "total_carbs_g_range": (round(carb_low, 1), round(carb_high, 1)),
         "confidence_overall": overall,
         "warnings": list(dict.fromkeys(warnings)),
         "evidence_items": [asdict(item) for item in evidence_items],
+        "top_carb_contributor": top_carb_contributor,
+        "top_uncertainty_items": top_uncertainty_items[:2],
+        "absorption_profile": absorption_profile,
     }

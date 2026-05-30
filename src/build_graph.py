@@ -27,8 +27,8 @@ from src.graph_engine import (
     create_edge,
     link_meal_to_glucose,
     link_sleep_to_next_day_glucose,
-    link_exercise_to_glucose,
     link_high_fat_to_delayed_peak,
+    link_meal_to_next_sleep,
 )
 
 
@@ -53,6 +53,17 @@ async def build_legend_graph(legend: dict[str, Any], user_id: int) -> int:
             return 0
         uid = row[0]
 
+        # Create sleep metric nodes first (meal→sleep edges need them to exist)
+        base = datetime(2025, 1, 1, tzinfo=timezone.utc)
+        sleep_metrics = []
+        for day in range(90):
+            sleep_ts = base + timedelta(days=day, hours=23)
+            sleep_node = await find_or_create_metric(
+                session, uid, "exercise_minutes", sleep_ts, 0,
+                unit="min", source="graph_engine.sleep",
+            )
+            sleep_metrics.append((sleep_ts, sleep_node))
+        
         # Process food history → meal → glucose edges
         entries = legend.get("food_history", [])
         processed = 0
@@ -74,11 +85,16 @@ async def build_legend_graph(legend: dict[str, Any], user_id: int) -> int:
             peak = round(110 + carbs * 1.5 + (carbs * 0.1 if fat >= 15 else 0))
             peak_time = 90 if fat < 15 else 120
 
-            edge_id = await link_meal_to_glucose(
+            edge_result = await link_meal_to_glucose(
                 session, uid, meal_ts, carbs, peak, peak_time, fat_g=fat,
             )
-            if edge_id and edge_id > 0:
+            if edge_result and edge_result[1] is not None:
                 processed += 1
+                meal_node_id = edge_result[1]
+                # Link dinner/snack meals to next sleep (needs sleep nodes to exist)
+                mt = entry.get("meal_type", "")
+                if mt in ("dinner", "evening_snack"):
+                    await link_meal_to_next_sleep(session, uid, meal_node_id, meal_ts, meal_slot=mt)
 
             # High-fat → delayed edges
             if fat >= 15:
@@ -90,12 +106,10 @@ async def build_legend_graph(legend: dict[str, Any], user_id: int) -> int:
         print(f"  {processed} meal→glucose edges")
 
         # Create simulated sleep→morning edges (one per 90-day day)
-        base = datetime(2025, 1, 1, tzinfo=timezone.utc)
         sleep_count = 0
         for day in range(90):
             sleep_ts = base + timedelta(days=day, hours=23)
             morning_ts = base + timedelta(days=day + 1, hours=7)
-            # Simulate morning glucose: basal + noise
             from random import Random
             rng = Random(legend["anchor_type"] + str(day))
             overnight_low = 70 + rng.gauss(0, 10)

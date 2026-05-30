@@ -66,8 +66,30 @@ ALIASES = {
     "beer": ["beer", "lager", "pilsner"],
     "ice cream": ["ice cream", "vanilla ice cream"],
     "chicken wings": ["chicken wings", "breaded chicken", "buffalo wings"],
-    "coleslaw": ["coleslaw", "slaw"],
+    "chicken": ["chicken", "grilled chicken", "chicken breast"],
     "steak": ["steak", "fillet steak"],
+    "bread": ["bread", "toast", "sliced bread"],
+    "bacon": ["bacon", "rashers"],
+    "burger": ["burger", "beef burger", "cheeseburger"],
+    "sausage": ["sausage", "pork sausage"],
+    "eggs": ["eggs", "scrambled eggs", "fried eggs"],
+    "fish": ["fish", "cod", "salmon", "haddock"],
+    "salad": ["salad", "green salad", "side salad"],
+    "vegetables": ["vegetables", "mixed vegetables"],
+    "banana": ["banana"],
+    "apple": ["apple"],
+    "cake": ["cake", "sponge cake"],
+    "biscuit": ["biscuit", "cookies"],
+    "chocolate": ["chocolate", "milk chocolate"],
+    "crisps": ["crisps", "potato crisps"],
+    "cheese": ["cheese", "cheddar"],
+    "potato": ["potato", "potatoes", "mashed potato"],
+    "sushi": ["sushi", "sushi roll"],
+    "milk": ["milk", "semi skimmed milk", "whole milk"],
+    "coffee": ["coffee", "latte", "cappuccino"],
+    "tea": ["tea", "black tea"],
+    "wine": ["wine", "red wine", "white wine"],
+    "yogurt": ["yogurt", "greek yogurt"],
 }
 
 
@@ -93,12 +115,16 @@ def parse_meal_text(text: str) -> list[ParsedFood]:
     foods: list[ParsedFood] = []
 
     patterns: list[tuple[str, str | None]] = [
-        (r"(\d+(?:\.\d+)?)\s+(?:cans?\s+of\s+)?(diet\s+coke|coke|cola|soft drink)s?\b", "can"),
+        (r"(\d+(?:\.\d+)?)\s+(?:cans?\s+of\s+)?(diet\s+coke|coke|cola|coca[- ]?cola|soft drink)s?\b", "can"),
         (r"(\d+(?:\.\d+)?)\s+(donuts?|doughnuts?)\b", None),
         (r"(\d+(?:\.\d+)?)\s+(slices?)\s+of\s+(pizza|pepperoni pizza|toast|bread)\b", "slice"),
         (r"(\d+(?:\.\d+)?)\s+(pints?)\s+of\s+(lager|beer|ale)\b", "pint"),
         (r"(\d+(?:\.\d+)?)\s+(wings?)\b", "wings"),
         (r"(\d+(?:\.\d+)?)\s+(scoops?)\s+of\s+(ice cream)\b", "scoop"),
+        (r"a\s+(bowl of|bowl)\s+(.*?)\b", None),
+        (r"(\d+(?:\.\d+)?)\s+(burgers?)\b", "burger"),
+        (r"(\d+(?:\.\d+)?)\s+(sausages?)\b", None),
+        (r"(\d+(?:\.\d+)?)\s+(eggs?)\b", None),
     ]
     for pattern, forced_unit in patterns:
         for match in re.finditer(pattern, lower):
@@ -110,7 +136,7 @@ def parse_meal_text(text: str) -> list[ParsedFood]:
             foods.append(ParsedFood(item=item, quantity=qty, unit=forced_unit, search_terms=ALIASES.get(item, [item])))
 
     # Named foods without explicit quantities.
-    known = ["big mac", "large fries", "fries", "pizza", "cereal", "pasta", "rice", "sushi", "fruit", "coleslaw", "steak", "lager"]
+    known = ["big mac", "large fries", "fries", "pizza", "cereal", "pasta", "rice", "bread", "potato", "sushi", "fruit", "chicken", "steak", "bacon", "burger", "sausage", "eggs", "fish", "salad", "vegetables", "banana", "apple", "cake", "biscuit", "chocolate", "crisps", "cheese", "lager", "wine", "milk", "coffee", "tea", "yogurt", "butter", "soup", "curry", "donut", "ice cream", "coleslaw"]
     seen_items = {food.item for food in foods}
     for name in known:
         item = _canonical_item(name)
@@ -206,7 +232,31 @@ async def run_companion_scenario(text: str, *, anchor: str = "well_controlled") 
         for food in foods:
             candidates = await service.search_food_candidates(food)
             item_evidence.append(calculate_food_evidence(food, candidates))
+    item_evidence = []
+    async with db_manager.get_session() as session:
+        service = FoodService(session)
+        for food in foods:
+            candidates = await service.search_food_candidates(food)
+            item_evidence.append(calculate_food_evidence(food, candidates))
     meal = combine_food_evidence(item_evidence)
+
+    if not any(ev.computed for ev in item_evidence):
+        return {
+            "scenario": text,
+            "parsed_foods": [asdict(f) for f in foods],
+            "food_evidence": meal["evidence_items"],
+            "meal_totals": meal["totals"],
+            "profile": {"anchor_type": "disconnected"},
+            "forecast": {},
+            "historical_context": {"similar_meals_count": 0},
+            "prediction": {},
+            "evidence_bundle": {},
+            "risk_flags": [],
+            "safety": {"is_safe": True},
+            "response": "Cannot estimate this meal — database connection is not available. Please set DATABASE_URL to start.",
+            "database_error": "DATABASE_URL not set or Postgres unreachable. The FoodService is Postgres-only; no fallback database exists.",
+        }
+
     totals_dict = meal["totals"]
 
     config = generate_patient_config(anchor)

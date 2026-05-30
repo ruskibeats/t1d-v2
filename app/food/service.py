@@ -1,17 +1,21 @@
-"""Standalone food lookup and nutrition evidence service.
+"""Food lookup service — Postgres/OpenFoodFacts only.
 
-This module intentionally avoids external services for the v2 companion demo. It
-provides deterministic, auditable nutrition estimates for common meal archetypes
-used by the forecast and golden-test docs.
+No built-in fallback. If Postgres is unavailable, the service returns no match.
+The caller is responsible for handling empty results.
 """
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field, asdict
+from dataclasses import asdict, dataclass, field
 from difflib import SequenceMatcher
 from typing import Any
 
 from sqlalchemy import text as sql_text
+
+from .foods import (
+    CATEGORY_CARB_THRESHOLDS,
+    FoodCandidate,
+)
 
 
 @dataclass
@@ -20,19 +24,6 @@ class ParsedFood:
     quantity: float = 1.0
     unit: str | None = None
     search_terms: list[str] | None = None
-
-
-@dataclass(frozen=True)
-class FoodCandidate:
-    name: str
-    serving_g: float
-    carbs_per_100g: float
-    fat_per_100g: float = 0.0
-    sugars_per_100g: float = 0.0
-    protein_per_100g: float = 0.0
-    kcal_per_100g: float = 0.0
-    aliases: tuple[str, ...] = ()
-    source: str = "built_in"
 
 
 @dataclass
@@ -45,28 +36,7 @@ class FoodEvidence:
     carb_range_g: tuple[float, float] = (0.0, 0.0)
 
 
-_BUILTIN_FOODS: tuple[FoodCandidate, ...] = (
-    FoodCandidate("pizza", 100, 33, 10, 4, 12, 266, ("slice of pizza", "pepperoni pizza")),
-    FoodCandidate("cereal", 40, 75, 3, 28, 8, 380, ("breakfast cereal", "corn flakes", "frosties")),
-    FoodCandidate("donut", 70, 45, 20, 18, 5, 420, ("doughnut", "glazed doughnut")),
-    FoodCandidate("pasta", 300, 25, 2, 1, 5, 150, ("spaghetti", "noodles")),
-    FoodCandidate("rice", 180, 28, 0.3, 0.1, 2.7, 130, ("white rice", "sushi rice")),
-    FoodCandidate("sushi", 150, 28, 3, 5, 8, 180, ("sushi roll", "maki")),
-    FoodCandidate("fruit", 150, 14, 0.3, 10, 0.5, 60, ("apple", "banana", "berries")),
-    FoodCandidate("ice cream", 65, 24, 11, 21, 3.5, 207, ("vanilla ice cream", "scoop ice cream")),
-    FoodCandidate("fries", 150, 41, 15, 0.3, 3.4, 312, ("chips", "french fries", "large fries")),
-    FoodCandidate("big mac", 219, 20, 12, 4, 12, 257, ("mcdonalds big mac", "burger")),
-    FoodCandidate("chicken wings", 50, 6, 16, 0, 23, 290, ("breaded chicken wings", "buffalo wings")),
-    FoodCandidate("coleslaw", 200, 13, 9, 10, 1, 152, ("slaw",)),
-    FoodCandidate("steak", 190, 0, 12, 0, 26, 217, ("fillet steak", "beef steak")),
-    FoodCandidate("lager", 568, 3.6, 0, 0.1, 0.5, 43, ("beer", "ale", "pint lager")),
-    FoodCandidate("soft drink", 330, 10.6, 0, 10.6, 0, 42, ("coke", "cola", "soda")),
-    FoodCandidate("soup", 300, 7, 2, 2, 3, 55, ("stew",)),
-    FoodCandidate("curry", 300, 12, 8, 4, 8, 150, ("stew curry",)),
-)
-
-
-_PORTION_BY_UNIT_G = {
+_PORTION_BY_UNIT_G: dict[str, float] = {
     "wing": 50,
     "wings": 50,
     "slice": 100,
@@ -82,7 +52,17 @@ _PORTION_BY_UNIT_G = {
     "portion": 150,
     "large": 150,
     "burger": 219,
+    "pizza": 100,
+    "packet": 25,
+    "bags": 25,
+    "bag": 25,
+    "pieces": 100,
+    "piece": 100,
+    "rolls": 60,
+    "roll": 60,
 }
+
+_DIET_HINT_WORDS = frozenset({"diet", "zero", "sugar free", "no sugar", "sugar-free"})
 
 
 def _clean(text: str | None) -> str:
@@ -90,6 +70,7 @@ def _clean(text: str | None) -> str:
 
 
 def _score_candidate(food: ParsedFood, candidate: FoodCandidate) -> float:
+    """Score a candidate against the parsed food item. Returns 0.0–1.0."""
     item = _clean(food.item)
     terms = [_clean(t) for t in (food.search_terms or [])]
     names = [_clean(candidate.name), *[_clean(a) for a in candidate.aliases]]
@@ -122,55 +103,37 @@ def estimate_serving_grams(food: ParsedFood, candidate: FoodCandidate | None = N
     if unit in _PORTION_BY_UNIT_G:
         return quantity * _PORTION_BY_UNIT_G[unit]
 
-    # Item-based fallbacks matching prompts/normalise_portions.txt.
-    if "wing" in item:
-        return quantity * 50
-    if "coleslaw" in item or "salad" in item or "vegetable" in item:
-        return quantity * 200
-    if "lager" in item or "beer" in item or "ale" in item:
-        return quantity * 568
-    if "pizza" in item:
-        return quantity * 100
-    if "pasta" in item or "rice" in item or "noodle" in item:
-        return quantity * 300
-    if "ice cream" in item:
-        return quantity * 65
-    if "steak" in item:
-        return quantity * 190
-    if "fries" in item or "chips" in item:
-        return quantity * 150
-    if "soup" in item or "curry" in item or "stew" in item:
-        return quantity * 300
-
     return quantity * (candidate.serving_g if candidate else 100)
 
 
 class FoodService:
-    """Food lookup service with Postgres OpenFoodFacts + deterministic fallback.
+    """Postgres/OpenFoodFacts food lookup.
 
-    If `session` is an async SQLAlchemy session connected to a database with the
-    `openfoodfacts_products` table, candidates come from that 2.5M+ product DB.
-    If the DB is unavailable or returns no candidates, built-in deterministic
-    archetypes are used so the demo remains fully offline-capable.
+    Requires a live async SQLAlchemy session with an `openfoodfacts_products`
+    table. Returns empty list when the DB is unavailable.
     """
 
     def __init__(self, session=None):
         self.session = session
 
-    async def _search_postgres_openfoodfacts(self, food: ParsedFood, limit: int = 8) -> list[dict[str, Any]]:
-        """Search local Postgres OpenFoodFacts projection when available."""
+    async def search_food_candidates(self, food: ParsedFood, limit: int = 8) -> list[dict[str, Any]]:
+        """Search Postgres OpenFoodFacts projection for matching products."""
         if self.session is None or not hasattr(self.session, "execute"):
             return []
+
         terms = [food.item, *((food.search_terms or [])[:3])]
         rows: list[dict[str, Any]] = []
         seen: set[str] = set()
+
         for term in terms:
             words = [w for w in _clean(term).replace("-", " ").split() if len(w) >= 3]
             if not words:
                 continue
+
             where = " AND ".join(f"product_name ILIKE :w{i}" for i in range(len(words)))
             params = {f"w{i}": f"%{word}%" for i, word in enumerate(words)}
             params["limit"] = limit * 3
+
             query = sql_text(f"""
                 SELECT
                     code,
@@ -193,20 +156,25 @@ class FoodService:
                 result = await self.session.execute(query, params)
             except Exception:
                 return []
+
             for row in result.mappings():
                 code = str(row.get("code") or row.get("product_name") or "")
                 if not code or code in seen:
                     continue
                 seen.add(code)
+
                 product_name = str(row.get("product_name") or "unknown")
                 sugars = float(row.get("sugars_100g") or 0)
                 carbs = float(row.get("carbs_100g") or 0)
                 query_text = _clean(" ".join([food.item, *(food.search_terms or [])]))
                 product_text = _clean(product_name)
+
+                # Diet/regular cola disambiguation
                 is_diet_product = any(token in product_text for token in ("diet", "zero", "sugar free", "no sugar"))
                 wants_regular_cola = any(token in query_text for token in ("coke", "cola", "soft drink")) and "diet" not in query_text and "zero" not in query_text
                 if wants_regular_cola and (is_diet_product or sugars < 5 or carbs < 5):
                     continue
+
                 candidate = FoodCandidate(
                     name=product_name,
                     serving_g=float(row.get("serving_quantity") or 100),
@@ -216,9 +184,9 @@ class FoodService:
                     protein_per_100g=float(row.get("proteins_100g") or 0),
                     kcal_per_100g=float(row.get("energy_kcal_100g") or 0),
                     aliases=(str(row.get("brands") or ""),),
-                    source="openfoodfacts_postgres",
                 )
                 score = _score_candidate(food, candidate)
+
                 rows.append({
                     **asdict(candidate),
                     "barcode": code,
@@ -227,36 +195,9 @@ class FoodService:
                     "match_score": round(max(score, 0.5), 3),
                     "estimated_serving_g": round(estimate_serving_grams(food, candidate), 1),
                 })
+
         rows.sort(key=lambda c: c.get("match_score", 0), reverse=True)
         return rows[:limit]
-
-    def _search_builtin_candidates(self, food: ParsedFood, limit: int = 5) -> list[dict[str, Any]]:
-        ranked = [(_score_candidate(food, candidate), candidate) for candidate in _BUILTIN_FOODS]
-        ranked = [(score, candidate) for score, candidate in ranked if score >= 0.45]
-        ranked.sort(key=lambda pair: pair[0], reverse=True)
-        return [
-            {
-                **asdict(candidate),
-                "match_score": round(score, 3),
-                "estimated_serving_g": round(estimate_serving_grams(food, candidate), 1),
-            }
-            for score, candidate in ranked[:limit]
-        ]
-
-    async def search_food_candidates(self, food: ParsedFood) -> list[dict[str, Any]]:
-        """Return ranked nutrition candidates for a parsed food item."""
-        db_candidates = await self._search_postgres_openfoodfacts(food)
-        if db_candidates:
-            return db_candidates
-        return self._search_builtin_candidates(food)
-
-
-def _confidence_from_score(score: float) -> str:
-    if score >= 0.85:
-        return "high"
-    if score >= 0.6:
-        return "medium"
-    return "low"
 
 
 def _candidate_from_dict(data: dict[str, Any]) -> FoodCandidate:
@@ -268,12 +209,8 @@ def _candidate_from_dict(data: dict[str, Any]) -> FoodCandidate:
     return FoodCandidate(**fields)
 
 
-def calculate_food_evidence(food: ParsedFood, candidates) -> FoodEvidence:
-    """Select best candidate and compute nutrition evidence.
-
-    Returns confidence, selected match, macro totals, and a carb uncertainty band
-    for downstream forecast uncertainty.
-    """
+def calculate_food_evidence(food: ParsedFood, candidates: list[dict[str, Any]]) -> FoodEvidence:
+    """Compute nutrition evidence from the top-ranked match."""
     if not candidates:
         grams = estimate_serving_grams(food)
         return FoodEvidence(
@@ -281,7 +218,7 @@ def calculate_food_evidence(food: ParsedFood, candidates) -> FoodEvidence:
             selected_match=None,
             computed=None,
             confidence="low",
-            warnings=["No local nutrition match found"],
+            warnings=["No nutrition match found in database"],
         )
 
     selected = dict(candidates[0])
@@ -299,14 +236,24 @@ def calculate_food_evidence(food: ParsedFood, candidates) -> FoodEvidence:
         "kcal": round(candidate.kcal_per_100g * multiplier),
     }
 
-    confidence = _confidence_from_score(score)
+    confidence = "high" if score >= 0.85 else "medium" if score >= 0.6 else "low"
     warnings: list[str] = []
     if confidence == "low":
         warnings.append("Food match is uncertain")
-    if "wing" in _clean(food.item) and "bread" not in candidate.name and "bread" not in " ".join(candidate.aliases):
-        warnings.append("Breaded/fried coating may add carbs")
     if computed["fat_g"] >= 15:
         warnings.append("High fat may delay glucose rise")
+
+    # Diet/regular drink signal
+    item_clean = _clean(food.item)
+    if any(w in item_clean for w in ("diet",)):
+        warnings.append("Sugars may be lower if diet/sugar-free — check label")
+
+    # Coating detection
+    if any(w in item_clean for w in ("bread", "fried", "battered")):
+        warnings.append("Breaded/fried coating adds unknown extra carbs")
+
+    if not food.unit or _clean(food.unit) in {"", "serving", "portion"}:
+        warnings.append("Portion size estimated — check actual serving")
 
     uncertainty = 0.10 if confidence == "high" else 0.25 if confidence == "medium" else 0.45
     carbs = computed["carbs_g"]

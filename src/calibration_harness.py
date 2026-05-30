@@ -189,7 +189,7 @@ def run_calibration_suite(
     results = []
     for meal in meals:
         # Create mock MealTotals and forecast
-        from demo.forecast_engine import MealTotals
+        from forecast_engine import MealTotals
         
         totals = MealTotals(
             carbs_g=meal.carbs_g,

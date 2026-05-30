@@ -5,7 +5,15 @@ class AnchorType(str, Enum):
     WELL_CONTROLLED = "well_controlled"
     HIGH_FAT_DELAYED = "high_fat_delayed"
     POST_MEAL_SPIKE = "post_meal_spike"
+    BRITTLE = "brittle"
+    DAWN_PHENOMENON = "dawn_phenomenon"
+    OVERNIGHT_HYPO = "overnight_hypo"
     EXERCISE_SENSITIVE = "exercise_sensitive"
+    EXERCISE_REGIMEN = "exercise_regimen"
+    INSULIN_SENSITIVE = "insulin_sensitive"
+    INSULIN_RESISTANT = "insulin_resistant"
+    HIGH_VARIABILITY = "high_variability"
+    NEWLY_DIAGNOSED = "newly_diagnosed"
 
 @dataclass
 class PatientConfig:

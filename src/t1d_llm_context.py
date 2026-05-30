@@ -7,6 +7,32 @@ Version 1.0 - Initial release.
 
 from __future__ import annotations
 
+try:
+    from .calibration_constants import (
+        RISE_PER_CARB_MAP,
+        BALANCE_MAP,
+        ANCHOR_DESCRIPTIONS,
+        get_calibration_for_anchor,
+    )
+except ImportError:  # Script-mode compatibility
+    from calibration_constants import (
+        RISE_PER_CARB_MAP,
+        BALANCE_MAP,
+        ANCHOR_DESCRIPTIONS,
+        get_calibration_for_anchor,
+    )
+
+# Build anchor_types dynamically from the single source of truth
+def _build_anchor_types() -> dict:
+    return {
+        anchor: {
+            "rise_per_g": rise_per_g,
+            "balance_factor": BALANCE_MAP.get(anchor, 1.2),
+            "description": ANCHOR_DESCRIPTIONS.get(anchor, ""),
+        }
+        for anchor, rise_per_g in RISE_PER_CARB_MAP.items()
+    }
+
 T1D_LLM_CONTEXT_v1 = {
     "version": "1.0",
     "description": "Companion-only diabetes context, not for dosing decisions",
@@ -36,29 +62,8 @@ T1D_LLM_CONTEXT_v1 = {
         "monitor closely",
     ],
     
-    # Profile traits
-    "anchor_types": {
-        "well_controlled": {
-            "rise_per_g": 1.5,
-            "balance_factor": 1.2,
-            "description": "Standard meal response, reliable patterns",
-        },
-        "high_fat_delayed": {
-            "rise_per_g": 3.0,
-            "balance_factor": 1.35,
-            "description": "High fat/protein extends absorption 3-6 hours",
-        },
-        "post_meal_spike": {
-            "rise_per_g": 3.0,
-            "balance_factor": 2.0,
-            "description": "Spikes high quickly, use caution",
-        },
-        "exercise_sensitive": {
-            "rise_per_g": 1.5,
-            "balance_factor": 1.1,
-            "description": "Exercise lowers post-meal rise",
-        },
-    },
+    # Profile traits - built from single source of truth
+    "anchor_types": _build_anchor_types(),
     
     # Safety triggers
     "safety_triggers": {

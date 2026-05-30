@@ -13,10 +13,18 @@ from functools import lru_cache
 from dataclasses import dataclass, field
 from typing import Any, Callable
 
-from physiology_model import (
-    PhysiologyForecastModel,
-    PhysiologyParameters,
-)
+try:
+    from .physiology_model import (
+        PhysiologyForecastModel,
+        PhysiologyParameters,
+    )
+    from .calibration_constants import RISE_PER_CARB_MAP, BALANCE_MAP
+except ImportError:  # Script-mode compatibility
+    from physiology_model import (
+        PhysiologyForecastModel,
+        PhysiologyParameters,
+    )
+    from calibration_constants import RISE_PER_CARB_MAP, BALANCE_MAP
 
 # ── Data types ──
 
@@ -90,31 +98,6 @@ class ForecastResult:
     profile_assumptions: dict[str, Any] = field(default_factory=dict)
     missing_information_flags: list[str] = field(default_factory=list)
     evidence_items: list[dict] = field(default_factory=list)
-
-
-# ── Calibration maps ──
-
-RISE_PER_CARB_MAP: dict[str, float] = {
-    # Companion-facing effective mg/dL rise per gram before insulin/action
-    # compartments. These are intentionally below the full simulator's raw
-    # meal_rise_factor values but high enough to match simulated historical
-    # meal deltas (typically ~40-90 mg/dL for 40-80g meals).
-    "well_controlled": 1.5, "high_fat_delayed": 3.0,
-    "post_meal_spike": 3.0, "brittle": 2.8,
-    "dawn_phenomenon": 1.7, "overnight_hypo": 1.4,
-    "exercise_sensitive": 1.5, "exercise_regimen": 1.4,
-    "insulin_sensitive": 1.3, "insulin_resistant": 2.5,
-    "high_variability": 2.6, "newly_diagnosed": 2.8,
-}
-
-BALANCE_MAP: dict[str, float] = {
-    "well_controlled": 1.2, "high_fat_delayed": 1.35,
-    "post_meal_spike": 2.0, "brittle": 1.8,
-    "dawn_phenomenon": 1.0, "overnight_hypo": 1.0,
-    "exercise_sensitive": 1.1, "exercise_regimen": 1.0,
-    "insulin_sensitive": 1.0, "insulin_resistant": 1.6,
-    "high_variability": 1.5, "newly_diagnosed": 1.7,
-}
 
 
 # ── Raw kernels (independently testable) ──

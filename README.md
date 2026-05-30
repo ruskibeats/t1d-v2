@@ -1,44 +1,93 @@
 # T1D Companion v2
 
-Glucose forecasting and meal explanation system (NOT medical advice).
+Educational Type 1 Diabetes meal-impact companion and glucose forecast simulator.
 
-## Features
+> **Safety boundary:** this is **not medical advice** and does **not** calculate or recommend insulin dosing. It explains simulated glucose impact, uncertainty, historical context, and monitoring windows.
 
-- 3-compartment gut model for physiology-based predictions
-- Safety-enforced LLM integration (banned word checking)
-- Calibration framework for Nightscout/Dexcom integration
-- Evidence fields for explainable predictions
+## What the app does
 
-## Quick Start
+Given a meal description such as:
 
-```bash
-# Install (no external dependencies required for core)
-pip install pydantic httpx
-
-# Use the forecast engine
-python3 -c "
-from src.forecast_engine import ForecastStage, MealTotals
-totals = MealTotals(carbs_g=50, fat_g=20)
-stage = ForecastStage(
-    anchor_type='high_fat_delayed',
-    basal_mg_dl=112, carb_ratio=15, insulin_sensitivity=50,
-    fat_delay_hours=3.5, exercise_drop_factor=1.0
-)
-result = stage.forecast(totals)
-print(f'Peak: {result.peak_mg_dl} mg/dL')
-"
+```text
+pizza and large fries
 ```
 
-## Documentation
+The app can:
 
-See [docs/T1D_COMPANION_DOCS.html](docs/T1D_COMPANION_DOCS.html) for complete guide.
+1. Parse foods from the text.
+2. Look up nutrition evidence from Postgres/OpenFoodFacts when available, with deterministic fallback foods.
+3. Estimate meal totals and carb uncertainty.
+4. Select one of 12 simulated T1D profile anchors.
+5. Run a physiology-inspired glucose forecast.
+6. Add historical context from similar meals when available.
+7. Build an evidence bundle for safe narration.
+8. Validate output with a safety gate.
+9. Print a text-first UX prototype for the eventual mobile app.
 
-## Structure
+## Quick start
 
-- `src/forecast_engine.py` - Core forecasting logic
-- `src/physiology_model.py` - 3-compartment model
-- `src/t1d_llm_context.py` - Safety validation
-- `app/simulator/` - Minimal stubs for profile generation
+Install runtime + dev dependencies:
+
+```bash
+pip install -e '.[dev]'
+```
+
+Run the end-to-end text runner:
+
+```bash
+python3 -m src.runner "pizza and large fries" --anchor high_fat_delayed
+```
+
+Run with JSON output:
+
+```bash
+python3 -m src.runner "2 donuts and 3 cokes" --anchor post_meal_spike --json
+```
+
+Run tests:
+
+```bash
+pytest -q
+```
+
+## Optional database integration
+
+If `DATABASE_URL` points at a Postgres database containing the `openfoodfacts_products` table, `app/food/service.py` searches that table first. If the DB is unavailable or no match is found, it falls back to deterministic built-in food archetypes.
+
+Example:
+
+```bash
+export DATABASE_URL="postgresql+asyncpg://postgres:postgres@localhost:5432/t1d_companion"
+python3 -m src.runner "pizza" --anchor well_controlled
+```
+
+## Key modules
+
+- `src/runner.py` — recovered V2 CLI pipeline / text UX prototype
+- `src/forecast_engine.py` — core deterministic forecast pipeline
+- `src/physiology_model.py` — physiology-inspired compartment model
+- `src/calibration_constants.py` — single source of truth for anchor calibration constants
+- `src/evidence_bundle.py` — bridge from forecast/model output to narrator evidence JSON
+- `src/prediction_schema_adapter.py` — converts forecasts to canonical prediction schema
+- `app/food/service.py` — Postgres/OpenFoodFacts-backed food lookup with deterministic fallback
+- `app/ai/safety.py` — safety veto gate for emergency/dosing/treatment language
+- `app/services/historical_meal_matcher.py` — historical similar-meal context
+- `app/simulator/` — 12 simulated T1D profile anchors
+- `app/schemas/` — canonical prediction and safety schemas
+- `tests/test_golden_matrix.py` — V1 golden matrix regression coverage
+
+## Current product direction
+
+Near-term focus:
+
+1. Tune food matching quality.
+2. Improve text-first UX states for terminal/mobile parity.
+3. Expand golden tests.
+
+Later/deeper branches:
+
+1. Medical-adjacent safety policy and review.
+2. Real CGM/Nightscout/Dexcom calibration and validation.
 
 ## License
 

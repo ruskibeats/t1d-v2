@@ -223,7 +223,12 @@ async def parse_meal_llm(
 
     try:
         data = _extract_json(content)
-        foods_raw = data.get("foods", data if isinstance(data, list) else [])
+        if isinstance(data, list):
+            foods_raw = data
+        elif isinstance(data, dict):
+            foods_raw = data.get("foods", [])
+        else:
+            foods_raw = []
         foods = [_normalise_food_dict(item) for item in foods_raw if isinstance(item, dict)]
         if foods:
             fallback = _parse_deterministic(text)

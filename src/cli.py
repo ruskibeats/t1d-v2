@@ -200,7 +200,7 @@ def main() -> None:
         print(welcome_card())
         try:
             user_text = input("\n> ").strip()
-        except EOFError:
+        except (EOFError, KeyboardInterrupt):
             user_text = ""
         if not user_text:
             return

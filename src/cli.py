@@ -61,7 +61,7 @@ def _press_enter(text: str = "Press Enter to continue...") -> None:
 def _legend_intro_card(legend: dict[str, Any]) -> str:
     p = legend["profile_summary"]["profile"]
     diag = legend["diagnosis_years"]
-    diag_str = f"diagnosed {diag} year{'s' if diag >= 1 else ''} ago" if diag >= 0.5 else "newly diagnosed"
+    diag_str = f"diagnosed {int(diag)} year{'s' if int(diag) != 1 else ''} ago" if diag >= 0.5 else "newly diagnosed"
     return (
         f"\n━━━ Meet {legend['name']} ━━━\n"
         f"  Age: {legend['age']}, {diag_str}\n"
@@ -100,17 +100,19 @@ def _legend_current_cgm_card(cgm: dict[str, Any]) -> str:
 
 def _legend_question_card(legend: dict[str, Any], question_type: str, question: str) -> list[str]:
     """Route the legend's question through the companion pipeline."""
-    return question_to_cards(question, question_type=question_type, anchor=legend["anchor_type"])
+    return question_to_cards(question, question_type=question_type, anchor=legend["anchor_type"],
+                              profile_config=legend.get("profile_config", {}) | {"anchor_label": legend.get("anchor_label", legend["anchor_type"])})
 
 
-def question_to_cards(text: str, *, question_type: str | None = None, anchor: str = "well_controlled") -> list[str]:
+def question_to_cards(text: str, *, question_type: str | None = None, anchor: str = "well_controlled",
+                      profile_config: dict[str, Any] | None = None) -> list[str]:
     """Route a question through the companion system and return cards."""
     if question_type is None:
         intent = detect_intent(text)
         question_type = intent.value if intent != Intent.UNKNOWN else "meal"
 
     if question_type in ("meal",):
-        return _run_meal_scenario(text, anchor)
+        return _run_meal_scenario(text, anchor, profile_config=profile_config)
     if question_type in ("what_if",):
         return _run_what_if(text, anchor)
     if question_type == "troubleshoot_high":
@@ -130,9 +132,9 @@ def question_to_cards(text: str, *, question_type: str | None = None, anchor: st
     return [f"\n━━━ Unknown ━━━\n\nCan't handle that yet."]
 
 
-def _run_meal_scenario(text: str, anchor: str) -> list[str]:
+def _run_meal_scenario(text: str, anchor: str, *, profile_config: dict[str, Any] | None = None) -> list[str]:
     result = asyncio.run(
-        run_companion_scenario(text, anchor=anchor, use_llm_parse=False)
+        run_companion_scenario(text, anchor=anchor, use_llm_parse=True, profile_config=profile_config)
     )
     if result.get("database_error"):
         return [f"\n{result['response']}"]

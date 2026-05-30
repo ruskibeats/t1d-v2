@@ -359,6 +359,7 @@ async def run_companion_scenario(
     *,
     anchor: str = "well_controlled",
     use_llm_parse: bool = True,
+    profile_config: dict[str, Any] | None = None,
     ollama_url: str = DEFAULT_OLLAMA_URL,
     ollama_model: str = DEFAULT_OLLAMA_MODEL,
 ) -> dict[str, Any]:
@@ -398,9 +399,21 @@ async def run_companion_scenario(
 
         }
 
-    config = generate_patient_config(anchor)
-    profile_json = generate_profile_json(config)
-    stage = ForecastStage.from_profile(config)
+    if profile_config:
+        stage = ForecastStage(
+            anchor_type=profile_config.get("anchor_type", anchor),
+            basal_mg_dl=profile_config.get("basal_glucose_mean", 110),
+            carb_ratio=profile_config.get("carb_ratio", 15),
+            insulin_sensitivity=profile_config.get("insulin_sensitivity", 40),
+            fat_delay_hours=profile_config.get("fat_delay_hours", 3.0),
+            exercise_drop_factor=profile_config.get("exercise_drop_factor", 1.0),
+        )
+        profile_json = {"anchor_type": profile_config.get("anchor_type", anchor),
+                        "anchor_label": profile_config.get("anchor_label", anchor.replace("_", " ").title())}
+    else:
+        config = generate_patient_config(anchor)
+        profile_json = generate_profile_json(config)
+        stage = ForecastStage.from_profile(config)
     totals = MealTotals.from_dict(meal["totals"])
     forecast = stage.forecast(totals, carb_range_g=meal["total_carbs_g_range"])
     historical = historical_context_for_meal(text, carbs_g=totals.carbs_g, fat_g=totals.fat_g, food_name=" ".join(f.item for f in foods), anchor_type=config.anchor_type.value)

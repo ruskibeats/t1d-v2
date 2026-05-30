@@ -156,7 +156,7 @@ def meal_pipeline_section(
         unit = f.get("unit") or ""
         name = f.get("item", "?")
         lines.append(f"  {qty} {unit} {name}")
-    cards.append(_separator("Step 1: Parsed Foods") + "\n" + "\n".join(lines) + _press_enter())
+    cards.append(_separator("Step 1: Parsed Foods") + "\n" + "\n".join(lines))
 
     # Card 2: Food evidence
     lines = []
@@ -174,7 +174,7 @@ def meal_pipeline_section(
         lines.append(f"  {icon} {qty} {unit} {name} | {carbs}g carbs  {fat}g fat  {sugars}g sugar  conf: {conf}")
         for warning in item.get("warnings") or []:
             lines.append(f"    ⚠ {warning}")
-    cards.append(_separator("Step 2: Food Evidence") + "\n" + "\n".join(lines) + _press_enter())
+    cards.append(_separator("Step 2: Food Evidence") + "\n" + "\n".join(lines))
 
     # Card 3: Forecast
     peak = forecast.get("peak_mg_dl", "?")
@@ -192,7 +192,7 @@ def meal_pipeline_section(
         f"  → Timing: {tr[0]}–{tr[1]} min",
         f"  → Baseline: {baseline} mg/dL",
     ]
-    cards.append(_separator("Step 3: Forecast") + "\n" + "\n".join(lines) + "\n" + chart + _press_enter())
+    cards.append(_separator("Step 3: Forecast") + "\n" + "\n".join(lines) + "\n" + chart)
 
     # Card 4: Historical context
     if historical_context.get("similar_meals_count"):
@@ -206,9 +206,9 @@ def meal_pipeline_section(
         ]
         for obs in (historical_context.get("case_based_observations") or [])[:2]:
             lines.append(f"  • {obs}")
-        cards.append(_separator("Step 4: Similar Meals") + "\n" + "\n".join(filter(None, lines)) + _press_enter())
+        cards.append(_separator("Step 4: Similar Meals") + "\n" + "\n".join(filter(None, lines)))
     else:
-        cards.append(_separator("Step 4: Similar Meals") + "\n  No similar meals found." + _press_enter())
+        cards.append(_separator("Step 4: Similar Meals") + "\n  No similar meals found.")
 
     # Card 5: Monitoring
     lines = []

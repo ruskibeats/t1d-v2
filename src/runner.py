@@ -17,6 +17,7 @@ from __future__ import annotations
 import argparse
 import asyncio
 import json
+import logging
 import os
 import re
 from dataclasses import asdict
@@ -24,6 +25,9 @@ from pathlib import Path
 from typing import Any
 
 import httpx
+
+
+logger = logging.getLogger(__name__)
 
 import sys
 ROOT = Path(__file__).resolve().parents[1]
@@ -170,6 +174,48 @@ def _normalise_food_dict(raw: dict[str, Any]) -> ParsedFood:
     return ParsedFood(item=item, quantity=quantity, unit=unit, search_terms=terms)
 
 
+async def _call_ollama(client, ollama_url: str, model: str, system: str, text: str) -> str:
+    resp = await client.post(
+        f"{ollama_url.rstrip('/')}/v1/chat/completions",
+        json={
+            "model": model,
+            "messages": [
+                {"role": "system", "content": system},
+                {"role": "user", "content": text},
+            ],
+            "temperature": 0,
+            "max_tokens": 300,
+        },
+        timeout=httpx.Timeout(15.0, connect=5.0, read=10.0),
+    )
+    resp.raise_for_status()
+    return resp.json()["choices"][0]["message"]["content"]
+
+
+async def _call_ollama_with_retry(
+    ollama_url: str, model: str, system: str, text: str, max_retries: int = 2,
+) -> str | None:
+    last_error: Exception | None = None
+    for attempt in range(1, max_retries + 2):
+        try:
+            async with httpx.AsyncClient() as client:
+                return await _call_ollama(client, ollama_url, model, system, text)
+        except httpx.TimeoutException as exc:
+            logger.warning("Ollama timeout (attempt %d/%d): %s", attempt, max_retries, exc)
+            last_error = exc
+        except httpx.HTTPStatusError as exc:
+            logger.warning("Ollama HTTP %s (attempt %d/%d): %s", exc.response.status_code, attempt, max_retries, exc)
+            last_error = exc
+        except Exception as exc:
+            logger.error("Ollama call failed (attempt %d/%d): %s", attempt, max_retries, exc)
+            last_error = exc
+            break  # Non-retryable error
+        if attempt < max_retries + 1:
+            await asyncio.sleep(2 ** attempt)
+    logger.error("Ollama exhausted retries: %s", last_error)
+    return None
+
+
 async def parse_meal_llm(
     text: str,
     ollama_url: str = DEFAULT_OLLAMA_URL,
@@ -178,38 +224,34 @@ async def parse_meal_llm(
     """Parse meal text via local Ollama, falling back to deterministic parser."""
     system = _load_prompt("parser_system.txt")
     if not system:
+        logger.info("No parser_system.txt prompt found, using deterministic parser")
         return _parse_deterministic(text), None
+
+    logger.info("Parsing meal via Ollama (%s / %s): %s", ollama_url, model, text)
+    content = await _call_ollama_with_retry(ollama_url, model, system, text)
+
+    if content is None:
+        logger.info("Ollama parse failed, falling back to deterministic parser")
+        return _parse_deterministic(text), "llm_parse_failed: retries exhausted"
+
     try:
-        async with httpx.AsyncClient(timeout=45.0) as client:
-            resp = await client.post(
-                f"{ollama_url.rstrip('/')}/v1/chat/completions",
-                json={
-                    "model": model,
-                    "messages": [
-                        {"role": "system", "content": system},
-                        {"role": "user", "content": text},
-                    ],
-                    "temperature": 0,
-                    "max_tokens": 300,
-                },
-            )
-            resp.raise_for_status()
-            content = resp.json()["choices"][0]["message"]["content"]
-            data = _extract_json(content)
-            foods_raw = data.get("foods", data if isinstance(data, list) else [])
-            foods = [_normalise_food_dict(item) for item in foods_raw if isinstance(item, dict)]
-            if foods:
-                # Merge deterministic hints back (LLM is good at items, OK at units)
-                fallback = _parse_deterministic(text)
-                by_item = {fd.item: fd for fd in fallback}
-                for food in foods:
-                    hint = by_item.get(food.item)
-                    if hint:
-                        food.unit = food.unit or hint.unit
-                        food.search_terms = food.search_terms or hint.search_terms
-                return foods, content
-    except Exception as exc:
-        return _parse_deterministic(text), f"llm_parse_failed: {exc}"
+        data = _extract_json(content)
+        foods_raw = data.get("foods", data if isinstance(data, list) else [])
+        foods = [_normalise_food_dict(item) for item in foods_raw if isinstance(item, dict)]
+        if foods:
+            fallback = _parse_deterministic(text)
+            by_item = {fd.item: fd for fd in fallback}
+            for food in foods:
+                hint = by_item.get(food.item)
+                if hint:
+                    food.unit = food.unit or hint.unit
+                    food.search_terms = food.search_terms or hint.search_terms
+            logger.info("Ollama parsed %d foods from: %s", len(foods), text)
+            return foods, content
+    except (ValueError, json.JSONDecodeError) as exc:
+        logger.warning("Failed to extract JSON from Ollama response: %s", exc)
+
+    logger.info("Ollama returned no parseable foods, falling back to deterministic")
     return _parse_deterministic(text), None
 
 
@@ -328,19 +370,30 @@ async def run_companion_scenario(
     ollama_url: str = DEFAULT_OLLAMA_URL,
     ollama_model: str = DEFAULT_OLLAMA_MODEL,
 ) -> dict[str, Any]:
+    logger.info("Running companion scenario: text=%s anchor=%s use_llm_parse=%s", text, anchor, use_llm_parse)
     if use_llm_parse:
         foods, _ = await parse_meal_llm(text, ollama_url, ollama_model)
     else:
         foods = _parse_deterministic(text)
+    logger.info("Parsed %d foods from input", len(foods))
 
     settings = get_settings()
     db_manager.init_db(settings.database_url)
-    async with db_manager.get_session() as session:
-        service = FoodService(session)
-        evidence = [calculate_food_evidence(f, await service.search_food_candidates(f)) for f in foods]
+    evidence = []
+    try:
+        async with db_manager.get_session() as session:
+            service = FoodService(session)
+            evidence = [calculate_food_evidence(f, await service.search_food_candidates(f)) for f in foods]
+    except RuntimeError as exc:
+        logger.warning("Database not available: %s", exc)
+    except Exception as exc:
+        logger.error("Food lookup failed: %s", exc, exc_info=True)
     meal = combine_food_evidence(evidence)
+    logger.info("Food evidence computed: %d items, overall confidence=%s",
+                len(evidence), meal.get("confidence_overall", "n/a"))
 
     if not any(ev.computed for ev in evidence):
+        logger.warning("No food evidence computed \u2014 returning early")
         return {
             "scenario": text, "parsed_foods": [asdict(f) for f in foods],
             "food_evidence": meal["evidence_items"], "meal_totals": meal["totals"],
@@ -348,8 +401,9 @@ async def run_companion_scenario(
             "historical_context": {"similar_meals_count": 0}, "prediction": {},
             "evidence_bundle": {}, "risk_flags": [],
             "safety": {"is_safe": True},
-            "response": "Cannot estimate this meal — database connection is not available. Please set DATABASE_URL to start.",
+            "response": "Cannot estimate this meal \u2014 database connection is not available. Please set DATABASE_URL to start.",
             "database_error": "DATABASE_URL not set or Postgres unreachable.",
+
         }
 
     config = generate_patient_config(anchor)
@@ -363,7 +417,7 @@ async def run_companion_scenario(
     prediction = forecast_to_prediction_schema(forecast, totals, confidence_tier=meal["confidence_overall"], ascii_chart=chart)
     bundle = make_evidence_bundle(forecast=forecast, totals=totals, profile={"anchor_type": config.anchor_type.value, "label": profile_json["anchor_label"]}, total_carbs_g_range=meal["total_carbs_g_range"], confidence_overall=meal["confidence_overall"], confidence_why="Food database lookup plus historical context.", historical_context=historical)
     response = _make_response(bundle, chart, _risk_flags(meal["totals"], foods))
-    safety = SafetyScaffold().validate(response, {"source": "assistant"})
+    safety = SafetyScaffold().validate(response, {"source": "assistant"}); logger.info("Safety check: is_safe=%s risk=%s", safety["is_safe"], safety["risk_level"])
     return {
         "scenario": text, "parsed_foods": [asdict(f) for f in foods],
         "food_evidence": meal["evidence_items"], "meal_totals": meal["totals"],
@@ -374,6 +428,15 @@ async def run_companion_scenario(
     }
 
 
+def _setup_logging(verbose: bool = False) -> None:
+    level = logging.DEBUG if verbose else logging.WARNING
+    logging.basicConfig(
+        level=level,
+        format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
+        datefmt="%H:%M:%S",
+    )
+
+
 def main() -> None:
     ap = argparse.ArgumentParser(description="T1D companion pipeline v2")
     ap.add_argument("scenario", help="Natural-language meal scenario")
@@ -382,7 +445,10 @@ def main() -> None:
     ap.add_argument("--no-llm", action="store_true", help="Skip LLM parser, use deterministic parser only")
     ap.add_argument("--ollama-url", default=DEFAULT_OLLAMA_URL)
     ap.add_argument("--ollama-model", default=DEFAULT_OLLAMA_MODEL)
+    ap.add_argument("-v", "--verbose", action="store_true", help="Enable debug logging")
     args = ap.parse_args()
+
+    _setup_logging(args.verbose)
 
     result = asyncio.run(run_companion_scenario(args.scenario, anchor=args.anchor, use_llm_parse=not args.no_llm, ollama_url=args.ollama_url, ollama_model=args.ollama_model))
     if args.json:

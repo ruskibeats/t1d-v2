@@ -10,6 +10,10 @@ from dataclasses import asdict, dataclass, field
 from difflib import SequenceMatcher
 from typing import Any
 
+import logging
+
+logger = logging.getLogger(__name__)
+
 from sqlalchemy import text as sql_text
 
 from .foods import (

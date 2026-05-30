@@ -120,3 +120,52 @@ def test_safety_does_not_block_educational_phrases():
     for text in safe_phrases:
         review = safety.validate(text, {"source": "assistant"})
         assert review["is_safe"], f"blocked: {text}"
+
+
+def test_llm_parse_mock_path():
+    """LLM parse path extracts foods from structured JSON response."""
+    from src.runner import _extract_json, _normalise_food_dict, ParsedFood
+
+    raw = """{
+        "foods": [
+            {"item": "pizza", "quantity": 2, "unit": "slice"},
+            {"item": "coke", "quantity": 1, "unit": "can"}
+        ]
+    }"""
+    data = _extract_json(raw)
+    assert isinstance(data, dict)
+    foods = [_normalise_food_dict(item) for item in data.get("foods", []) if isinstance(item, dict)]
+    assert len(foods) == 2
+    assert foods[0].item == "pizza"
+    assert foods[0].quantity == 2
+    assert foods[1].item == "coke"
+
+
+def test_llm_parse_chatty_response():
+    """LLM JSON extraction works even with chatty model output."""
+    from src.runner import _extract_json
+
+    chatty = """Sure! Here's the parsed meal:
+
+{
+    "foods": [
+        {"name": "chicken", "qty": 1, "unit": "portion"},
+        {"name": "rice", "qty": 1}
+    ]
+}
+
+This is my best guess for your meal."""
+    data = _extract_json(chatty)
+    assert isinstance(data, dict)
+    assert len(data.get("foods", [])) == 2
+
+
+def test_llm_parse_no_foods_fallback():
+    """When no foods extracted, returns current foods list (fallback)."""
+    from src.runner import _extract_json, _normalise_food_dict
+
+    raw = """{"foo": "bar"}"""
+    data = _extract_json(raw)
+    assert data == {"foo": "bar"}
+    foods = [_normalise_food_dict(item) for item in data.get("foods", []) if isinstance(item, dict)]
+    assert len(foods) == 0

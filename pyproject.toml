@@ -11,6 +11,9 @@ dependencies = [
     "asyncpg>=0.29",
 ]
 
+[project.scripts]
+t1d-companion = "src.runner:main"
+
 [project.optional-dependencies]
 dev = [
     "pytest>=8.0",

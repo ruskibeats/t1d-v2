@@ -38,6 +38,12 @@ Run the end-to-end text runner:
 python3 -m src.runner "pizza and large fries" --anchor high_fat_delayed
 ```
 
+After `pip install -e '.[dev]'`, you can also use the CLI command:
+
+```bash
+t1d-companion "pizza and large fries" --anchor high_fat_delayed
+```
+
 Run with JSON output:
 
 ```bash
@@ -60,6 +66,10 @@ Example:
 export DATABASE_URL="postgresql+asyncpg://postgres:postgres@localhost:5432/t1d_companion"
 python3 -m src.runner "pizza" --anchor well_controlled
 ```
+
+## Architecture
+
+See [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) for the pipeline, module responsibilities, testing strategy, and suggested Git branch workflow.
 
 ## Key modules
 

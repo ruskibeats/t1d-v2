@@ -376,3 +376,45 @@ async def find_repeating_low_risk_motifs(
         {"uid": user_id},
     )
     return [dict(r._mapping) for r in query.fetchall()]
+
+
+# ── Query 6: Find protective evening patterns ──
+
+async def find_protective_evening_patterns(
+    session,
+    user_id: int,
+    *,
+    morning_threshold: float = 130,
+    min_frequency: int = 3,
+) -> list[dict[str, Any]]:
+    """Find dinner compositions that most often precede good morning glucose.
+
+    Traverses backward: good_morning -> sleep -> prior_evening_meal (via precedes).
+    Aggregates by carb/fat buckets and returns frequency + avg morning glucose.
+    """
+    query = await session.execute(
+        sql("""
+            SELECT
+                p.value AS dinner_carbs_g,
+                edge_p.evidence->>'meal_slot' AS meal_slot,
+                COUNT(*) AS frequency,
+                CAST(AVG(morning_g.value) AS numeric(10,1)) AS avg_morning_glucose
+            FROM health_metric_edges AS edge_p
+            JOIN health_metrics AS p ON p.id = edge_p.source_metric_id
+                AND p."type" = 'carbs' AND p.value >= 10
+            JOIN health_metrics AS sleep_s ON sleep_s.id = edge_p.target_metric_id
+            JOIN health_metric_edges AS edge_s ON edge_s.source_metric_id = sleep_s.id
+                AND edge_s.edge_type = 'sleep_to_next_day_glucose'
+            JOIN health_metrics AS morning_g ON morning_g.id = edge_s.target_metric_id
+                AND morning_g.value <= :thresh
+            WHERE edge_p.user_id = :uid
+              AND edge_p.edge_type = 'precedes'
+            GROUP BY p.value, edge_p.evidence->>'meal_slot'
+            HAVING COUNT(*) >= :min_freq
+            ORDER BY frequency DESC, CAST(AVG(morning_g.value) AS numeric(10,1)) ASC
+            LIMIT 20
+        """),
+        {"uid": user_id, "thresh": morning_threshold, "min_freq": min_frequency},
+    )
+    return [dict(r._mapping) for r in query.fetchall()]
+

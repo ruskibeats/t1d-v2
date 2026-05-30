@@ -61,6 +61,11 @@ class HistoricalMealSummary:
     case_based_observations: list[str] = field(default_factory=list)
     narrative: str = ""
     disclaimer: str = "Educational observation from historical meal data, not medical advice."
+    similarity_reason: str = ""
+    what_changed_note: str = ""
+    best_past_outcome: str = ""
+    consistency_score: float = 0.0
+    consistency_tier: str = "unknown"
 
 
 def _history_path() -> Path | None:
@@ -188,6 +193,11 @@ def summarize_similar_meals(
             avg_peak_time_minutes=None,
             min_peak_delta_mgdl=None,
             max_peak_delta_mgdl=None,
+            similarity_reason="",
+            what_changed_note="",
+            best_past_outcome="",
+            consistency_score=0.0,
+            consistency_tier="unknown",
             narrative="No similar historical meals found.",
         )
 
@@ -207,6 +217,15 @@ def summarize_similar_meals(
     if spread >= 20:
         observations.append("Past responses varied noticeably, so uncertainty is meaningful.")
 
+    # Deep insights
+    similarity_reason = _build_similarity_reason(matches, food_name)
+    what_changed_note = _build_what_changed_note(
+        carbs_g, fat_g,
+        round(mean(m.carb_estimate_g for m in matches), 1),
+        round(mean(m.fat_g for m in matches), 1),
+    )
+    best_past_outcome = _build_best_outcome(matches, carbs_g)
+
     return HistoricalMealSummary(
         query_description=query_description,
         query_carbs_g=float(carbs_g or 0),
@@ -222,12 +241,62 @@ def summarize_similar_meals(
             round(min(peak_deltas)) if peak_deltas else None,
             round(max(peak_deltas)) if peak_deltas else None,
         ),
+        consistency_score=round(max(0.0, 1.0 - spread / 50.0), 2),
+        consistency_tier="high" if spread < 15 else "medium" if spread < 30 else "low",
+        similarity_reason=similarity_reason,
+        what_changed_note=what_changed_note,
+        best_past_outcome=best_past_outcome,
         confidence_tier=confidence_tier,
         confidence_score=round(confidence_score, 3),
         matched_meals=matches,
         case_based_observations=observations,
         narrative=" ".join(observations),
     )
+
+
+def _build_similarity_reason(matches: list, food_name: str | None) -> str:
+    if not matches or not food_name:
+        return ""
+    top_names = list(dict.fromkeys(m.food_name for m in matches[:5] if m.food_name))
+    if not top_names:
+        return ""
+    name_parts = []
+    for n in top_names[:3]:
+        words = n.lower().split()[:3]
+        name_parts.extend(w for w in words if len(w) > 2)
+    key_terms = list(dict.fromkeys(name_parts))[:4]
+    return f"Matched on {' + '.join(key_terms)}" if key_terms else ""
+
+
+def _build_what_changed_note(
+    carbs_g: float | None, fat_g: float | None,
+    avg_carbs: float, avg_fat: float,
+) -> str:
+    notes = []
+    if carbs_g is not None and avg_carbs:
+        diff = carbs_g - avg_carbs
+        if abs(diff) >= 5:
+            direction = "higher" if diff > 0 else "lower"
+            notes.append(f"carbs are {abs(diff):.0f}g {direction} than usual")
+    if fat_g is not None and avg_fat:
+        diff = fat_g - avg_fat
+        if abs(diff) >= 5:
+            direction = "higher" if diff > 0 else "lower"
+            notes.append(f"fat is {abs(diff):.0f}g {direction} than usual")
+    if notes:
+        return f"This time, {' and '.join(notes)}."
+    return ""
+
+
+def _build_best_outcome(matches: list, query_carbs: float | None) -> str:
+    best = None
+    for m in matches:
+        if m.peak_delta_mgdl is not None:
+            if best is None or m.peak_delta_mgdl < best.peak_delta_mgdl:
+                best = m
+    if best is None:
+        return ""
+    return f"Best past result: {round(best.peak_delta_mgdl)} mg/dL rise ({best.food_name})."
 
 
 def historical_context_for_meal(
@@ -255,6 +324,11 @@ def historical_context_for_meal(
         "similarity_score": summary.confidence_score,
         "case_based_observations": summary.case_based_observations,
         "narrative": summary.narrative,
+        "similarity_reason": summary.similarity_reason,
+        "what_changed_note": summary.what_changed_note,
+        "best_past_outcome": summary.best_past_outcome,
+        "consistency_score": summary.consistency_score,
+        "consistency_tier": summary.consistency_tier,
     }
 
 

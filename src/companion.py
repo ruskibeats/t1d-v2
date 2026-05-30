@@ -211,13 +211,22 @@ def meal_pipeline_section(
         avg_rise = historical_context.get("avg_peak_rise_mg_dl", "?")
         avg_time = historical_context.get("avg_peak_time_minutes", "?")
         rise_range = historical_context.get("peak_rise_range_mg_dl", None)
+        similarity_reason = historical_context.get("similarity_reason", "")
+        what_changed = historical_context.get("what_changed_note", "")
+        best_outcome = historical_context.get("best_past_outcome", "")
+        consistency_tier = historical_context.get("consistency_tier", "")
         lines = [
             f"  {hist_count} similar meals found.",
+            f"  {similarity_reason}" if similarity_reason else "",
             f"  • Avg rise: {avg_rise} mg/dL (range {rise_range[0]}–{rise_range[1]} mg/dL)" if avg_rise and rise_range and rise_range[0] else "",
             f"  • Avg peak: {avg_time} min" if avg_time else "",
+            f"  • Consistency: {consistency_tier}" if consistency_tier and consistency_tier != "unknown" else "",
+            f"  • {what_changed}" if what_changed else "",
+            f"  • {best_outcome}" if best_outcome else "",
         ]
-        for obs in (historical_context.get("case_based_observations") or [])[:2]:
-            lines.append(f"  • {obs}")
+        for obs in (historical_context.get("case_based_observations") or [])[:1]:
+            if obs not in lines:
+                lines.append(f"  • {obs}")
         cards.append(_separator("Step 4: Similar Meals") + "\n" + "\n".join(filter(None, lines)))
     else:
         cards.append(_separator("Step 4: Similar Meals") + "\n  No similar meals found.")

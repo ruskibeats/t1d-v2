@@ -36,11 +36,4 @@ class GlycemicPrediction(BaseModel):
     assumptions: list[Assumption] | None = None
 
 
-class SafetyReview(BaseModel):
-    """Safety validation contract."""
-    is_safe: bool
-    blocked_phrases: list[str] = Field(default_factory=list)
-    risk_level: Literal["none", "low", "moderate", "high"]
-    emergency_triggered: bool = False
-    disclaimer_required: bool = True
-    reason: str | None = None
+# SafetyReview is defined in app/schemas/safety.py (canonical location)

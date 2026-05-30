@@ -1,0 +1,38 @@
+{
+  "version": 2,
+  "description": "Safety policy for T1D Companion v2. Edited without code changes.",
+  "emergency_keywords": {
+    "diabetes_emergency": [
+      "severe low", "can't wake", "unconscious", "seizure", "convulsion",
+      "glucagon", "passed out", "blackout", "diabetic shock", "insulin shock",
+      "dk symptoms", "diabetic ketoacidosis", "ketones", "large ketones",
+      "moderate ketones", "fruity breath", "extremely high", "over 600", "bg 600"
+    ],
+    "mental_health_crisis": [
+      "kill myself", "suicide", "end it", "give up", "want to die",
+      "no reason to live", "hurt myself", "self harm", "self-harm",
+      "overdose on purpose"
+    ],
+    "general_medical": [
+      "emergency", "urgent", "help", "911", "emergency room", "er now",
+      "hospital now", "can't breathe", "chest pain", "confused",
+      "stroke", "heart attack", "allergic reaction", "anaphylaxis", "unresponsive"
+    ]
+  },
+  "dosing_patterns": [
+    "\\btake\\b\\s+\\d+(?:\\.\\d+)?\\s*(?:units?|u)\\b",
+    "\\bgive\\b\\s+\\d+(?:\\.\\d+)?\\s*(?:units?|u)\\b",
+    "\\binject\\b\\s+\\d+(?:\\.\\d+)?\\s*(?:units?|u)\\b",
+    "\\bdose\\b\\s+\\d+(?:\\.\\d+)?\\s*(?:units?|u)\\b",
+    "\\b\\d+(?:\\.\\d+)?\\s*(?:units?|u)\\s+of\\s+insulin\\b",
+    "\\b(?:take|give|inject)\\b\\s+(?:a\\s+)?\\d+(?:\\.\\d+)?\\s*(?:unit|u)\\b",
+    "\\b(?:pre[- ]?bolus|split bolus|extended bolus|square wave)\\b"
+  ],
+  "treatment_patterns": [
+    "\\bchange\\b.*\\btreatment\\b",
+    "\\bstop\\b.*\\binsulin\\b",
+    "\\bdiscontinue\\b.*\\bmedication\\b",
+    "\\bincrease\\b.*\\bbasal\\b",
+    "\\bdecrease\\b.*\\bbasal\\b"
+  ]
+}

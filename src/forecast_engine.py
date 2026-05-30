@@ -13,18 +13,11 @@ from functools import lru_cache
 from dataclasses import dataclass, field
 from typing import Any, Callable
 
-try:
-    from .physiology_model import (
-        PhysiologyForecastModel,
-        PhysiologyParameters,
-    )
-    from .calibration_constants import RISE_PER_CARB_MAP, BALANCE_MAP
-except ImportError:  # Script-mode compatibility
-    from physiology_model import (
-        PhysiologyForecastModel,
-        PhysiologyParameters,
-    )
-    from calibration_constants import RISE_PER_CARB_MAP, BALANCE_MAP
+from .physiology_model import (
+    PhysiologyForecastModel,
+    PhysiologyParameters,
+)
+from .calibration_constants import RISE_PER_CARB_MAP, BALANCE_MAP
 
 # ── Data types ──
 

@@ -52,6 +52,7 @@ _DEFAULT_CONFIG: dict[str, Any] = {
 }
 
 _CONFIG_PATHS = [
+    Path("data/safety_policy.json"),
     Path("data/safety_config.json"),
     Path("/root/t1d/data/safety_config.json"),
 ]

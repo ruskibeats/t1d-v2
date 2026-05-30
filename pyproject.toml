@@ -12,7 +12,7 @@ dependencies = [
 ]
 
 [project.scripts]
-t1d-companion = "src.runner:main"
+t1d-companion = "src.cli:main"
 
 [project.optional-dependencies]
 dev = [

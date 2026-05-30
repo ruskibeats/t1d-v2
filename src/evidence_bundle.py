@@ -11,12 +11,8 @@ from __future__ import annotations
 from dataclasses import asdict, is_dataclass
 from typing import Any
 
-try:
-    from .calibration_constants import ANCHOR_DESCRIPTIONS
-    from .forecast_engine import ForecastResult, MealTotals
-except ImportError:  # Script-mode compatibility
-    from calibration_constants import ANCHOR_DESCRIPTIONS
-    from forecast_engine import ForecastResult, MealTotals
+from .calibration_constants import ANCHOR_DESCRIPTIONS
+from .forecast_engine import ForecastResult, MealTotals
 
 
 def _to_plain_dict(value: Any) -> dict[str, Any]:

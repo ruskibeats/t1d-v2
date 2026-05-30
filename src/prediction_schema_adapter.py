@@ -7,10 +7,7 @@ from typing import Any
 
 from app.schemas.prediction import Assumption, FoodBreakdown, GlycemicPrediction
 
-try:
-    from .forecast_engine import ForecastResult, MealTotals
-except ImportError:  # Script-mode compatibility
-    from forecast_engine import ForecastResult, MealTotals
+from .forecast_engine import ForecastResult, MealTotals
 
 
 def forecast_to_prediction_schema(

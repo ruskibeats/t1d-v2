@@ -29,29 +29,16 @@ import httpx
 
 logger = logging.getLogger(__name__)
 
-import sys
-ROOT = Path(__file__).resolve().parents[1]
-if __package__ in {None, ""} and str(ROOT) not in sys.path:
-    sys.path.insert(0, str(ROOT))
-    sys.path.insert(0, str(ROOT / "src"))
-
 from app.ai.safety import SafetyScaffold
 from app.core.database import db_manager, get_settings
 from app.food.service import FoodService, ParsedFood, calculate_food_evidence, combine_food_evidence
 from app.services.historical_meal_matcher import historical_context_for_meal
 from app.simulator.patient_factory import generate_patient_config, generate_profile_json
 from app.simulator.schemas import AnchorType
-
-try:
-    from .evidence_bundle import make_evidence_bundle
-    from .forecast_engine import ForecastStage, MealTotals, populate_evidence_fields
-    from .forecast_renderer import render_forecast
-    from .prediction_schema_adapter import forecast_to_prediction_schema
-except ImportError:
-    from evidence_bundle import make_evidence_bundle
-    from forecast_engine import ForecastStage, MealTotals, populate_evidence_fields
-    from forecast_renderer import render_forecast
-    from prediction_schema_adapter import forecast_to_prediction_schema
+from src.evidence_bundle import make_evidence_bundle
+from src.forecast_engine import ForecastStage, MealTotals, populate_evidence_fields
+from src.forecast_renderer import render_forecast
+from src.prediction_schema_adapter import forecast_to_prediction_schema
 
 # ── Constants ──
 
@@ -428,61 +415,4 @@ async def run_companion_scenario(
     }
 
 
-def _setup_logging(verbose: bool = False) -> None:
-    level = logging.DEBUG if verbose else logging.WARNING
-    logging.basicConfig(
-        level=level,
-        format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
-        datefmt="%H:%M:%S",
-    )
-
-
-def main() -> None:
-    ap = argparse.ArgumentParser(description="T1D companion pipeline v2")
-    ap.add_argument("scenario", help="Natural-language meal scenario")
-    ap.add_argument("--anchor", default="well_controlled", choices=[a.value for a in AnchorType])
-    ap.add_argument("--json", action="store_true", help="Print full JSON result")
-    ap.add_argument("--no-llm", action="store_true", help="Skip LLM parser, use deterministic parser only")
-    ap.add_argument("--ollama-url", default=DEFAULT_OLLAMA_URL)
-    ap.add_argument("--ollama-model", default=DEFAULT_OLLAMA_MODEL)
-    ap.add_argument("-v", "--verbose", action="store_true", help="Enable debug logging")
-    args = ap.parse_args()
-
-    _setup_logging(args.verbose)
-
-    result = asyncio.run(run_companion_scenario(args.scenario, anchor=args.anchor, use_llm_parse=not args.no_llm, ollama_url=args.ollama_url, ollama_model=args.ollama_model))
-    if args.json:
-        print(json.dumps(result, indent=2))
-        return
-
-    if result.get("database_error"):
-        print(f"\n{result['response']}")
-        print(f"DB: {result['database_error']}")
-        return
-
-    print("=" * 72)
-    print("T1D COMPANION V2")
-    print("=" * 72)
-    print(f"Scenario: {result['scenario']}")
-    print(f"Profile: {result['profile']['anchor_label']} ({result['profile']['anchor_type']})\n")
-    print("Foods:")
-    for item in result["food_evidence"]:
-        p = item["parsed"]
-        c = item["computed"]
-        w = item.get("warnings") or []
-        print(f"  {p['quantity']} {p.get('unit') or ''} {p['item']}: confidence={item['confidence']}", end="")
-        if c:
-            print(f" | {c['carbs_g']}g carbs, {c['fat_g']}g fat")
-        else:
-            print()
-        for warning in w:
-            print(f"    warning: {warning}")
-    totals = result["meal_totals"]
-    print(f"\nTotals: {totals['carbs_g']}g carbs, {totals['fat_g']}g fat, {totals['sugars_g']}g sugars")
-    print(f"\n{result['response']}")
-    if not result["safety"]["is_safe"]:
-        print("\nSAFETY WARNING:", result["safety"])
-
-
-if __name__ == "__main__":
-    main()
+# Logging setup helper kept for use by callers; cli.py configures its own.

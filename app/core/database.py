@@ -66,6 +66,18 @@ class DBManager:
             await self._engine.dispose()
         self._initialized = False
 
+    async def verify_connection(self) -> bool:
+        """Check if the database connection is alive. Returns True if OK."""
+        if not self._initialized or self._engine is None:
+            return False
+        try:
+            from sqlalchemy import text
+            async with self._sessionmaker() as session:  # type: ignore
+                await session.execute(text("SELECT 1"))
+            return True
+        except Exception:
+            return False
+
 
 db_manager = DBManager()
 

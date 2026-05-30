@@ -7,20 +7,12 @@ Version 1.0 - Initial release.
 
 from __future__ import annotations
 
-try:
-    from .calibration_constants import (
-        RISE_PER_CARB_MAP,
-        BALANCE_MAP,
-        ANCHOR_DESCRIPTIONS,
-        get_calibration_for_anchor,
-    )
-except ImportError:  # Script-mode compatibility
-    from calibration_constants import (
-        RISE_PER_CARB_MAP,
-        BALANCE_MAP,
-        ANCHOR_DESCRIPTIONS,
-        get_calibration_for_anchor,
-    )
+from .calibration_constants import (
+    RISE_PER_CARB_MAP,
+    BALANCE_MAP,
+    ANCHOR_DESCRIPTIONS,
+    get_calibration_for_anchor,
+)
 
 # Build anchor_types dynamically from the single source of truth
 def _build_anchor_types() -> dict:

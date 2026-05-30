@@ -1,0 +1,20 @@
+from enum import Enum
+from dataclasses import dataclass
+
+class AnchorType(str, Enum):
+    WELL_CONTROLLED = "well_controlled"
+    HIGH_FAT_DELAYED = "high_fat_delayed"
+    POST_MEAL_SPIKE = "post_meal_spike"
+    EXERCISE_SENSITIVE = "exercise_sensitive"
+
+@dataclass
+class PatientConfig:
+    anchor_type: AnchorType
+    seed: int = 42
+    basal_glucose_mean: float = 110
+    basal_glucose_amplitude: float = 15
+    meal_rise_factor: float = 2.0
+    insulin_sensitivity: float = 40
+    carb_ratio: float = 15
+    fat_delay_hours: float = 3
+    exercise_drop_factor: float = 1.0

@@ -198,9 +198,10 @@ def main() -> None:
     # Welcome card if no text provided
     if not args.text:
         print(welcome_card())
-        if interactive:
-            input()
-        user_text = sys.stdin.readline().strip()
+        try:
+            user_text = input("\n> ").strip()
+        except EOFError:
+            user_text = ""
         if not user_text:
             return
     else:

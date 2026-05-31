@@ -142,6 +142,12 @@ The tests currently cover:
 - food-service archetypes
 - runner end-to-end smoke
 
+## See Also
+
+- [Mobile Parity UX State Spec](mobile-parity-ux-spec.md) — first-class mobile screen, state, navigation, and card-mapping target.
+- [State Serialization Spec](state_serialization_spec.md) — canonical cross-boundary state fields for prediction/session records.
+- [Calibration Protocol](calibration_protocol.md) — calibration validation and regression protocol.
+
 ## Git workflow
 
 Recommended branches:

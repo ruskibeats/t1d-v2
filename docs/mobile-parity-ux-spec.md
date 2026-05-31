@@ -1,7 +1,8 @@
 # Mobile Parity UX State Spec
 
 Issue: #18 — Mobile Parity UX State Spec  
-Status: design/spec only; no implementation in this document.
+Status: design/spec only; no implementation in this document.  
+See also: [Architecture](ARCHITECTURE.md) and [State Serialization Spec](state_serialization_spec.md).
 
 T1D Companion v2 is currently a text-first terminal prototype. The mobile UI should preserve the same product spine and safety boundary while translating terminal cards into touch-friendly screens, swipeable cards, structured inputs, and resumable state.
 

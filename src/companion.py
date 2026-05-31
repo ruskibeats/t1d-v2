@@ -545,8 +545,8 @@ def troubleshoot_card(direction: str) -> list[str]:
             "  🍝 High carb meal still absorbing (up to 3 hrs)",
             "  🧈 Fat delaying the rise (if meal had >15g fat)",
             "  🌅 Dawn phenomenon (morning hormone rise)",
-            "  💉 Insulin timing off (pre-bolus too short or missed)",
-            "  🔄 Infusion site issue (if on pump)",
+            "  ⏱ Meal timing or absorption pattern differs from expected",
+            "  🔄 Device/sensor/site context may be worth reviewing with your care team",
             "",
             "Suggestions:",
             "  • Check CGM trend arrow",
@@ -558,11 +558,11 @@ def troubleshoot_card(direction: str) -> list[str]:
             "\n━━━ Why Am I Going Low? ━━━",
             "",
             "Possible causes (most likely first):",
-            "  🏃 Exercise increased insulin sensitivity",
+            "  🏃 Activity can change glucose response for hours",
             "  🍺 Alcohol (can drop hours later)",
-            "  ☀️ Heat increasing insulin absorption",
-            "  💉 Too much insulin for meal/correction",
-            "  ⏰ Delayed meal after bolus",
+            "  ☀️ Heat can change glucose response",
+            "  🍽 Meal size/timing differed from usual pattern",
+            "  ⏰ Food timing did not match expected absorption window",
             "",
             "Suggestions:",
             "  • Check CGM trend and confirm with fingerstick",
@@ -617,7 +617,7 @@ def situation_card(category: str) -> list[str]:
             "\n━━━ Heat & Glucose ━━━",
             "",
             "Heat can affect glucose in two ways:",
-            "  🔻 Increases insulin sensitivity → risk of lows",
+            "  🔻 Can change glucose response → risk of lows",
             "  🔺 Dehydration can concentrate blood → false highs",
             "",
             "Things to watch:",
@@ -636,7 +636,7 @@ def situation_card(category: str) -> list[str]:
             "",
             "Exercise affects glucose during and after activity:",
             "  🏃 During: glucose may drop (muscles consume sugar)",
-            "  ⏰ After: increased insulin sensitivity for hours",
+            "  ⏰ After: glucose response can remain changed for hours",
             "",
             "Factors to consider:",
             "  • Intensity and duration matter",
@@ -655,7 +655,7 @@ def situation_card(category: str) -> list[str]:
             "Alcohol has complex effects on glucose:",
             "  🍺 Initial: can cause a short rise (carbs in drinks)",
             "  ⏰ Delayed: hours later, alcohol blocks liver glucose release",
-            "  🌙 Overnight: significant hypo risk, especially with insulin",
+            "  🌙 Overnight: delayed low risk can be significant",
             "",
             "Important:",
             "  • Hypo symptoms (confusion, drowsiness) mimic intoxication",
@@ -664,7 +664,7 @@ def situation_card(category: str) -> list[str]:
             "",
             "Suggestions:",
             "  • Set an overnight alarm to check glucose",
-            "  • Do not bolus for alcohol alone",
+            "  • Discuss alcohol-specific plans with your care team",
             "  • Educational — not medical advice",
         ],
         "illness": [
@@ -715,7 +715,7 @@ def lunch_presser_card() -> list[str]:
         "  • Morning summary: 1 spike (187 at 10 AM)\n"
         "  • Activity: none logged today\n\n"
         "Lunch tip:\n"
-        "  Insulin sensitivity is typically higher at lunch.\n"
+        "  Midday glucose response can differ from morning or evening.\n"
         "  If you walk after eating, glucose may drop more.\n\n"
         "Educational — not medical advice."
     ]

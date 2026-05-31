@@ -355,7 +355,17 @@ These gaps must be addressed before a production mobile build:
 - No dosing/treatment recommendation UX.
 - No backend schema migration in this spec.
 
-## 10. Acceptance Checklist
+## 10. Spec Traceability
+
+| Issue | Feature | Key Source Files | Tests | Status |
+|---|---|---|---|---|
+| #15 | Food evidence confidence hardening | `app/food/service.py`, `src/pipeline/companion_pipeline.py`, `src/runner.py` | `tests/test_food_evidence_confidence.py` | ✅ Complete |
+| #16 | Forecast calibration harness coverage | `src/forecast/calibration_harness.py`, `src/forecast/__init__.py` | `tests/test_calibration_harness.py` | ✅ Complete |
+| #18 | Mobile parity UX state spec | `docs/mobile-parity-ux-spec.md`, `docs/ARCHITECTURE.md` | Doc review | ✅ Complete |
+| #20 | Next-level showcase runner | `src/cli.py`, `src/companion.py` | `tests/test_showcase_runner.py` | ✅ Complete |
+| #30 | Clinician / care-team export pack | `app/services/care_team_export.py`, `src/cli.py` | `tests/test_care_team_export.py` | ✅ Complete |
+
+## 11. Acceptance Checklist
 
 - [x] Screen structure defined.
 - [x] State model defined for session persistence.

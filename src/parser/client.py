@@ -15,7 +15,7 @@ import httpx
 logger = logging.getLogger(__name__)
 
 DEFAULT_OLLAMA_URL = "http://192.168.0.137:11434"
-DEFAULT_OLLAMA_MODEL = "llama3.1:latest"
+DEFAULT_OLLAMA_MODEL = "medgemma:27b"
 DEFAULT_PROMPTS_DIR = Path(__file__).resolve().parents[2] / "prompts"
 
 

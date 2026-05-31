@@ -173,10 +173,19 @@ async def question_to_cards(
         return evening_roundup_card()
     if question_type in ("patterns", "insights"):
         return insights_card()
+    if question_type == "pattern_genome":
+        from app.services.pattern_genome import genome_from_legends, render_pattern_genome_card
+        genome = genome_from_legends(anchor, profile_name=anchor.replace("_", " ").title())
+        return ["\n".join(render_pattern_genome_card(genome))]
+    if question_type == "experiment":
+        from app.services.experiment_tracker import analyze_experiment, create_experiment, experiment_card
+        experiment = create_experiment("walk_after_lunch")
+        summary = analyze_experiment(experiment)
+        return experiment_card(summary)
     if question_type == "debrief":
         return debrief_card()
     if question_type == "clarification":
-        return [clarification_card(text, text)]
+        return [clarification_card("What portion or size should I use for this pizza?", text)]
     return [f"\n━━━ Unknown ━━\n\nCan't handle that yet."]
 
 
@@ -219,7 +228,8 @@ async def _run_meal_scenario(
             idx = cs.find(m)
             if idx >= 0:
                 cs = cs[:idx].strip()
-        chart = cs if cs else ""
+        chart_lines = [line for line in cs.splitlines() if line.strip() not in {"(", "(Educational"}]
+        chart = "\n".join(chart_lines).strip() if chart_lines else ""
 
     parse_metadata = result.get("parse_metadata", {})
     parser_label = parse_metadata.get("parser", "unknown").replace("_", " ")
@@ -330,6 +340,8 @@ _ALL_CARD_DEMO_QUESTIONS: list[tuple[str, str]] = [
     ("lunch", "lunch"),
     ("evening", "evening"),
     ("patterns", "show me my patterns"),
+    ("pattern_genome", "pattern genome"),
+    ("experiment", "experiment context"),
     ("clarification", "pizza"),
     ("debrief", "debrief"),
 ]
@@ -495,8 +507,6 @@ async def run_showcase(
             ollama_model=ollama_model,
         )
         coverage.add(_coverage_bucket(question_type, question))
-        if question_type == "meal":
-            coverage.update(_PIPELINE_COVERAGE_KEYS)
         _update_coverage_from_cards(coverage, cards)
         _show_cards(cards, interactive=interactive)
         if idx < len(selected_questions):
@@ -637,12 +647,12 @@ def main() -> None:
     ap.add_argument(
         "--ollama-url",
         default=os.environ.get("OLLAMA_URL", DEFAULT_OLLAMA_URL),
-        help=f"Ollama base URL (default: env OLLAMA_URL or {DEFAULT_OLLAMA_URL})",
+        help="Ollama base URL (default: env OLLAMA_URL or from parser/client.py)",
     )
     ap.add_argument(
         "--ollama-model",
         default=os.environ.get("OLLAMA_MODEL", DEFAULT_OLLAMA_MODEL),
-        help=f"Ollama model (default: env OLLAMA_MODEL or {DEFAULT_OLLAMA_MODEL})",
+        help="Ollama model (default: env OLLAMA_MODEL or from parser/client.py)",
     )
     args = ap.parse_args()
 

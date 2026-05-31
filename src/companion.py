@@ -262,13 +262,26 @@ def meal_pipeline_section(
         if evidence_count and evidence_count.get("total_matches", 0) > 0:
             lines.append(f"  Evidence: {evidence_count['with_cgm_outcome']} meals with CGM outcome, {evidence_count['food_only']} food-only records")
 
-        # Data source label
+        # Data source label with provenance and graph confidence
+        provenance = historical_context.get("provenance", "")
+        graph_confidence = historical_context.get("graph_confidence", "")
+        provenance_tags = []
         if data_source == "synthetic_legends_demo":
-            lines.append("  Source: synthetic legends demo data")
+            provenance_tags.append("synthetic legends demo data")
+        elif data_source:
+            provenance_tags.append(data_source)
+        if graph_confidence == "synthetic_demo":
+            provenance_tags.append("demo confidence")
+        elif graph_confidence == "partial_history":
+            provenance_tags.append("partial history")
+        elif graph_confidence == "rich_history":
+            provenance_tags.append("rich history")
+        if provenance_tags:
+            lines.append("  Provenance: " + " · ".join(provenance_tags))
 
         cards.append(_separator("Step 4: Meal Memory") + "\n" + "\n".join(lines))
     else:
-        cards.append(_separator("Step 4: Meal Memory") + "\n  No similar meals found (data source: no_history).")
+        cards.append(_separator("Step 4: Meal Memory") + "\n  No similar meals found (provenance: simulator_output, graph_confidence: no_history).")
 
     # Card 5: Counterfactual what-if scenarios
     cf_cards = counterfactual_scenarios_card(counterfactual_text)

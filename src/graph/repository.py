@@ -63,7 +63,11 @@ class HealthMetricStore:
         time_delay_seconds: int | None = None,
         algorithm: str = "graph_engine.v2",
         evidence: dict[str, Any] | None = None,
+        provenance: str | None = None,
+        confidence_tier: str | None = None,
     ) -> int:
+        prov = provenance or "simulator_output"
+        conf_components = {} if confidence_tier is None else {"tier": confidence_tier, "base_score": confidence}
         result = await self.session.execute(
             sql("""
                 INSERT INTO health_metric_edges
@@ -73,13 +77,15 @@ class HealthMetricStore:
                 VALUES
                     (:uid, :src, :tgt, CAST(:et AS graph_edge_type),
                      :conf, :delay, :algo, CAST(:ev AS jsonb),
-                     CAST('{}' AS jsonb), CAST('{}' AS jsonb))
+                     CAST(:prov AS jsonb), CAST(:cc AS jsonb))
                 ON CONFLICT DO NOTHING
                 RETURNING id
             """),
             {"uid": user_id, "src": source_metric_id, "tgt": target_metric_id,
              "et": edge_type, "conf": confidence, "delay": time_delay_seconds,
-             "algo": algorithm, "ev": json.dumps(evidence or {})},
+             "algo": algorithm, "ev": json.dumps(evidence or {}),
+             "prov": json.dumps({"source": prov}),
+             "cc": json.dumps(conf_components)},
         )
         row = result.fetchone()
         return row[0] if row else -1

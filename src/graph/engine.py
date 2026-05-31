@@ -48,6 +48,7 @@ class GraphEngine:
             confidence=0.7, time_delay_seconds=int(peak_time_minutes * 60),
             algorithm="graph_engine.link_meal_to_glucose.v1",
             evidence={"carbs_g": round(carbs_g, 1), "fat_g": round(fat_g, 1), "peak_time_minutes": peak_time_minutes},
+            provenance="simulator_output", confidence_tier="direct_derived",
         )
         return edge_id
 
@@ -70,6 +71,7 @@ class GraphEngine:
         return await self.store.create_edge(
             user_id, sleep_node, morning_node, "sleep_to_next_day_glucose",
             confidence=0.6, algorithm="graph_engine.link_sleep_to_morning.v1",
+            provenance="simulator_output", confidence_tier="inferred",
         )
 
     async def link_high_fat_to_delayed_peak(
@@ -93,6 +95,7 @@ class GraphEngine:
             confidence=0.6, time_delay_seconds=peak_time_minutes * 60,
             algorithm="graph_engine.link_high_fat_delayed.v1",
             evidence={"fat_g": round(fat_g, 1), "peak_time_minutes": peak_time_minutes},
+            provenance="simulator_output", confidence_tier="inferred",
         )
 
     async def link_meal_to_next_sleep(
@@ -116,6 +119,7 @@ class GraphEngine:
             confidence=0.5, time_delay_seconds=delay,
             algorithm="graph_engine.meal_precedes_sleep.v1",
             evidence={"meal_slot": meal_slot, "delay_hours": round(delay / 3600, 1)},
+            provenance="simulator_output", confidence_tier="simulated",
         )
 
     async def find_similar_meals_with_better_outcomes(
@@ -126,10 +130,11 @@ class GraphEngine:
         tolerance_g: float = 15.0,
         top_n: int = 5,
     ) -> list[dict[str, Any]]:
-        return await self.store.execute_raw(
+        results = await self.store.execute_raw(
             """
                 SELECT m.id, m.value AS carbs_g, m.measured_at AS meal_time,
                        g.value AS peak_glucose, e.confidence,
+                       e.provenance_json, e.confidence_components_json,
                        'synthetic_outcome_only' AS outcome_source
                 FROM health_metrics m
                 JOIN health_metric_edges e ON e.source_metric_id = m.id
@@ -144,6 +149,27 @@ class GraphEngine:
             {"uid": user_id, "lo": reference_carbs_g - tolerance_g,
              "hi": reference_carbs_g + tolerance_g, "top_n": top_n},
         )
+        for r in results:
+            r["hop_confidence"] = self._resolve_hop_confidence(r)
+            r["provenance"] = self._resolve_provenance(r)
+        return results
+
+    def _resolve_provenance(self, row: dict[str, Any]) -> str:
+        prov = row.get("provenance_json") or {}
+        if isinstance(prov, dict):
+            return prov.get("source", "simulator_output")
+        return "simulator_output"
+
+    def _resolve_hop_confidence(self, row: dict[str, Any]) -> str:
+        conf = row.get("confidence", 0.0) or 0.0
+        conf_comp = row.get("confidence_components_json") or {}
+        if isinstance(conf_comp, dict) and conf_comp.get("tier") in ("direct_derived", "inferred", "simulated"):
+            return conf_comp["tier"]
+        if conf >= 0.8:
+            return "direct_derived"
+        elif conf >= 0.5:
+            return "inferred"
+        return "simulated"
 
     async def compare_meal_outcomes_by_sleep_quality(
         self,

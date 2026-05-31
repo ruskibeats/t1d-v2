@@ -385,8 +385,21 @@ def historical_context_for_meal(
         "evidence_count": evidence_count,
         "data_source": source_label,
         "top_meals": top_meals,
+        "provenance": source_label.replace("synthetic_legends_demo", "synthetic_legend").replace("no_history", "simulator_output"),
+        "graph_confidence": _derive_graph_confidence(source_label, summary.matches_found, summary.confidence_score),
     }
 
 
 def summary_to_dict(summary: HistoricalMealSummary) -> dict[str, Any]:
     return asdict(summary)
+
+
+def _derive_graph_confidence(source_label: str, matches_count: int, confidence_score: float) -> str:
+    """Derive graph confidence label from data source and match quality."""
+    if source_label == "synthetic_legends_demo":
+        return "synthetic_demo"
+    if matches_count >= 10 and confidence_score >= 0.7:
+        return "rich_history"
+    if matches_count >= 3 and confidence_score >= 0.4:
+        return "partial_history"
+    return "synthetic_demo"

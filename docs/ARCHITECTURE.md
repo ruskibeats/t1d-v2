@@ -28,6 +28,8 @@ python3 -m src.runner "pizza and large fries" --anchor high_fat_delayed
 
 The runner is deliberately text-first. The terminal output is treated as the first version of the eventual mobile UI: if the information is not clear in text, it is probably not ready for mobile.
 
+Mobile parity design target: see [`docs/mobile-parity-ux-spec.md`](mobile-parity-ux-spec.md) for the first-class mobile screen, state, navigation, and card-mapping spec.
+
 ## Layers
 
 ### 1. Text parsing

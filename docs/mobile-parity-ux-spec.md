@@ -7,6 +7,20 @@ T1D Companion v2 is currently a text-first terminal prototype. The mobile UI sho
 
 > Educational simulator only. The mobile app must not provide insulin dosing, treatment changes, or emergency triage beyond existing safety messaging and care-team escalation language.
 
+## Product Quality Bar
+
+This spec should be read as a premium product target, not a minimum port of terminal text. The mobile app should feel like a first-class, high-trust companion: fast, calm, polished, accessible, privacy-aware, and transparent about uncertainty.
+
+Quality principles:
+
+- **Confidence-first UX:** uncertainty, missing information, data source, and safety status are always visible without making the user feel blamed.
+- **One-glance comprehension:** every forecast/result screen should answer: what was logged, what is expected, how uncertain it is, and what evidence supports it.
+- **Progressive depth:** default views are simple; detailed evidence, examples, historical matches, and export data are available one tap deeper.
+- **Premium interaction design:** use thoughtful microcopy, accessible motion, strong empty states, haptics where helpful, and touch targets suitable for everyday use.
+- **Trust and privacy:** reports, exports, notifications, and any future photo input must clearly state what data is used, what is synthetic/demo, and what is shared.
+- **Safety by design:** no dosing/treatment UX; all watch windows and what-if flows remain educational observations and care-team discussion prompts.
+- **Demo-to-real clarity:** product demos may use synthetic legend data, but mobile UI must label this prominently and never imply real personal history.
+
 ## 1. Product Spine To Preserve
 
 Current architecture:

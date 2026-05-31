@@ -19,6 +19,7 @@ from typing import Any
 
 from app.simulator.schemas import AnchorType
 from app.simulator.patient_factory import generate_patient_config, generate_profile_json
+from app.services.care_team_export import write_care_team_export_markdown
 from src.companion import (
     Intent,
     detect_intent,
@@ -31,6 +32,8 @@ from src.companion import (
     lunch_presser_card,
     evening_roundup_card,
     insights_card,
+    clarification_card,
+    debrief_card,
     _separator,
 )
 from src.runner import (
@@ -170,7 +173,11 @@ async def question_to_cards(
         return evening_roundup_card()
     if question_type in ("patterns", "insights"):
         return insights_card()
-    return [f"\n━━━ Unknown ━━━\n\nCan't handle that yet."]
+    if question_type == "debrief":
+        return debrief_card()
+    if question_type == "clarification":
+        return [clarification_card(text, text)]
+    return [f"\n━━━ Unknown ━━\n\nCan't handle that yet."]
 
 
 def _situation_category(text: str) -> str:
@@ -216,6 +223,9 @@ async def _run_meal_scenario(
 
     parse_metadata = result.get("parse_metadata", {})
     parser_label = parse_metadata.get("parser", "unknown").replace("_", " ")
+    cf_data = result.get("counterfactuals", {})
+    counterfactual_text = cf_data.get("counterfactual_text", "")
+    safety_data = result.get("safety")
     return meal_pipeline_section(
         profile_label=f"{result['profile'].get('anchor_label', anchor)} | Parser: {parser_label}",
         parsed_foods=result["parsed_foods"],
@@ -225,6 +235,8 @@ async def _run_meal_scenario(
         historical_context=result["historical_context"],
         risk_flags=result["risk_flags"],
         chart=chart,
+        counterfactual_text=counterfactual_text,
+        safety=safety_data,
     )
 
 
@@ -320,6 +332,59 @@ _ALL_CARD_DEMO_QUESTIONS: list[tuple[str, str]] = [
     ("patterns", "show me my patterns"),
 ]
 
+_SHOWCASE_CHECKLIST: list[tuple[str, str]] = [
+    ("meal", "Meal pipeline"),
+    ("what_if", "What-if flow"),
+    ("troubleshoot_high", "High-glucose troubleshooting"),
+    ("troubleshoot_low", "Low-glucose troubleshooting"),
+    ("situation", "Situation routing"),
+    ("morning", "Morning card"),
+    ("lunch", "Lunch card"),
+    ("evening", "Evening card"),
+    ("patterns", "Pattern insights"),
+]
+
+
+def _coverage_bucket(question_type: str, question: str) -> str:
+    if question_type == "situation":
+        return f"situation:{_situation_category(question)}"
+    return question_type
+
+
+def _render_showcase_checklist(coverage: set[str], *, demo_name: str | None = None) -> str:
+    title = demo_name or "Showcase"
+    lines = [f"\n━━━ {title} Coverage Checklist ━━━"]
+    situation_categories = sorted({item.split(":", 1)[1] for item in coverage if item.startswith("situation:")})
+    for key, label in _SHOWCASE_CHECKLIST:
+        if key == "situation":
+            mark = "✓" if situation_categories else "✗"
+            suffix = f" ({', '.join(situation_categories)})" if situation_categories else ""
+            lines.append(f"  {mark} {label}{suffix}")
+        else:
+            lines.append(f"  {'✓' if key in coverage else '✗'} {label}")
+
+    capabilities: list[str] = []
+    if "meal" in coverage:
+        capabilities.append("meal parsing")
+    if "what_if" in coverage:
+        capabilities.append("what-if flows")
+    if "troubleshoot_high" in coverage or "troubleshoot_low" in coverage:
+        capabilities.append("troubleshooting cards")
+    if situation_categories:
+        capabilities.append(f"situation routing ({', '.join(situation_categories)})")
+    if "morning" in coverage:
+        capabilities.append("morning card")
+    if "lunch" in coverage:
+        capabilities.append("lunch card")
+    if "evening" in coverage:
+        capabilities.append("evening card")
+    if "patterns" in coverage:
+        capabilities.append("pattern insights")
+
+    lines.append("")
+    lines.append("Capabilities shown: " + ", ".join(capabilities) + ".")
+    return "\n".join(lines)
+
 
 async def run_showcase(
     *,
@@ -330,10 +395,12 @@ async def run_showcase(
     use_llm_parse: bool = True,
     ollama_url: str = DEFAULT_OLLAMA_URL,
     ollama_model: str = DEFAULT_OLLAMA_MODEL,
+    demo_name: str | None = None,
 ) -> None:
     """Walk through a legend demo and route one, configured, or all card-family questions."""
     legends = _load_legends()
     rng = random.Random()
+    coverage: set[str] = set()
 
     legend = _find_legend(legends, legend_selector)
     insights = legend["insights"]
@@ -374,11 +441,14 @@ async def run_showcase(
             ollama_url=ollama_url,
             ollama_model=ollama_model,
         )
+        coverage.add(_coverage_bucket(question_type, question))
         _show_cards(cards, interactive=interactive)
         if idx < len(selected_questions):
             _press_enter("Press Enter for next question...", interactive=interactive)
 
     print(f"\n━━━ End of {legend['name']}'s Showcase ━━━")
+    if all_card_types or demo_name:
+        print(_render_showcase_checklist(coverage, demo_name=demo_name))
     if interactive:
         print("Press Ctrl+C or Enter to exit.")
         try:
@@ -387,16 +457,39 @@ async def run_showcase(
             pass
 
 
+def _apply_demo_preset(args: argparse.Namespace) -> None:
+    """Apply a deterministic showcase preset over the existing CLI flags."""
+    if args.demo == "product":
+        args.text = ""
+        args.legend = "well_controlled"
+        args.all_questions = False
+        args.all_cards = True
+        args.no_interactive = True
+        args.no_llm = False
+
+
+def _run_async_command(coro: Any) -> None:
+    try:
+        asyncio.run(coro)
+    except (KeyboardInterrupt, asyncio.CancelledError):
+        print("\nExiting showcase.")
+    except RuntimeError as exc:
+        print(f"\nLLM error: {exc}", file=sys.stderr)
+        raise SystemExit(1) from exc
+
+
 def main() -> None:
     ap = argparse.ArgumentParser(description="T1D Companion v2")
     ap.add_argument("text", nargs="?", default="", help="Your question or meal description")
     ap.add_argument("--anchor", default="well_controlled", choices=[a.value for a in AnchorType])
+    ap.add_argument("--demo", choices=["product"], help="Preset showcase demo (overrides showcase flags; ignores text)")
     ap.add_argument("--no-llm", action="store_true", help="Developer/debug only: skip LLM parser and use deterministic parsing")
     ap.add_argument("--no-interactive", action="store_true", help="Show all cards at once")
     ap.add_argument("--legend", help="Showcase a specific legend by name, anchor type, or 1-based index")
     ap.add_argument("--all-questions", action="store_true", help="Run every configured question for the selected legend")
     ap.add_argument("--all-cards", action="store_true", help="Run one demo question for every terminal card family")
     ap.add_argument("--compare-legends", metavar="MEAL", help="Compare meal forecast across all 12 legend profiles")
+    ap.add_argument("--export-care-team", metavar="PATH", help="Write a Markdown clinician/care-team export pack")
     ap.add_argument(
         "--ollama-url",
         default=os.environ.get("OLLAMA_URL", DEFAULT_OLLAMA_URL),
@@ -409,23 +502,33 @@ def main() -> None:
     )
     args = ap.parse_args()
 
+    if args.demo:
+        _apply_demo_preset(args)
+
+    if args.export_care_team:
+        legend = _find_legend(_load_legends(), args.legend or "well_controlled")
+        out = write_care_team_export_markdown(legend, args.export_care_team)
+        print(f"Wrote care-team export: {out}")
+        return
+
+    if args.compare_legends:
+        _run_async_command(_run_legend_theater(args.compare_legends, use_llm=False))
+        return
+
+    if not args.text:
+        _run_async_command(run_showcase(
+            legend_selector=args.legend,
+            all_questions=args.all_questions,
+            all_card_types=args.all_cards,
+            interactive=not args.no_interactive,
+            use_llm_parse=not args.no_llm,
+            ollama_url=args.ollama_url,
+            ollama_model=args.ollama_model,
+            demo_name="Product demo" if args.demo == "product" else None,
+        ))
+        return
+
     try:
-        if args.compare_legends:
-            asyncio.run(_run_legend_theater(args.compare_legends, use_llm=False))
-            return
-
-        if not args.text:
-            asyncio.run(run_showcase(
-                legend_selector=args.legend,
-                all_questions=args.all_questions,
-                all_card_types=args.all_cards,
-                interactive=not args.no_interactive,
-                use_llm_parse=not args.no_llm,
-                ollama_url=args.ollama_url,
-                ollama_model=args.ollama_model,
-            ))
-            return
-
         cards = asyncio.run(question_to_cards(
             args.text,
             anchor=args.anchor,
@@ -434,7 +537,7 @@ def main() -> None:
             ollama_model=args.ollama_model,
         ))
         _show_cards(cards, interactive=not args.no_interactive)
-    except KeyboardInterrupt:
+    except (KeyboardInterrupt, asyncio.CancelledError):
         print("\nExiting showcase.")
     except RuntimeError as exc:
         print(f"\nLLM error: {exc}", file=sys.stderr)
@@ -522,6 +625,10 @@ async def _run_legend_theater(meal_text: str, *, use_llm: bool = False) -> None:
         band = forecast.uncertainty_band
         pr = list(band.peak_range_mg_dl) if band else [forecast.peak_mg_dl, forecast.peak_mg_dl]
 
+        # Delayed-rise risk score: combines fat delay hours + peak time
+        fat_delay_hours = pc.get("fat_delay_hours", 3.0)
+        delay_risk_score = fat_delay_hours * (forecast.peak_time_minutes / 60.0)
+
         results.append({
             "name": legend["name"],
             "anchor": anchor,
@@ -533,20 +640,23 @@ async def _run_legend_theater(meal_text: str, *, use_llm: bool = False) -> None:
             "peak_high": pr[1],
             "flags": flags,
             "cgm": legend.get("current_cgm", {}).get("mg_dl", "?"),
+            "fat_delay_hours": fat_delay_hours,
+            "delay_risk_score": round(delay_risk_score, 1),
         })
 
-    # Sort by peak descending
-    results.sort(key=lambda r: r["peak"], reverse=True)
+    # Sort by peak descending; secondary sort by delay risk for tied peaks
+    results.sort(key=lambda r: (r["peak"], r["delay_risk_score"]), reverse=True)
 
     # ── Render table ──
     print(f"\n━━━ Legend Theater: \"{meal_text}\" ━━━")
     print(f"  Meal totals: {totals.carbs_g:.0f}g carbs, {totals.fat_g:.0f}g fat, {totals.sugars_g:.0f}g sugars")
-    print(f"  {'Profile':<24s} {'Baseline':>8s} {'Peak':>6s} {'Range':>14s} {'Time':>6s} {'Flags':<20s}")
-    print(f"  {'─'*24} {'─'*8} {'─'*6} {'─'*14} {'─'*6} {'─'*20}")
+    print(f"  {'Profile':<24s} {'Baseline':>8s} {'Peak':>6s} {'Range':>14s} {'Time':>6s} {'Delay':>6s} {'Flags':<20s}")
+    print(f"  {'─'*24} {'─'*8} {'─'*6} {'─'*14} {'─'*6} {'─'*6} {'─'*20}")
     for r in results:
         range_str = f"{r['peak_low']}–{r['peak_high']}"
         flags_str = ", ".join(r["flags"]) if r["flags"] else "—"
-        print(f"  {r['label']:<24s} {r['baseline']:>8} {r['peak']:>6} {range_str:>14} {r['peak_time']:>6} {flags_str:<20s}")
+        delay_str = f"{r['delay_risk_score']:.1f}" if r.get('delay_risk_score') is not None else "—"
+        print(f"  {r['label']:<24s} {r['baseline']:>8} {r['peak']:>6} {range_str:>14} {r['peak_time']:>6} {delay_str:>6} {flags_str:<20s}")
 
     print(f"\n  Meal parsed: {', '.join(f.item for f in foods)}")
     print(f"  Legend CGM baseline shown for context.")
@@ -566,7 +676,15 @@ async def _run_legend_theater(meal_text: str, *, use_llm: bool = False) -> None:
     else:
         print(f"  Relatively consistent response across profiles.")
 
-        raise SystemExit(1) from exc
+    # Delay-risk insight: find profile with highest delay risk
+    most_delayed = max(results, key=lambda r: r.get("delay_risk_score", 0))
+    if most_delayed.get("delay_risk_score", 0) > 10:
+        print(f"  Highest delay risk: {most_delayed['label']} (delay score {most_delayed['delay_risk_score']:.1f}) — "
+              f"watch 3+ hours after eating.")
+    elif most_delayed.get("flags") and "fat_delay" in most_delayed.get("flags", []):
+        print(f"  Delayed rise likely for some profiles — extended monitoring advised.")
+
+    print()
 
 
 if __name__ == "__main__":

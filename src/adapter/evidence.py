@@ -101,6 +101,7 @@ def make_evidence_bundle(
     confidence_why: str = "Nutrition estimate and forecast are simulation-derived.",
     historical_context: dict[str, Any] | None = None,
     clarification_answer: str | None = None,
+    counterfactual_context: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     """Transform model outputs into the LLM evidence bundle contract.
 
@@ -132,5 +133,6 @@ def make_evidence_bundle(
             "missing_information_flags": forecast.missing_information_flags,
             "evidence_items": forecast.evidence_items,
         },
+        "counterfactuals": counterfactual_context or {},
     }
     return bundle

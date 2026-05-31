@@ -301,6 +301,44 @@ def _build_best_outcome(matches: list, query_carbs: float | None) -> str:
     return f"Best past result: {round(best.peak_delta_mgdl)} mg/dL rise ({best.food_name})."
 
 
+def _build_worst_outcome(matches: list, query_carbs: float | None) -> str:
+    """Build worst past outcome string from matched meals."""
+    worst = None
+    for m in matches:
+        if m.peak_delta_mgdl is not None:
+            if worst is None or m.peak_delta_mgdl > worst.peak_delta_mgdl:
+                worst = m
+    if worst is None:
+        return ""
+    return f"Worst past result: {round(worst.peak_delta_mgdl)} mg/dL rise ({worst.food_name})."
+
+
+def _compute_evidence_count(matches: list[HistoricalMealMatch]) -> dict[str, int]:
+    """Compute how many matches have CGM outcome data vs just food records."""
+    with_outcome = sum(1 for m in matches if m.peak_delta_mgdl is not None)
+    return {
+        "total_matches": len(matches),
+        "with_cgm_outcome": with_outcome,
+        "food_only": len(matches) - with_outcome,
+    }
+
+
+def _top_meals_card(matches: list[HistoricalMealMatch], limit: int = 3) -> list[dict[str, Any]]:
+    """Build the top N matches as card-friendly dicts."""
+    cards = []
+    for m in matches[:limit]:
+        cards.append({
+            "food": m.food_name,
+            "carbs_g": round(m.carb_estimate_g, 1),
+            "fat_g": round(m.fat_g, 1),
+            "peak_rise_mg_dl": round(m.peak_delta_mgdl) if m.peak_delta_mgdl is not None else None,
+            "peak_time_min": round(m.peak_time_minutes) if m.peak_time_minutes is not None else None,
+            "similarity": round(m.similarity_score, 2),
+            "has_outcome": m.peak_delta_mgdl is not None,
+        })
+    return cards
+
+
 def historical_context_for_meal(
     query_description: str,
     *,
@@ -309,7 +347,11 @@ def historical_context_for_meal(
     food_name: str | None = None,
     anchor_type: str | None = None,
 ) -> dict[str, Any]:
-    """Return the historical_context shape expected by companion_system.txt."""
+    """Return the historical_context shape expected by companion_system.txt.
+
+    Extended for Issue #22: includes top 3 meals, evidence count,
+    worst outcome, and synthetic/demo label.
+    """
     summary = summarize_similar_meals(
         query_description,
         carbs_g=carbs_g,
@@ -317,6 +359,14 @@ def historical_context_for_meal(
         food_name=food_name,
         anchor_type=anchor_type,
     )
+    worst_outcome = _build_worst_outcome(summary.matched_meals, carbs_g)
+    evidence_count = _compute_evidence_count(summary.matched_meals)
+    top_meals = _top_meals_card(summary.matched_meals, limit=3)
+    
+    # Label source: legends.json is synthetic/demo data
+    # Real user data would set this to "real_history"
+    source_label = "synthetic_legends_demo" if summary.matches_found > 0 else "no_history"
+
     return {
         "similar_meals_count": summary.matches_found,
         "avg_peak_rise_mg_dl": round(summary.avg_peak_delta_mgdl) if summary.avg_peak_delta_mgdl is not None else None,
@@ -329,8 +379,12 @@ def historical_context_for_meal(
         "similarity_reason": summary.similarity_reason,
         "what_changed_note": summary.what_changed_note,
         "best_past_outcome": summary.best_past_outcome,
+        "worst_past_outcome": worst_outcome,
         "consistency_score": summary.consistency_score,
         "consistency_tier": summary.consistency_tier,
+        "evidence_count": evidence_count,
+        "data_source": source_label,
+        "top_meals": top_meals,
     }
 
 

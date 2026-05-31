@@ -45,6 +45,7 @@ logger = logging.getLogger(__name__)
 
 from src.parser.llm import _extract_json, _normalise_food_dict  # noqa: F401
 from src.parser.deterministic import _parse_deterministic  # noqa: F401
+from src.counterfactual_coach import generate_counterfactuals, render_counterfactual_bundle
 
 DEFAULT_OLLAMA_URL = "http://192.168.0.137:11434"
 DEFAULT_OLLAMA_MODEL = "llama3.1:latest"
@@ -180,10 +181,33 @@ async def run_companion_scenario(
     )
     historical["similar_better_meals"] = await _fetch_similar_better_meals(totals.carbs_g)
 
+    # 4a. Counterfactual what-if scenarios
+    counterfactuals = generate_counterfactuals(
+        totals, stage, hour=19,
+        current_forecast=forecast,
+        historical_context=historical,
+    )
+    counterfactual_text = render_counterfactual_bundle(
+        counterfactuals, food_text=text,
+    )
+
     # 5. Render, bundle, safety
     chart = render_forecast(forecast)
     prediction = forecast_to_prediction_schema(forecast, totals, confidence_tier=meal["confidence_overall"], ascii_chart=chart)
-    bundle = make_evidence_bundle(forecast=forecast, totals=totals, profile={"anchor_type": anchor_value, "label": profile_json["anchor_label"]}, total_carbs_g_range=meal["total_carbs_g_range"], confidence_overall=meal["confidence_overall"], confidence_why="Food database lookup plus historical context.", historical_context=historical)
+    _cf_context = {
+        "available_scenarios": [
+            {
+                "type": s.type,
+                "label": s.label,
+                "description": s.description,
+                "comparison_delta_mg_dl": s.comparison.peak_delta_mg_dl,
+                "comparison_timing_delta_min": s.comparison.timing_delta_minutes,
+            }
+            for s in counterfactuals.scenarios
+        ],
+        "disclaimer": counterfactuals.disclaimer,
+    } if counterfactuals.scenarios else {}
+    bundle = make_evidence_bundle(forecast=forecast, totals=totals, profile={"anchor_type": anchor_value, "label": profile_json["anchor_label"]}, total_carbs_g_range=meal["total_carbs_g_range"], confidence_overall=meal["confidence_overall"], confidence_why="Food database lookup plus historical context.", historical_context=historical, counterfactual_context=_cf_context)
     response = _make_response(bundle, chart, _risk_flags(meal["totals"], foods))
     safety = SafetyScaffold().validate(response, {"source": "assistant"})
     logger.info("Safety check: is_safe=%s risk=%s", safety["is_safe"], safety["risk_level"])
@@ -203,6 +227,27 @@ async def run_companion_scenario(
         "historical_context": historical, "prediction": prediction.model_dump(),
         "evidence_bundle": bundle, "risk_flags": _risk_flags(meal["totals"], foods),
         "safety": safety, "response": response,
+        "counterfactuals": {
+            "scenarios": [
+                {
+                    "type": s.type,
+                    "label": s.label,
+                    "description": s.description,
+                    "forecast_peak_mg_dl": s.forecast["peak_mg_dl"],
+                    "forecast_peak_time_minutes": s.forecast["peak_time_minutes"],
+                    "peak_range_mg_dl": s.forecast.get("peak_range_mg_dl", []),
+                    "comparison": {
+                        "peak_delta_mg_dl": s.comparison.peak_delta_mg_dl,
+                        "peak_delta_percent": s.comparison.peak_delta_percent,
+                        "timing_delta_minutes": s.comparison.timing_delta_minutes,
+                        "peak_low_delta_mg_dl": s.comparison.peak_low_delta_mg_dl,
+                        "peak_high_delta_mg_dl": s.comparison.peak_high_delta_mg_dl,
+                    },
+                }
+                for s in counterfactuals.scenarios
+            ],
+            "counterfactual_text": counterfactual_text,
+        },
     }
 
 

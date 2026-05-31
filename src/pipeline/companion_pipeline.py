@@ -13,6 +13,7 @@ from app.food.service import FoodService, calculate_food_evidence, combine_food_
 from app.services.historical_meal_matcher import historical_context_for_meal
 from app.simulator.patient_factory import generate_patient_config, generate_profile_json
 from src.adapter import forecast_to_prediction_schema, make_evidence_bundle
+from src.counterfactual_coach import generate_counterfactuals, render_counterfactual_bundle
 from src.forecast_engine import ForecastStage, MealTotals
 from src.forecast.renderer import render_forecast
 from src.parser import DeterministicParser, LLMParser, OllamaClient
@@ -69,6 +70,14 @@ class CompanionPipeline:
         if not any(ev.computed for ev in evidence):
             return _build_early_return(text, foods, meal)
 
+        # 2a. Clarification check — ask before forecasting if high ambiguity
+        clarification = _check_clarification_needed(foods, evidence, meal)
+        if clarification:
+            return _build_clarification_return(
+                text, foods, meal, clarification,
+                profile_label=anchor.replace("_", " ").title(),
+            )
+
         # 3. Profile + forecast
         stage, profile_json, config = _build_profile(profile_config, anchor)
         totals = MealTotals.from_dict(meal["totals"])
@@ -80,6 +89,16 @@ class CompanionPipeline:
             text, carbs_g=totals.carbs_g, fat_g=totals.fat_g,
             food_name=" ".join(f.item for f in foods),
             anchor_type=anchor_value,
+        )
+
+        # 4a. Counterfactual what-if scenarios
+        counterfactuals = generate_counterfactuals(
+            totals, stage, hour=19,
+            current_forecast=forecast,
+            historical_context=historical,
+        )
+        counterfactual_text = render_counterfactual_bundle(
+            counterfactuals, food_text=text,
         )
 
         # 5. Bundle + safety
@@ -96,6 +115,7 @@ class CompanionPipeline:
             confidence_overall=meal["confidence_overall"],
             confidence_why="Food database lookup plus historical context.",
             historical_context=historical,
+            counterfactual_context=_cf_bundle_to_dict(counterfactuals),
         )
         response = _make_text_response(bundle, chart)
         safety = self.safety.validate(response, {"source": "assistant"})
@@ -113,7 +133,47 @@ class CompanionPipeline:
             "risk_flags": _risk_flags(meal["totals"], foods),
             "safety": safety,
             "response": response,
+            "counterfactuals": {
+                "scenarios": [
+                    {
+                        "type": s.type,
+                        "label": s.label,
+                        "description": s.description,
+                        "forecast_peak_mg_dl": s.forecast["peak_mg_dl"],
+                        "forecast_peak_time_minutes": s.forecast["peak_time_minutes"],
+                        "peak_range_mg_dl": s.forecast.get("peak_range_mg_dl", []),
+                        "comparison": {
+                            "peak_delta_mg_dl": s.comparison.peak_delta_mg_dl,
+                            "peak_delta_percent": s.comparison.peak_delta_percent,
+                            "timing_delta_minutes": s.comparison.timing_delta_minutes,
+                            "peak_low_delta_mg_dl": s.comparison.peak_low_delta_mg_dl,
+                            "peak_high_delta_mg_dl": s.comparison.peak_high_delta_mg_dl,
+                        },
+                    }
+                    for s in counterfactuals.scenarios
+                ],
+                "counterfactual_text": counterfactual_text,
+            },
         }
+
+
+def _cf_bundle_to_dict(bundle: Any) -> dict[str, Any]:
+    """Convert counterfactual bundle to plain dict for evidence context."""
+    if not bundle or not bundle.scenarios:
+        return {}
+    return {
+        "available_scenarios": [
+            {
+                "type": s.type,
+                "label": s.label,
+                "description": s.description,
+                "comparison_delta_mg_dl": s.comparison.peak_delta_mg_dl,
+                "comparison_timing_delta_min": s.comparison.timing_delta_minutes,
+            }
+            for s in bundle.scenarios
+        ],
+        "disclaimer": bundle.disclaimer,
+    }
 
 
 def _build_early_return(text: str, foods: list, meal: dict[str, Any]) -> dict[str, Any]:
@@ -168,6 +228,74 @@ def _risk_flags(totals: dict[str, float], foods: list) -> list[str]:
     if any(f.item in {"lager", "beer"} for f in foods):
         flags.append("alcohol_can_increase_delayed_hypo_risk")
     return flags
+
+
+def _check_clarification_needed(
+    foods: list, evidence: list, meal: dict[str, Any]
+) -> dict[str, Any] | None:
+    """Check if any food items need clarification before forecasting.
+
+    Only triggers when BOTH conditions hold:
+    1. The food matches a known ambiguity pattern (pizza, drink, fries, etc.)
+    2. The evidence shows high portion uncertainty (no specific unit, low confidence)
+
+    Returns a dict with clarification info if needed, None otherwise.
+    """
+    from src.clarification_loop import detect_ambiguity
+
+    for ev in evidence:
+        item = ev.parsed.get("item", "")
+        unit = ev.parsed.get("unit")
+        try:
+            portion_unc = float(getattr(ev, "portion_uncertainty_pct", 0.0) or 0.0)
+        except (TypeError, ValueError):
+            portion_unc = 0.0
+        confidence = getattr(ev, "confidence", "high")
+
+        # Only clarify when uncertainty is actually high
+        is_uncertain = portion_unc >= 0.3 or confidence == "low"
+        if not is_uncertain:
+            continue
+
+        question = detect_ambiguity(item, unit)
+        if question:
+            return {
+                "food_item": item,
+                "question": question,
+                "unit": unit,
+                "quantity": ev.parsed.get("quantity", 1),
+                "portion_uncertainty_pct": portion_unc,
+                "top_uncertainty_reason": getattr(ev, "top_uncertainty_reason", ""),
+            }
+
+    return None
+
+
+def _build_clarification_return(
+    text: str, foods: list, meal: dict[str, Any],
+    clarification: dict[str, Any],
+    profile_label: str,
+) -> dict[str, Any]:
+    """Build a pipeline result that shows a clarification card instead of forecast."""
+    from src.clarification_loop import clarification_card
+
+    card = clarification_card(clarification["question"], clarification["food_item"])
+
+    return {
+        "scenario": text,
+        "parsed_foods": [asdict(f) for f in foods],
+        "food_evidence": meal["evidence_items"],
+        "meal_totals": meal["totals"],
+        "profile": {"anchor_type": "disconnected", "label": profile_label},
+        "forecast": {},
+        "historical_context": {"similar_meals_count": 0},
+        "prediction": {},
+        "evidence_bundle": {},
+        "risk_flags": [],
+        "safety": {"is_safe": True},
+        "response": card,
+        "clarification_needed": clarification,
+    }
 
 
 def _make_text_response(bundle: dict[str, Any], chart: str) -> str:

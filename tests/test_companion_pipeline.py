@@ -43,6 +43,8 @@ class TestCompanionPipeline:
                     mock_ev.top_uncertainty_reason = ""
                     mock_ev.parsed = {"item": "pizza", "quantity": 1}
                     mock_ev.warnings = []
+                    mock_ev.portion_uncertainty_pct = 0.1
+                    mock_ev.identity_confidence = "high"
                     mock_calc.return_value = mock_ev
 
                     with patch("src.pipeline.companion_pipeline.combine_food_evidence") as mock_combine:

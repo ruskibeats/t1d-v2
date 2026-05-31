@@ -18,6 +18,15 @@ from .glucose import forecast_glucose
 
 # Stage (calibration + orchestration)
 from .stage import ForecastStage, make_forecaster
+from .calibration_harness import (
+    SYNTHETIC_ONLY_NOTICE,
+    SYNTHETIC_TRACE_FIXTURES,
+    SyntheticMealTrace,
+    CalibrationComparison,
+    compare_forecast_to_trace,
+    run_calibration_suite,
+    render_calibration_suite_markdown,
+)
 
 # Evidence helpers
 from .evidence import populate_evidence_fields
@@ -54,6 +63,13 @@ __all__ = [
     "forecast_glucose",
     "ForecastStage",
     "make_forecaster",
+    "SYNTHETIC_ONLY_NOTICE",
+    "SYNTHETIC_TRACE_FIXTURES",
+    "SyntheticMealTrace",
+    "CalibrationComparison",
+    "compare_forecast_to_trace",
+    "run_calibration_suite",
+    "render_calibration_suite_markdown",
     "populate_evidence_fields",
     # Kernels
     "soft_glucose_cap",

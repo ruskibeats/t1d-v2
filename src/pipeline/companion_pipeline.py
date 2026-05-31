@@ -82,6 +82,8 @@ class CompanionPipeline:
         stage, profile_json, config = _build_profile(profile_config, anchor)
         totals = MealTotals.from_dict(meal["totals"])
         forecast = stage.forecast(totals, carb_range_g=meal["total_carbs_g_range"])
+        forecast.missing_information_flags = meal.get("missing_information_flags", [])
+        forecast.evidence_items = meal.get("evidence_items", [])
 
         # 4. Historical context
         anchor_value = config.anchor_type.value if hasattr(config, "anchor_type") else config.value

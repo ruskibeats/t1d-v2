@@ -42,7 +42,8 @@ class FoodEvidence:
     identity_confidence: str = ""          # how sure we are this is the right food
     portion_uncertainty_pct: float = 0.0  # 0.0-0.5 (0=exact, 0.5=very uncertain)
     nutrition_variance_pct: float = 0.0   # spread across candidate matches
-    top_uncertainty_reason: str = ""       # user-facing: "portion of fries unclear"
+    top_uncertainty_reason: str = "none"   # user-facing: "portion of fries unclear"
+    missing_information_flags: list[str] = field(default_factory=list)
 
 
 _PORTION_BY_UNIT_G: dict[str, float] = {
@@ -72,6 +73,9 @@ _PORTION_BY_UNIT_G: dict[str, float] = {
 }
 
 _DIET_HINT_WORDS = frozenset({"diet", "zero", "sugar free", "no sugar", "sugar-free"})
+_CONFIDENCE_SCORE = {"low": 0.25, "medium": 0.65, "high": 1.0}
+_CONFIDENCE_RANK = {"low": 0, "medium": 1, "high": 2}
+_GENERIC_UNITS = {"", "serving", "portion"}
 
 
 def _clean(text: str | None) -> str:
@@ -218,16 +222,97 @@ def _candidate_from_dict(data: dict[str, Any]) -> FoodCandidate:
     return FoodCandidate(**fields)
 
 
+def _identity_confidence(score: float) -> str:
+    if score >= 0.85:
+        return "high"
+    if score >= 0.6:
+        return "medium"
+    return "low"
+
+
+def _tier_from_score(score: float) -> str:
+    if score >= 0.8:
+        return "high"
+    if score >= 0.55:
+        return "medium"
+    return "low"
+
+
+def confidence_tier(evidence: FoodEvidence) -> str:
+    """Return high/medium/low from identity, portion, and nutrition confidence.
+
+    Identity confidence is the strongest signal, while portion and nutrition
+    uncertainty can only lower the tier. Missing DB matches are always low.
+    """
+    if evidence.selected_match is None or evidence.computed is None:
+        return "low"
+
+    identity_score = _CONFIDENCE_SCORE.get(evidence.identity_confidence or evidence.confidence, 0.25)
+    portion_score = max(0.0, 1.0 - min(max(evidence.portion_uncertainty_pct, 0.0), 1.0))
+    nutrition_score = max(0.0, 1.0 - min(max(evidence.nutrition_variance_pct, 0.0), 1.0))
+    weighted = identity_score * 0.5 + portion_score * 0.3 + nutrition_score * 0.2
+    tier = _tier_from_score(weighted)
+    if tier == "high" and (evidence.portion_uncertainty_pct >= 0.3 or evidence.nutrition_variance_pct >= 0.35):
+        return "medium"
+    return tier
+
+
+def _parsed_payload(food: ParsedFood, grams: float) -> dict[str, Any]:
+    return {
+        "item": food.item,
+        "quantity": food.quantity,
+        "unit": food.unit or "unspecified",
+        "estimated_serving_g": round(grams, 1),
+    }
+
+
+def _missing_flags(
+    food: ParsedFood,
+    *,
+    selected_match: dict[str, Any] | None,
+    match_score: float = 0.0,
+    portion_uncertainty: float = 0.0,
+    nutrition_variance: float = 0.0,
+) -> list[str]:
+    flags: list[str] = []
+    unit = _clean(food.unit)
+    if not unit:
+        flags.append("missing_unit")
+    elif unit in _GENERIC_UNITS:
+        flags.append("generic_unit")
+    if selected_match is None:
+        flags.append("no_db_match")
+    if selected_match is not None and match_score < 0.6:
+        flags.append("low_similarity")
+    if portion_uncertainty >= 0.3:
+        flags.append("portion_estimated")
+    if nutrition_variance >= 0.35:
+        flags.append("high_nutrition_variance")
+    return list(dict.fromkeys(flags))
+
+
 def calculate_food_evidence(food: ParsedFood, candidates: list[dict[str, Any]]) -> FoodEvidence:
     """Compute nutrition evidence from the top-ranked match."""
     if not candidates:
         grams = estimate_serving_grams(food)
+        portion_uncertainty = 0.45 if not food.unit or _clean(food.unit) in _GENERIC_UNITS else 0.25
         return FoodEvidence(
-            parsed={"item": food.item, "quantity": food.quantity, "unit": food.unit, "estimated_serving_g": round(grams, 1)},
+            parsed=_parsed_payload(food, grams),
             selected_match=None,
             computed=None,
             confidence="low",
             warnings=["No nutrition match found in database"],
+            carb_range_g=(0.0, 0.0),
+            identity_confidence="low",
+            portion_uncertainty_pct=portion_uncertainty,
+            nutrition_variance_pct=0.5,
+            top_uncertainty_reason=f"no nutrition match found for {food.item}",
+            missing_information_flags=_missing_flags(
+                food,
+                selected_match=None,
+                portion_uncertainty=portion_uncertainty,
+                nutrition_variance=0.5,
+            ),
         )
 
     selected = dict(candidates[0])
@@ -245,9 +330,9 @@ def calculate_food_evidence(food: ParsedFood, candidates: list[dict[str, Any]]) 
         "kcal": round(candidate.kcal_per_100g * multiplier),
     }
 
-    confidence = "high" if score >= 0.85 else "medium" if score >= 0.6 else "low"
+    identity_conf = _identity_confidence(score)
     warnings: list[str] = []
-    if confidence == "low":
+    if identity_conf == "low":
         warnings.append("Food match is uncertain")
     if computed["fat_g"] >= 15:
         warnings.append("High fat may delay glucose rise")
@@ -261,22 +346,11 @@ def calculate_food_evidence(food: ParsedFood, candidates: list[dict[str, Any]]) 
     if any(w in item_clean for w in ("bread", "fried", "battered")):
         warnings.append("Breaded/fried coating adds unknown extra carbs")
 
-    if not food.unit or _clean(food.unit) in {"", "serving", "portion"}:
+    if not food.unit or _clean(food.unit) in _GENERIC_UNITS:
         warnings.append("Portion size estimated — check actual serving")
 
-    uncertainty = 0.10 if confidence == "high" else 0.25 if confidence == "medium" else 0.45
-    carbs = computed["carbs_g"]
-    carb_range = (round(max(0.0, carbs * (1 - uncertainty)), 1), round(carbs * (1 + uncertainty), 1))
-
-    uncertainty = 0.10 if confidence == "high" else 0.25 if confidence == "medium" else 0.45
-    carbs = computed["carbs_g"]
-    carb_range = (round(max(0.0, carbs * (1 - uncertainty)), 1), round(carbs * (1 + uncertainty), 1))
-
-    # Decomposed identity confidence
-    identity_conf = confidence
-
     # Portion uncertainty: no explicit unit or generic unit = high uncertainty
-    portion_uncertainty = 0.35 if not food.unit or _clean(food.unit) in {"", "serving", "portion"} else 0.10
+    portion_uncertainty = 0.35 if not food.unit or _clean(food.unit) in _GENERIC_UNITS else 0.10
 
     # Nutrition variance from candidate spread
     nutrition_variance = 0.15
@@ -289,24 +363,43 @@ def calculate_food_evidence(food: ParsedFood, candidates: list[dict[str, Any]]) 
             nutrition_variance = round((max(candidate_carbs) - min(candidate_carbs)) / max(max(candidate_carbs), 1), 2)
 
     # Top uncertainty reason
-    top_reason = ""
-    if not food.unit or _clean(food.unit) in {"", "serving", "portion"}:
+    if not food.unit or _clean(food.unit) in _GENERIC_UNITS:
         top_reason = f"portion of {food.item} unclear"
-    elif confidence == "low":
+    elif identity_conf == "low":
         top_reason = f"food match for {food.item} uncertain"
+    elif nutrition_variance >= 0.35:
+        top_reason = f"nutrition values vary across matches for {food.item}"
+    else:
+        top_reason = "none"
 
-    return FoodEvidence(
-        parsed={"item": food.item, "quantity": food.quantity, "unit": food.unit, "estimated_serving_g": round(grams, 1)},
+    missing_information_flags = _missing_flags(
+        food,
+        selected_match=selected,
+        match_score=score,
+        portion_uncertainty=portion_uncertainty,
+        nutrition_variance=nutrition_variance,
+    )
+
+    preliminary = FoodEvidence(
+        parsed=_parsed_payload(food, grams),
         selected_match=selected,
         computed=computed,
-        confidence=confidence,
+        confidence=identity_conf,
         warnings=warnings,
-        carb_range_g=carb_range,
+        carb_range_g=(0.0, 0.0),
         identity_confidence=identity_conf,
         portion_uncertainty_pct=portion_uncertainty,
         nutrition_variance_pct=nutrition_variance,
         top_uncertainty_reason=top_reason,
+        missing_information_flags=missing_information_flags,
     )
+    tier = confidence_tier(preliminary)
+    uncertainty = 0.10 if tier == "high" else 0.25 if tier == "medium" else 0.45
+    carbs = computed["carbs_g"]
+    carb_range = (round(max(0.0, carbs * (1 - uncertainty)), 1), round(carbs * (1 + uncertainty), 1))
+    preliminary.confidence = tier
+    preliminary.carb_range_g = carb_range
+    return preliminary
 
 
 def combine_food_evidence(evidence_items: list[FoodEvidence]) -> dict[str, Any]:
@@ -318,11 +411,14 @@ def combine_food_evidence(evidence_items: list[FoodEvidence]) -> dict[str, Any]:
     confidences: list[str] = []
     top_carb_contributor = ""
     top_uncertainty_items: list[str] = []
+    missing_information_flags: list[str] = []
     max_carbs = 0.0
 
     for evidence in evidence_items:
-        confidences.append(evidence.confidence)
+        tier = confidence_tier(evidence)
+        confidences.append(tier)
         warnings.extend(evidence.warnings)
+        missing_information_flags.extend(evidence.missing_information_flags)
         if evidence.computed:
             for key in totals:
                 totals[key] += float(evidence.computed.get(key, 0.0) or 0.0)
@@ -332,11 +428,10 @@ def combine_food_evidence(evidence_items: list[FoodEvidence]) -> dict[str, Any]:
                 top_carb_contributor = f"{evidence.parsed.get('item', '')} ({item_carbs}g carbs)"
         carb_low += evidence.carb_range_g[0]
         carb_high += evidence.carb_range_g[1]
-        if evidence.top_uncertainty_reason:
+        if evidence.top_uncertainty_reason and evidence.top_uncertainty_reason != "none":
             top_uncertainty_items.append(evidence.top_uncertainty_reason)
 
-    confidence_rank = {"low": 0, "medium": 1, "high": 2}
-    overall = min(confidences, key=lambda c: confidence_rank.get(c, 0)) if confidences else "low"
+    overall = min(confidences, key=lambda c: _CONFIDENCE_RANK.get(c, 0)) if confidences else "low"
 
     # Aggregate absorption profile
     total_fat = totals.get("fat_g", 0)
@@ -357,6 +452,7 @@ def combine_food_evidence(evidence_items: list[FoodEvidence]) -> dict[str, Any]:
         "total_carbs_g_range": (round(carb_low, 1), round(carb_high, 1)),
         "confidence_overall": overall,
         "warnings": list(dict.fromkeys(warnings)),
+        "missing_information_flags": list(dict.fromkeys(missing_information_flags)),
         "evidence_items": [asdict(item) for item in evidence_items],
         "top_carb_contributor": top_carb_contributor,
         "top_uncertainty_items": top_uncertainty_items[:2],

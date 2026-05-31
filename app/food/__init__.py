@@ -1,4 +1,4 @@
-from .service import FoodService, ParsedFood, FoodEvidence, calculate_food_evidence, combine_food_evidence
+from .service import FoodService, ParsedFood, FoodEvidence, calculate_food_evidence, combine_food_evidence, confidence_tier
 from .foods import FoodCandidate, CATEGORY_CARB_THRESHOLDS
 from .repository import FoodRepository
 from .postgres_repository import PostgresFoodRepository
@@ -11,6 +11,7 @@ __all__ = [
     "FoodEvidence",
     "calculate_food_evidence",
     "combine_food_evidence",
+    "confidence_tier",
     "FoodCandidate",
     "CATEGORY_CARB_THRESHOLDS",
     "FoodRepository",

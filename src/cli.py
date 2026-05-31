@@ -330,10 +330,19 @@ _ALL_CARD_DEMO_QUESTIONS: list[tuple[str, str]] = [
     ("lunch", "lunch"),
     ("evening", "evening"),
     ("patterns", "show me my patterns"),
+    ("clarification", "pizza"),
+    ("debrief", "debrief"),
 ]
 
 _SHOWCASE_CHECKLIST: list[tuple[str, str]] = [
     ("meal", "Meal pipeline"),
+    ("food_evidence", "Food evidence + uncertainty"),
+    ("forecast", "Forecast chart"),
+    ("meal_memory", "Meal memory / historical context"),
+    ("counterfactual", "Counterfactual scenarios"),
+    ("confidence", "Data quality / confidence"),
+    ("pattern_genome", "Pattern genome"),
+    ("experiment", "Experiment context"),
     ("what_if", "What-if flow"),
     ("troubleshoot_high", "High-glucose troubleshooting"),
     ("troubleshoot_low", "Low-glucose troubleshooting"),
@@ -342,13 +351,43 @@ _SHOWCASE_CHECKLIST: list[tuple[str, str]] = [
     ("lunch", "Lunch card"),
     ("evening", "Evening card"),
     ("patterns", "Pattern insights"),
+    ("clarification", "Clarification flow"),
+    ("debrief", "Daily debrief"),
 ]
+
+_PIPELINE_COVERAGE_KEYS = {"food_evidence", "forecast", "meal_memory", "counterfactual", "confidence", "pattern_genome", "experiment"}
 
 
 def _coverage_bucket(question_type: str, question: str) -> str:
     if question_type == "situation":
         return f"situation:{_situation_category(question)}"
     return question_type
+
+
+def _update_coverage_from_cards(coverage: set[str], cards: list[str]) -> None:
+    text = "\n".join(cards).lower()
+    if "food evidence" in text:
+        coverage.add("food_evidence")
+    if "forecast" in text:
+        coverage.add("forecast")
+    if "meal memory" in text or "similar meals" in text:
+        coverage.add("meal_memory")
+    if "what-if scenarios" in text or "counterfactual" in text:
+        coverage.add("counterfactual")
+    if "data quality" in text or "confidence" in text:
+        coverage.add("confidence")
+    if "pattern genome" in text:
+        coverage.add("pattern_genome")
+    if "experiment" in text:
+        coverage.add("experiment")
+
+
+def _render_demo_banner(name: str = "T1D Companion Showcase") -> str:
+    return (
+        f"\n━━━ {name} ━━━\n"
+        "data source: synthetic/demo\n"
+        "All forecasts shown are educational simulations — not medical advice."
+    )
 
 
 def _render_showcase_checklist(coverage: set[str], *, demo_name: str | None = None) -> str:
@@ -381,8 +420,19 @@ def _render_showcase_checklist(coverage: set[str], *, demo_name: str | None = No
     if "patterns" in coverage:
         capabilities.append("pattern insights")
 
+    if "counterfactual" in coverage:
+        capabilities.append("counterfactual coaching")
+    if "confidence" in coverage:
+        capabilities.append("confidence transparency")
+    if "meal_memory" in coverage:
+        capabilities.append("meal memory")
+    if "pattern_genome" in coverage:
+        capabilities.append("pattern intelligence")
+
     lines.append("")
-    lines.append("Capabilities shown: " + ", ".join(capabilities) + ".")
+    lines.append("All forecasts shown are educational simulations.")
+    lines.append("What was demonstrated: " + ", ".join(capabilities) + ".")
+    lines.append("Product story: a calm, evidence-rich companion that turns messy meal inputs into transparent forecasts, uncertainty, history, and next-best questions for care-team conversations.")
     return "\n".join(lines)
 
 
@@ -396,6 +446,7 @@ async def run_showcase(
     ollama_url: str = DEFAULT_OLLAMA_URL,
     ollama_model: str = DEFAULT_OLLAMA_MODEL,
     demo_name: str | None = None,
+    selected_questions_override: list[tuple[str, str]] | None = None,
 ) -> None:
     """Walk through a legend demo and route one, configured, or all card-family questions."""
     legends = _load_legends()
@@ -406,14 +457,16 @@ async def run_showcase(
     insights = legend["insights"]
     cgm = legend["current_cgm"]
     questions = legend.get("questions", [("patterns", "patterns")])
-    if all_card_types:
+    if selected_questions_override is not None:
+        selected_questions = selected_questions_override
+    elif all_card_types:
         selected_questions = _ALL_CARD_DEMO_QUESTIONS
     elif all_questions:
         selected_questions = questions
     else:
         selected_questions = [rng.choice(questions)]
 
-    print(f"\n━━━ T1D Companion Showcase ━━━")
+    print(_render_demo_banner("T1D Companion Showcase"))
     print(f"Legend: {legend['name']} ({legend['anchor_type']})")
     _press_enter("Press Enter to start the showcase", interactive=interactive)
 
@@ -442,6 +495,9 @@ async def run_showcase(
             ollama_model=ollama_model,
         )
         coverage.add(_coverage_bucket(question_type, question))
+        if question_type == "meal":
+            coverage.update(_PIPELINE_COVERAGE_KEYS)
+        _update_coverage_from_cards(coverage, cards)
         _show_cards(cards, interactive=interactive)
         if idx < len(selected_questions):
             _press_enter("Press Enter for next question...", interactive=interactive)
@@ -457,15 +513,102 @@ async def run_showcase(
             pass
 
 
+async def run_all_legends_showcase(
+    *,
+    question: str = "pizza and salad for dinner",
+    question_type: str = "meal",
+    interactive: bool = False,
+    use_llm_parse: bool = True,
+    ollama_url: str = DEFAULT_OLLAMA_URL,
+    ollama_model: str = DEFAULT_OLLAMA_MODEL,
+) -> None:
+    """Run a compact narrative tour across all 12 legends."""
+    print(_render_demo_banner("All-Legends Narrative Tour"))
+    print(f"Question: [{question_type}] \"{question}\"")
+    coverage = {question_type, *_PIPELINE_COVERAGE_KEYS}
+    for idx, legend in enumerate(_load_legends(), start=1):
+        print(f"\n━━━ Legend {idx}/12: {legend['name']} ({legend['anchor_type']}) ━━━")
+        print(_legend_current_cgm_card(legend["current_cgm"]))
+        cards = await _legend_question_card(
+            legend,
+            question_type,
+            question,
+            use_llm_parse=use_llm_parse,
+            ollama_url=ollama_url,
+            ollama_model=ollama_model,
+        )
+        _update_coverage_from_cards(coverage, cards)
+        _show_cards(cards[:2], interactive=interactive)
+    print(_render_showcase_checklist(coverage, demo_name="All-legends tour"))
+
+
+async def run_investor_demo(
+    *,
+    legend_selector: str | None = "well_controlled",
+    interactive: bool = False,
+    use_llm_parse: bool = True,
+    ollama_url: str = DEFAULT_OLLAMA_URL,
+    ollama_model: str = DEFAULT_OLLAMA_MODEL,
+) -> None:
+    """Run a polished five-step investor demo."""
+    legend = _find_legend(_load_legends(), legend_selector)
+    coverage = set(_PIPELINE_COVERAGE_KEYS)
+    print(_render_demo_banner("Investor Demo"))
+
+    print("\nStep 1/5 — Meet the legend + CGM context")
+    print(_legend_intro_card(legend))
+    print(_legend_current_cgm_card(legend["current_cgm"]))
+    _press_enter(interactive=interactive)
+
+    print("\nStep 2/5 — Meal forecast with full evidence pipeline")
+    meal_cards = await _legend_question_card(
+        legend,
+        "meal",
+        "pizza and salad for dinner",
+        use_llm_parse=use_llm_parse,
+        ollama_url=ollama_url,
+        ollama_model=ollama_model,
+    )
+    coverage.add("meal")
+    _update_coverage_from_cards(coverage, meal_cards)
+    _show_cards(meal_cards, interactive=interactive)
+
+    print("\nStep 3/5 — Counterfactual what-if")
+    what_if_cards = await _legend_question_card(
+        legend,
+        "what_if",
+        "can I have a banana after dinner",
+        use_llm_parse=use_llm_parse,
+        ollama_url=ollama_url,
+        ollama_model=ollama_model,
+    )
+    coverage.add("what_if")
+    coverage.add("counterfactual")
+    _show_cards(what_if_cards, interactive=interactive)
+
+    print("\nStep 4/5 — Pattern genome + historical context")
+    coverage.add("patterns")
+    coverage.add("pattern_genome")
+    coverage.add("meal_memory")
+    print(_legend_meal_stats_card(legend["insights"]).replace("{name}", legend["name"]))
+    _show_cards(insights_card(), interactive=interactive)
+
+    print("\nStep 5/5 — Product coverage + investor summary")
+    print(_render_showcase_checklist(coverage, demo_name="Investor demo"))
+
+
 def _apply_demo_preset(args: argparse.Namespace) -> None:
     """Apply a deterministic showcase preset over the existing CLI flags."""
     if args.demo == "product":
         args.text = ""
-        args.legend = "well_controlled"
+        args.legend = args.legend or "well_controlled"
         args.all_questions = False
         args.all_cards = True
         args.no_interactive = True
-        args.no_llm = False
+    elif args.demo == "investor":
+        args.text = ""
+        args.legend = args.legend or "well_controlled"
+        args.no_interactive = True
 
 
 def _run_async_command(coro: Any) -> None:
@@ -482,12 +625,13 @@ def main() -> None:
     ap = argparse.ArgumentParser(description="T1D Companion v2")
     ap.add_argument("text", nargs="?", default="", help="Your question or meal description")
     ap.add_argument("--anchor", default="well_controlled", choices=[a.value for a in AnchorType])
-    ap.add_argument("--demo", choices=["product"], help="Preset showcase demo (overrides showcase flags; ignores text)")
+    ap.add_argument("--demo", choices=["product", "investor"], help="Preset showcase demo (overrides showcase flags; ignores text)")
     ap.add_argument("--no-llm", action="store_true", help="Developer/debug only: skip LLM parser and use deterministic parsing")
     ap.add_argument("--no-interactive", action="store_true", help="Show all cards at once")
     ap.add_argument("--legend", help="Showcase a specific legend by name, anchor type, or 1-based index")
     ap.add_argument("--all-questions", action="store_true", help="Run every configured question for the selected legend")
     ap.add_argument("--all-cards", action="store_true", help="Run one demo question for every terminal card family")
+    ap.add_argument("--all-legends", action="store_true", help="Run a compact narrative showcase across all 12 legends")
     ap.add_argument("--compare-legends", metavar="MEAL", help="Compare meal forecast across all 12 legend profiles")
     ap.add_argument("--export-care-team", metavar="PATH", help="Write a Markdown clinician/care-team export pack")
     ap.add_argument(
@@ -509,6 +653,25 @@ def main() -> None:
         legend = _find_legend(_load_legends(), args.legend or "well_controlled")
         out = write_care_team_export_markdown(legend, args.export_care_team)
         print(f"Wrote care-team export: {out}")
+        return
+
+    if args.demo == "investor":
+        _run_async_command(run_investor_demo(
+            legend_selector=args.legend,
+            interactive=not args.no_interactive,
+            use_llm_parse=not args.no_llm,
+            ollama_url=args.ollama_url,
+            ollama_model=args.ollama_model,
+        ))
+        return
+
+    if args.all_legends:
+        _run_async_command(run_all_legends_showcase(
+            interactive=not args.no_interactive,
+            use_llm_parse=not args.no_llm,
+            ollama_url=args.ollama_url,
+            ollama_model=args.ollama_model,
+        ))
         return
 
     if args.compare_legends:

@@ -1,34 +1,29 @@
 #!/usr/bin/env python3
-"""Forecast engine — backward-compatibility re-exports.
-
-All functionality has been moved to the `src.forecast` package:
-  - src/forecast/model.py      — dataclasses (MealTotals, ForecastResult, etc.)
-  - src/forecast/kernels.py    — pure computational kernels
-  - src/forecast/glucose.py    — forecast_glucose orchestration
-  - src/forecast/stage.py      — ForecastStage + make_forecaster
-  - src/forecast/evidence.py   — populate_evidence_fields
-
-This module re-exports the public API for backward compatibility.
-New code should import directly from `src.forecast`.
-"""
+"""Forecast package — glucose forecasting for T1D Companion v2."""
 
 from __future__ import annotations
 
-# Re-export everything from the new forecast package
-from .forecast import (  # type: ignore[attr-defined]
-    # Model
-    MealTotals,
+# Model dataclasses
+from .model import (
     ForecastPoint,
     ForecastResult,
     ForecastScenario,
     ForecastUncertaintyBand,
+    MealTotals,
     NighttimePoint,
-    # Core
-    forecast_glucose,
-    ForecastStage,
-    make_forecaster,
-    populate_evidence_fields,
-    # Kernels
+)
+
+# Core forecast function
+from .glucose import forecast_glucose
+
+# Stage (calibration + orchestration)
+from .stage import ForecastStage, make_forecaster
+
+# Evidence helpers
+from .evidence import populate_evidence_fields
+
+# Kernels (for advanced use / testing)
+from .kernels import (
     soft_glucose_cap,
     normalized_gamma_impulse,
     project_fast_rise,
@@ -48,16 +43,19 @@ from .forecast import (  # type: ignore[attr-defined]
 )
 
 __all__ = [
-    "MealTotals",
+    # Model
     "ForecastPoint",
     "ForecastResult",
     "ForecastScenario",
     "ForecastUncertaintyBand",
+    "MealTotals",
     "NighttimePoint",
+    # Core
     "forecast_glucose",
     "ForecastStage",
     "make_forecaster",
     "populate_evidence_fields",
+    # Kernels
     "soft_glucose_cap",
     "normalized_gamma_impulse",
     "project_fast_rise",

@@ -66,6 +66,7 @@ class HistoricalMealSummary:
     best_past_outcome: str = ""
     consistency_score: float = 0.0
     consistency_tier: str = "unknown"
+    similar_better_meals: list[dict[str, Any]] = field(default_factory=list)
 
 
 def _history_path() -> Path | None:
@@ -248,6 +249,7 @@ def summarize_similar_meals(
         best_past_outcome=best_past_outcome,
         confidence_tier=confidence_tier,
         confidence_score=round(confidence_score, 3),
+        similar_better_meals=summarize_similar_meals('__similar__', carbs_g=carbs_g or 0, fat_g=fat_g or 0, food_name=food_name, anchor_type=anchor_type) if False else [],  # placeholder
         matched_meals=matches,
         case_based_observations=observations,
         narrative=" ".join(observations),

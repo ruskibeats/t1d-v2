@@ -1,302 +1,71 @@
 #!/usr/bin/env python3
-"""V2 T1D Companion runner.
+"""V2 T1D Companion runner — thin composition root.
 
 Pipeline:
-1. Parse meal text into foods (LLM when available, deterministic fallback)
-2. Lookup nutrition evidence from Postgres/OpenFoodFacts
+1. Parse meal text (LLM or deterministic)
+2. Lookup nutrition evidence
 3. Select simulator profile
 4. Forecast glucose
 5. Add historical context
 6. Build evidence bundle
 7. Safety validation
-8. Render text-first response
+8. Render text response
+
+Historical parser code remains for backward compatibility.
+New code should use `src.parser` and `src.forecast` packages directly.
 """
 
 from __future__ import annotations
 
-import argparse
-import asyncio
-import json
 import logging
-import os
-import re
 from dataclasses import asdict
-from pathlib import Path
 from typing import Any
-
-import httpx
-
-
-logger = logging.getLogger(__name__)
 
 from app.ai.safety import SafetyScaffold
 from app.core.database import db_manager, get_settings
-from app.food.service import FoodService, ParsedFood, calculate_food_evidence, combine_food_evidence
+from app.food.service import (
+    FoodService,
+    ParsedFood,
+    calculate_food_evidence,
+    combine_food_evidence,
+)
 from app.services.historical_meal_matcher import historical_context_for_meal
 from app.simulator.patient_factory import generate_patient_config, generate_profile_json
 from app.simulator.schemas import AnchorType
-from src.evidence_bundle import make_evidence_bundle
+from src.adapter import make_evidence_bundle, forecast_to_prediction_schema
 from src.forecast_engine import ForecastStage, MealTotals, populate_evidence_fields
 from src.forecast_renderer import render_forecast
-from src.prediction_schema_adapter import forecast_to_prediction_schema
+from src.parser import DeterministicParser, LLMParser, OllamaClient
 
-# ── Constants ──
+logger = logging.getLogger(__name__)
 
-ALIASES = {
-    "coke": ["coca cola", "coke", "cola"],
-    "cola": ["coca cola", "cola", "coke"],
-    "diet coke": ["diet coke", "coca cola zero", "diet cola"],
-    "donut": ["donut", "doughnut"],
-    "doughnut": ["doughnut", "donut"],
-    "pizza": ["pizza", "pepperoni pizza"],
-    "cereal": ["cereal", "breakfast cereal", "corn flakes"],
-    "pasta": ["pasta", "spaghetti", "noodles"],
-    "rice": ["rice", "white rice"],
-    "sushi": ["sushi", "sushi roll"],
-    "fries": ["fries", "french fries", "chips"],
-    "chips": ["fries", "french fries"],
-    "lager": ["lager", "beer", "pilsner"],
-    "beer": ["beer", "lager"],
-    "ice cream": ["ice cream", "vanilla ice cream"],
-    "chicken wings": ["chicken wings", "buffalo wings"],
-    "chicken": ["chicken", "grilled chicken", "chicken breast"],
-    "steak": ["steak", "fillet steak"],
-    "bread": ["bread", "toast", "sliced bread"],
-    "bacon": ["bacon", "rashers"],
-    "burger": ["burger", "beef burger", "cheeseburger"],
-    "sausage": ["sausage", "pork sausage"],
-    "eggs": ["eggs", "scrambled eggs", "fried eggs"],
-    "fish": ["fish", "cod", "salmon", "haddock"],
-    "salad": ["salad", "green salad", "side salad"],
-    "vegetables": ["vegetables", "mixed vegetables"],
-    "banana": ["banana"],
-    "apple": ["apple"],
-    "cake": ["cake", "sponge cake"],
-    "biscuit": ["biscuit", "cookies"],
-    "chocolate": ["chocolate", "milk chocolate"],
-    "crisps": ["crisps", "potato crisps"],
-    "cheese": ["cheese", "cheddar"],
-    "potato": ["potato", "potatoes"],
-    "milk": ["milk", "semi skimmed milk", "whole milk"],
-    "coffee": ["coffee", "latte", "cappuccino"],
-    "tea": ["tea", "black tea"],
-    "wine": ["wine", "red wine", "white wine"],
-    "yogurt": ["yogurt", "greek yogurt"],
-    "coleslaw": ["coleslaw", "slaw"],
-    "soup": ["soup", "stew"],
-    "curry": ["curry", "tikka masala"],
-    "fruit": ["fruit", "mixed fruit"],
-    "donut": ["donut", "doughnut", "glazed doughnut"],
-    "butter": ["butter", "spread"],
-}
+# ── Backward-compatible re-exports ──
+# Old code importing from src.runner can still access these.
+# New code should import from src.parser directly.
 
-DEFAULT_OLLAMA_URL = os.getenv("OLLAMA_URL", os.getenv("OLLAMA_HOST", "http://192.168.0.137:11434"))
-DEFAULT_OLLAMA_MODEL = os.getenv("T1D_LOCAL_MODEL", "llama3.1:latest")
-PROMPTS_DIR = Path(__file__).resolve().parents[1] / "prompts"
+from src.parser.llm import _extract_json, _normalise_food_dict  # noqa: F401
+from src.parser.deterministic import _parse_deterministic  # noqa: F401
 
-_JSON_BLOCK_RE = re.compile(r"```(?:json)?\s*(.*?)```", re.DOTALL | re.IGNORECASE)
-
-# ── Prompt helpers ──
-
-def _load_prompt(name: str) -> str:
-    path = PROMPTS_DIR / name
-    try:
-        return path.read_text().strip()
-    except FileNotFoundError:
-        return ""
-
-def _extract_json(text: str) -> Any:
-    text = text.strip()
-    for candidate in [*_JSON_BLOCK_RE.findall(text), text]:
-        candidate = candidate.strip()
-        try:
-            return json.loads(candidate)
-        except json.JSONDecodeError:
-            pass
-        for start in [candidate.find("{"), candidate.find("[")]:
-            if start < 0:
-                continue
-            for end in range(len(candidate), start, -1):
-                try:
-                    return json.loads(candidate[start:end])
-                except json.JSONDecodeError:
-                    continue
-    raise ValueError("No valid JSON found in LLM response")
-
-# ── LLM parser (recovered from V1) ──
-
-def _canonical_item(value: str) -> str:
-    item = " ".join(value.lower().strip().split())
-    item = item.strip(".,?!;:")
-    if item in {"coca cola", "coca-cola", "cola"}:
-        return "coke"
-    if item in {"doughnut", "doughnuts", "donuts"}:
-        return "donut"
-    if item in {"french fries", "large fries", "chip", "chips", "fries"}:
-        return "fries"
-    if item in {"beer", "ale", "pilsner"}:
-        return "lager"
-    if item in {"potatoes", "mashed potato", "jacket potato"}:
-        return "potato"
-    if item in {"crisps", "potato crisps"}:
-        return "crisps"
-    if item in {"cookies", "cookie"}:
-        return "biscuit"
-    if item.endswith("s") and item not in {"fries", "chips", "crisps", "eggs", "wings", "fries"}:
-        item = item[:-1]
-    return item
+DEFAULT_OLLAMA_URL = "http://192.168.0.137:11434"
+DEFAULT_OLLAMA_MODEL = "llama3.1:latest"
 
 
-def _normalise_food_dict(raw: dict[str, Any]) -> ParsedFood:
-    item = _canonical_item(str(raw.get("item") or raw.get("name") or raw.get("food") or "unknown"))
-    quantity = float(raw.get("quantity", raw.get("qty", 1)) or 1)
-    unit = raw.get("unit")
-    unit = str(unit).strip().lower() if unit else None
-    terms = raw.get("search_terms") or raw.get("search") or []
-    if isinstance(terms, str):
-        terms = [terms]
-    terms = [str(t).strip().lower() for t in terms if str(t).strip()]
-    if not terms:
-        terms = ALIASES.get(item, [item])
-    return ParsedFood(item=item, quantity=quantity, unit=unit, search_terms=terms)
-
-
-async def _call_ollama(client, ollama_url: str, model: str, system: str, text: str) -> str:
-    resp = await client.post(
-        f"{ollama_url.rstrip('/')}/v1/chat/completions",
-        json={
-            "model": model,
-            "messages": [
-                {"role": "system", "content": system},
-                {"role": "user", "content": text},
-            ],
-            "temperature": 0,
-            "max_tokens": 300,
-        },
-        timeout=httpx.Timeout(15.0, connect=5.0, read=10.0),
-    )
-    resp.raise_for_status()
-    return resp.json()["choices"][0]["message"]["content"]
-
-
-async def _call_ollama_with_retry(
-    ollama_url: str, model: str, system: str, text: str, max_retries: int = 2,
-) -> str | None:
-    last_error: Exception | None = None
-    for attempt in range(1, max_retries + 2):
-        try:
-            async with httpx.AsyncClient() as client:
-                return await _call_ollama(client, ollama_url, model, system, text)
-        except httpx.TimeoutException as exc:
-            logger.warning("Ollama timeout (attempt %d/%d): %s", attempt, max_retries, exc)
-            last_error = exc
-        except httpx.HTTPStatusError as exc:
-            logger.warning("Ollama HTTP %s (attempt %d/%d): %s", exc.response.status_code, attempt, max_retries, exc)
-            last_error = exc
-        except Exception as exc:
-            logger.error("Ollama call failed (attempt %d/%d): %s", attempt, max_retries, exc)
-            last_error = exc
-            break  # Non-retryable error
-        if attempt < max_retries + 1:
-            await asyncio.sleep(2 ** attempt)
-    logger.error("Ollama exhausted retries: %s", last_error)
-    return None
-
+# ── Backward-compatible async parser (strict LLM; no deterministic fallback) ──
 
 async def parse_meal_llm(
     text: str,
     ollama_url: str = DEFAULT_OLLAMA_URL,
     model: str = DEFAULT_OLLAMA_MODEL,
 ) -> tuple[list[ParsedFood], str | None]:
-    """Parse meal text via local Ollama, falling back to deterministic parser."""
-    system = _load_prompt("parser_system.txt")
-    if not system:
-        logger.info("No parser_system.txt prompt found, using deterministic parser")
-        return _parse_deterministic(text), None
+    """Parse meal text via LLM.
 
-    logger.info("Parsing meal via Ollama (%s / %s): %s", ollama_url, model, text)
-    content = await _call_ollama_with_retry(ollama_url, model, system, text)
-
-    if content is None:
-        logger.info("Ollama parse failed, falling back to deterministic parser")
-        return _parse_deterministic(text), "llm_parse_failed: retries exhausted"
-
-    try:
-        data = _extract_json(content)
-        if isinstance(data, list):
-            foods_raw = data
-        elif isinstance(data, dict):
-            foods_raw = data.get("foods", [])
-        else:
-            foods_raw = []
-        foods = [_normalise_food_dict(item) for item in foods_raw if isinstance(item, dict)]
-        if foods:
-            fallback = _parse_deterministic(text)
-            by_item = {fd.item: fd for fd in fallback}
-            for food in foods:
-                hint = by_item.get(food.item)
-                if hint:
-                    food.unit = food.unit or hint.unit
-                    food.search_terms = food.search_terms or hint.search_terms
-            logger.info("Ollama parsed %d foods from: %s", len(foods), text)
-            return foods, content
-    except (ValueError, json.JSONDecodeError) as exc:
-        logger.warning("Failed to extract JSON from Ollama response: %s", exc)
-
-    logger.info("Ollama returned no parseable foods, falling back to deterministic")
-    return _parse_deterministic(text), None
-
-
-# ── Deterministic parser (recovered from V1 fallback_parse_scenario) ──
-
-def _parse_deterministic(text: str) -> list[ParsedFood]:
-    lower = text.lower()
-    foods: list[ParsedFood] = []
-
-    patterns = [
-        (r"(\d+(?:\.\d+)?)\s+(?:cans?\s+of\s+)?(diet\s+coke|coke|cola|coca[- ]?cola|soft drink)s?\b", "can"),
-        (r"(\d+(?:\.\d+)?)\s+(donuts?|doughnuts?)\b", None),
-        (r"(\d+(?:\.\d+)?)\s+(slices?)\s+of\s+(pizza|pepperoni pizza|toast|bread)\b", "slice"),
-        (r"(\d+(?:\.\d+)?)\s+(pints?)\s+of\s+(lager|beer|ale)\b", "pint"),
-        (r"(\d+(?:\.\d+)?)\s+(wings?)\b", "wings"),
-        (r"(\d+(?:\.\d+)?)\s+(scoops?)\s+of\s+(ice cream)\b", "scoop"),
-        (r"(\d+(?:\.\d+)?)\s+(burgers?)\b", "burger"),
-        (r"(\d+(?:\.\d+)?)\s+(sausages?)\b", None),
-        (r"(\d+(?:\.\d+)?)\s+(eggs?)\b", None),
-    ]
-    for pattern, forced_unit in patterns:
-        for match in re.finditer(pattern, lower):
-            qty = float(match.group(1))
-            item = match.group(match.lastindex or 2)
-            if item in {"slice", "slices", "pint", "pints", "wing", "wings", "scoop", "scoops"} and (match.lastindex or 0) >= 3:
-                item = match.group(3)
-            item = _canonical_item(item)
-            foods.append(ParsedFood(item=item, quantity=qty, unit=forced_unit, search_terms=ALIASES.get(item, [item])))
-
-    known = ["big mac", "large fries", "fries", "pizza", "cereal", "pasta", "rice", "bread", "potato", "sushi", "fruit", "chicken", "steak", "bacon", "burger", "sausage", "eggs", "fish", "salad", "vegetables", "banana", "apple", "cake", "biscuit", "chocolate", "crisps", "cheese", "lager", "wine", "milk", "coffee", "tea", "yogurt", "butter", "soup", "curry", "donut", "ice cream", "coleslaw"]
-    seen = {f.item for f in foods}
-    for name in known:
-        item = _canonical_item(name)
-        if re.search(rf"\b{re.escape(name)}\b", lower) and item not in seen:
-            foods.append(ParsedFood(item=item, quantity=1, unit="large" if name == "large fries" else None, search_terms=ALIASES.get(item, [item])))
-            seen.add(item)
-
-    if foods:
-        foods.sort(key=lambda f: lower.find(f.item) if lower.find(f.item) >= 0 else len(lower))
-        return foods
-
-    cleaned = re.sub(r"[^a-zA-Z0-9 .,]+", " ", lower)
-    for part in re.split(r"\s+(?:and|with|plus)\s+|,", cleaned):
-        part = part.strip(" .")
-        if not part:
-            continue
-        qty = 1.0
-        m = re.match(r"(\d+(?:\.\d+)?)\s+(.+)", part)
-        if m:
-            qty = float(m.group(1))
-            part = m.group(2)
-        foods.append(ParsedFood(item=_canonical_item(part), quantity=qty, search_terms=ALIASES.get(_canonical_item(part), [_canonical_item(part)])))
-    return foods or [ParsedFood(item=text, quantity=1, search_terms=[text])]
+    Backward-compatible return shape, but failures now raise instead of falling
+    back to deterministic parsing.
+    """
+    client = OllamaClient(ollama_url=ollama_url, model=model)
+    parser = LLMParser(client=client)
+    foods, _meta = await parser.parse_async(text)
+    return foods, None
 
 
 # ── Risk flags ──
@@ -364,12 +133,23 @@ async def run_companion_scenario(
     ollama_model: str = DEFAULT_OLLAMA_MODEL,
 ) -> dict[str, Any]:
     logger.info("Running companion scenario: text=%s anchor=%s use_llm_parse=%s", text, anchor, use_llm_parse)
-    if use_llm_parse:
-        foods, _ = await parse_meal_llm(text, ollama_url, ollama_model)
-    else:
-        foods = _parse_deterministic(text)
-    logger.info("Parsed %d foods from input", len(foods))
 
+    # 1. Parse
+    if use_llm_parse:
+        foods, _parse_error = await parse_meal_llm(text, ollama_url, ollama_model)
+        parse_metadata = {
+            "parser": "llm",
+            "llm_requested": True,
+            "parse_error": None,
+            "ollama_url": ollama_url,
+            "ollama_model": ollama_model,
+        }
+    else:
+        foods = DeterministicParser().parse(text)
+        parse_metadata = {"parser": "deterministic", "llm_requested": False, "parse_error": None}
+    logger.info("Parsed %d foods from input via %s", len(foods), parse_metadata["parser"])
+
+    # 2. Food evidence
     settings = get_settings()
     db_manager.init_db(settings.database_url)
     evidence = []
@@ -377,28 +157,76 @@ async def run_companion_scenario(
         async with db_manager.get_session() as session:
             service = FoodService(session)
             evidence = [calculate_food_evidence(f, await service.search_food_candidates(f)) for f in foods]
-    except RuntimeError as exc:
+    except (RuntimeError, Exception) as exc:
         logger.warning("Database not available: %s", exc)
-    except Exception as exc:
-        logger.error("Food lookup failed: %s", exc, exc_info=True)
     meal = combine_food_evidence(evidence)
-    logger.info("Food evidence computed: %d items, overall confidence=%s",
+    logger.info("Food evidence computed: %d items, confidence=%s",
                 len(evidence), meal.get("confidence_overall", "n/a"))
 
     if not any(ev.computed for ev in evidence):
-        logger.warning("No food evidence computed \u2014 returning early")
-        return {
-            "scenario": text, "parsed_foods": [asdict(f) for f in foods],
-            "food_evidence": meal["evidence_items"], "meal_totals": meal["totals"],
-            "profile": {"anchor_type": "disconnected"}, "forecast": {},
-            "historical_context": {"similar_meals_count": 0}, "prediction": {},
-            "evidence_bundle": {}, "risk_flags": [],
-            "safety": {"is_safe": True},
-            "response": "Cannot estimate this meal \u2014 database connection is not available. Please set DATABASE_URL to start.",
-            "database_error": "DATABASE_URL not set or Postgres unreachable.",
+        return _build_early_return(text, foods, meal)
 
-        }
+    # 3. Profile + forecast
+    stage, profile_json, config = _build_profile(profile_config, anchor)
+    totals = MealTotals.from_dict(meal["totals"])
+    forecast = stage.forecast(totals, carb_range_g=meal["total_carbs_g_range"])
 
+    # 4. Historical context
+    anchor_value = config.anchor_type.value if hasattr(config, "anchor_type") else config.value
+    historical = historical_context_for_meal(
+        text, carbs_g=totals.carbs_g, fat_g=totals.fat_g,
+        food_name=" ".join(f.item for f in foods),
+        anchor_type=anchor_value,
+    )
+    historical["similar_better_meals"] = await _fetch_similar_better_meals(totals.carbs_g)
+
+    # 5. Render, bundle, safety
+    chart = render_forecast(forecast)
+    prediction = forecast_to_prediction_schema(forecast, totals, confidence_tier=meal["confidence_overall"], ascii_chart=chart)
+    bundle = make_evidence_bundle(forecast=forecast, totals=totals, profile={"anchor_type": anchor_value, "label": profile_json["anchor_label"]}, total_carbs_g_range=meal["total_carbs_g_range"], confidence_overall=meal["confidence_overall"], confidence_why="Food database lookup plus historical context.", historical_context=historical)
+    response = _make_response(bundle, chart, _risk_flags(meal["totals"], foods))
+    safety = SafetyScaffold().validate(response, {"source": "assistant"})
+    logger.info("Safety check: is_safe=%s risk=%s", safety["is_safe"], safety["risk_level"])
+
+    meal_totals_for_cards = dict(meal["totals"])
+    meal_totals_for_cards.update({
+        "top_carb_contributor": meal.get("top_carb_contributor", ""),
+        "top_uncertainty_items": meal.get("top_uncertainty_items", []),
+        "absorption_profile": meal.get("absorption_profile", "standard"),
+    })
+
+    return {
+        "scenario": text, "parse_metadata": parse_metadata,
+        "parsed_foods": [asdict(f) for f in foods],
+        "food_evidence": meal["evidence_items"], "meal_totals": meal_totals_for_cards,
+        "profile": profile_json, "forecast": bundle["forecast"],
+        "historical_context": historical, "prediction": prediction.model_dump(),
+        "evidence_bundle": bundle, "risk_flags": _risk_flags(meal["totals"], foods),
+        "safety": safety, "response": response,
+    }
+
+
+# ── Pipeline helpers ──
+
+def _build_early_return(
+    text: str, foods: list[ParsedFood], meal: dict[str, Any]
+) -> dict[str, Any]:
+    logger.info("No food evidence computed — returning early")
+    return {
+        "scenario": text, "parsed_foods": [asdict(f) for f in foods],
+        "food_evidence": meal["evidence_items"], "meal_totals": meal["totals"],
+        "profile": {"anchor_type": "disconnected"}, "forecast": {},
+        "historical_context": {"similar_meals_count": 0}, "prediction": {},
+        "evidence_bundle": {}, "risk_flags": [],
+        "safety": {"is_safe": True},
+        "response": "Cannot estimate this meal — database connection is not available. Please set DATABASE_URL to start.",
+        "database_error": "DATABASE_URL not set or Postgres unreachable.",
+    }
+
+
+def _build_profile(
+    profile_config: dict[str, Any] | None, anchor: str
+) -> tuple[ForecastStage, dict[str, Any], Any]:
     if profile_config:
         stage = ForecastStage(
             anchor_type=profile_config.get("anchor_type", anchor),
@@ -408,29 +236,38 @@ async def run_companion_scenario(
             fat_delay_hours=profile_config.get("fat_delay_hours", 3.0),
             exercise_drop_factor=profile_config.get("exercise_drop_factor", 1.0),
         )
-        profile_json = {"anchor_type": profile_config.get("anchor_type", anchor),
-                        "anchor_label": profile_config.get("anchor_label", anchor.replace("_", " ").title())}
+        profile_json = {
+            "anchor_type": profile_config.get("anchor_type", anchor),
+            "anchor_label": profile_config.get("anchor_label", anchor.replace("_", " ").title()),
+        }
+        config = AnchorType(profile_config.get("anchor_type", anchor))
     else:
         config = generate_patient_config(anchor)
         profile_json = generate_profile_json(config)
         stage = ForecastStage.from_profile(config)
-    totals = MealTotals.from_dict(meal["totals"])
-    forecast = stage.forecast(totals, carb_range_g=meal["total_carbs_g_range"])
-    historical = historical_context_for_meal(text, carbs_g=totals.carbs_g, fat_g=totals.fat_g, food_name=" ".join(f.item for f in foods), anchor_type=config.anchor_type.value)
-    forecast = populate_evidence_fields(forecast, evidence_items=meal["evidence_items"], historical_similarity_score=historical.get("similarity_score"), missing_info=[] if meal["confidence_overall"] != "low" else ["low_confidence_food_match"], calibration=stage.calibration)
-    chart = render_forecast(forecast)
-    prediction = forecast_to_prediction_schema(forecast, totals, confidence_tier=meal["confidence_overall"], ascii_chart=chart)
-    bundle = make_evidence_bundle(forecast=forecast, totals=totals, profile={"anchor_type": config.anchor_type.value, "label": profile_json["anchor_label"]}, total_carbs_g_range=meal["total_carbs_g_range"], confidence_overall=meal["confidence_overall"], confidence_why="Food database lookup plus historical context.", historical_context=historical)
-    response = _make_response(bundle, chart, _risk_flags(meal["totals"], foods))
-    safety = SafetyScaffold().validate(response, {"source": "assistant"}); logger.info("Safety check: is_safe=%s risk=%s", safety["is_safe"], safety["risk_level"])
-    return {
-        "scenario": text, "parsed_foods": [asdict(f) for f in foods],
-        "food_evidence": meal["evidence_items"], "meal_totals": meal["totals"],
-        "profile": profile_json, "forecast": bundle["forecast"],
-        "historical_context": historical, "prediction": prediction.model_dump(),
-        "evidence_bundle": bundle, "risk_flags": _risk_flags(meal["totals"], foods),
-        "safety": safety, "response": response,
-    }
+    return stage, profile_json, config
 
 
-# Logging setup helper kept for use by callers; cli.py configures its own.
+async def _fetch_similar_better_meals(carbs_g: float) -> list[dict[str, Any]]:
+    """Query graph for similar meals with better outcomes."""
+    from sqlalchemy import text as sql_raw
+    similar_better: list[dict[str, Any]] = []
+    try:
+        async with db_manager.get_session() as gsession:
+            gq = await gsession.execute(sql_raw("""
+                SELECT m.id, m.value AS carbs_g, m.measured_at AS meal_time,
+                       g.value AS peak_glucose, e.confidence,
+                       'synthetic_outcome_only' AS outcome_source
+                FROM health_metrics m
+                JOIN health_metric_edges e ON e.source_metric_id = m.id
+                    AND e.edge_type = 'meal_to_glucose_spike'
+                JOIN health_metrics g ON g.id = e.target_metric_id
+                WHERE m.user_id = 727 AND m."type" = 'carbs'
+                  AND m.value BETWEEN :lo AND :hi
+                  AND g.value IS NOT NULL
+                ORDER BY g.value ASC LIMIT 3
+            """), {"lo": max(0, carbs_g - 15), "hi": carbs_g + 15})
+            similar_better = [dict(r._mapping) for r in gq.fetchall()]
+    except Exception as exc:
+        logger.warning("Similar better meals query failed: %s", exc)
+    return similar_better

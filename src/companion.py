@@ -249,6 +249,25 @@ def meal_pipeline_section(
     lines.append("\n  Educational simulation only — not medical advice.")
     cards.append(_separator("Step 5: Monitoring") + "\n" + "\n".join(lines))
 
+    # Card 6: Counterfactual note (item 10 from backlog)
+    # Only show when we have enough data: top carb contributor identified + history
+    top_carb = meal_totals.get("top_carb_contributor", "")
+    similar_better = historical_context.get("similar_better_meals", [])
+    if top_carb and similar_better:
+        carb_val = meal_totals.get("carbs_g", 0)
+        sugar_val = meal_totals.get("sugars_g", 0)
+        # Extract the food name from "food (Xg carbs)" format
+        top_name = top_carb.split("(")[0].strip() if top_carb else ""
+        note_cards = counterfactual_note_card(
+            food_text=top_name,
+            carbs_g=carb_val,
+            sugars_g=sugar_val,
+            top_food_name=top_name,
+            similar_better_meals=similar_better,
+        )
+        if note_cards:
+            cards.append(note_cards[0])
+
     return cards
 
 
@@ -278,6 +297,56 @@ def what_if_card(food_text: str, carbs_g: float, fat_g: float, sugars_g: float,
         "\n  Monitor 1–4 hours."
         "\n  Educational — not medical advice.",
     ]
+
+
+def counterfactual_note_card(
+    food_text: str,
+    carbs_g: float,
+    sugars_g: float,
+    top_food_name: str,
+    similar_better_meals: list[dict[str, Any]],
+) -> list[str]:
+    """Generate a counterfactual note: 'Without X, this meal would likely be lower risk.'
+    
+    Compares the current meal to similar meals that had better glucose outcomes
+    and generates an educational what-if note.
+    """
+    if not similar_better_meals:
+        return []
+
+    note_lines = [
+        "\n━━━ What-If Note ━━━",
+    ]
+
+    # Find the best comparison: similar carbs but lower sugar/simpler composition
+    simpler_alternatives = [
+        m for m in similar_better_meals
+        if m.get("carbs_g", 0) > 0
+    ][:3]
+
+    if simpler_alternatives:
+        avg_better_carbs = sum(m["carbs_g"] for m in simpler_alternatives) / len(simpler_alternatives)
+        avg_better_peak = sum(m.get("peak_glucose", 0) for m in simpler_alternatives if m.get("peak_glucose")) / max(1, sum(1 for m in simpler_alternatives if m.get("peak_glucose")))
+        carb_diff = carbs_g - avg_better_carbs
+
+        if carb_diff > 10 and top_food_name:
+            note_lines += [
+                f"\n  Similar meals without the {top_food_name} had lower glucose impact.",
+                f"\n  Typical composition: {avg_better_carbs:.0f}g carbs"
+                f"\n  Typical peak: ~{avg_better_peak:.0f} mg/dL",
+                f"\n  This meal: {carbs_g:.0f}g carbs",
+                f"\n  Estimated difference: ~{carb_diff:.0f}g fewer carbs without the {top_food_name}.",
+            ]
+        elif simpler_alternatives:
+            best = simpler_alternatives[0]
+            note_lines += [
+                f"\n  Meals like this one had a typical peak around {best.get('peak_glucose', '?')} mg/dL.",
+                f"\n  Your estimated peak may be higher — monitor and compare.",
+            ]
+    else:
+        note_lines.append("\n  No sufficiently similar historical meals for comparison yet.")
+
+    return ["\n".join(note_lines)]
 
 
 def troubleshoot_card(direction: str) -> list[str]:

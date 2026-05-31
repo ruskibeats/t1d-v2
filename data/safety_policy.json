@@ -19,6 +19,11 @@
       "stroke", "heart attack", "allergic reaction", "anaphylaxis", "unresponsive"
     ]
   },
+  "banned_words": [
+    "insulin", "bolus", "injection", "dose", "deliver",
+    "pump", "basal", "temp basal", "TBR",
+    "SMB", "microbolus", "correction"
+  ],
   "dosing_patterns": [
     "\\btake\\b\\s+\\d+(?:\\.\\d+)?\\s*(?:units?|u)\\b",
     "\\bgive\\b\\s+\\d+(?:\\.\\d+)?\\s*(?:units?|u)\\b",

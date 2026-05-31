@@ -7,6 +7,8 @@ Version 1.0 - Initial release.
 
 from __future__ import annotations
 
+from app.ai.safety_policy import get_banned_words
+
 from .calibration_constants import (
     RISE_PER_CARB_MAP,
     BALANCE_MAP,
@@ -38,12 +40,8 @@ T1D_LLM_CONTEXT_v1 = {
         "activity",          # Insulin activity (0-1)
     ],
     
-    # BANNED - controller language
-    "banned_words": [
-        "insulin", "bolus", "injection", "dose", "deliver",
-        "pump", "basal", "temp basal", "TBR",
-        "SMB", "microbolus", "correction",
-    ],
+    # BANNED - controller language, loaded from shared safety policy
+    "banned_words": get_banned_words(),
     
     # APPROVED - companion patterns
     "approved_patterns": [
@@ -105,15 +103,16 @@ def check_safety(forecast_result, totals_dict: dict = None) -> list[str]:
         warnings.append("monitor closely, glucose may go high")
     
     return warnings
-# Export for backwards compatibility
-BANNED_WORDS = T1D_LLM_CONTEXT_v1['banned_words']
+# Export for backwards compatibility. This is intentionally derived from
+# app.ai.safety_policy so prompt context and runtime safety share one source.
+BANNED_WORDS = get_banned_words()
 
 def check_banned_words(text: str) -> list[str]:
-    """Check if text contains banned words."""
+    """Check if text contains shared banned words."""
     text_lower = text.lower()
-    return [w for w in BANNED_WORDS if w in text_lower]
+    return [w for w in BANNED_WORDS if w.lower() in text_lower]
 
 def is_safe_response(text: str) -> bool:
-    """Return True if response contains no banned words."""
+    """Return True if response contains no shared banned words."""
     return len(check_banned_words(text)) == 0
 

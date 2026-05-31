@@ -11,6 +11,7 @@ import argparse
 import asyncio
 import json
 import logging
+import os
 import random
 import sys
 from pathlib import Path
@@ -49,7 +50,9 @@ def _load_legends() -> list[dict[str, Any]]:
     return _LEGENDS
 
 
-def _press_enter(text: str = "Press Enter to continue...") -> None:
+def _press_enter(text: str = "Press Enter to continue...", *, interactive: bool = True) -> None:
+    if not interactive:
+        return
     try:
         input(f"\n{text}")
     except (EOFError, KeyboardInterrupt):
@@ -98,42 +101,105 @@ def _legend_current_cgm_card(cgm: dict[str, Any]) -> str:
     )
 
 
-async def _legend_question_card(legend: dict[str, Any], question_type: str, question: str) -> list[str]:
+async def _legend_question_card(
+    legend: dict[str, Any],
+    question_type: str,
+    question: str,
+    *,
+    use_llm_parse: bool = True,
+    ollama_url: str = DEFAULT_OLLAMA_URL,
+    ollama_model: str = DEFAULT_OLLAMA_MODEL,
+) -> list[str]:
     """Route the legend's question through the companion pipeline."""
-    return await question_to_cards(question, question_type=question_type, anchor=legend["anchor_type"],
-                              profile_config=legend.get("profile_config", {}) | {"anchor_label": legend.get("anchor_label", legend["anchor_type"])})
+    return await question_to_cards(
+        question,
+        question_type=question_type,
+        anchor=legend["anchor_type"],
+        profile_config=legend.get("profile_config", {}) | {"anchor_label": legend.get("anchor_label", legend["anchor_type"])},
+        use_llm_parse=use_llm_parse,
+        ollama_url=ollama_url,
+        ollama_model=ollama_model,
+    )
 
 
-async def question_to_cards(text: str, *, question_type: str | None = None, anchor: str = "well_controlled",
-                      profile_config: dict[str, Any] | None = None) -> list[str]:
+async def question_to_cards(
+    text: str,
+    *,
+    question_type: str | None = None,
+    anchor: str = "well_controlled",
+    profile_config: dict[str, Any] | None = None,
+    use_llm_parse: bool = True,
+    ollama_url: str = DEFAULT_OLLAMA_URL,
+    ollama_model: str = DEFAULT_OLLAMA_MODEL,
+) -> list[str]:
     """Route a question through the companion system and return cards."""
     if question_type is None:
         intent = detect_intent(text)
         question_type = intent.value if intent != Intent.UNKNOWN else "meal"
 
     if question_type in ("meal",):
-        return await _run_meal_scenario(text, anchor, profile_config=profile_config)
+        return await _run_meal_scenario(
+            text,
+            anchor,
+            profile_config=profile_config,
+            use_llm_parse=use_llm_parse,
+            ollama_url=ollama_url,
+            ollama_model=ollama_model,
+        )
     if question_type in ("what_if",):
-        return await _run_what_if(text, anchor, profile_config=profile_config)
+        return await _run_what_if(
+            text,
+            anchor,
+            profile_config=profile_config,
+            use_llm_parse=use_llm_parse,
+            ollama_url=ollama_url,
+            ollama_model=ollama_model,
+        )
     if question_type == "troubleshoot_high":
         return troubleshoot_card("high")
     if question_type == "troubleshoot_low":
         return troubleshoot_card("low")
     if question_type == "situation":
-        return situation_card("heat")  # default
-    if question_type == "morning":
+        return situation_card(_situation_category(text))
+    if question_type in ("morning", "morning_call"):
         return morning_call_card()
-    if question_type == "lunch":
+    if question_type in ("lunch", "lunch_presser"):
         return lunch_presser_card()
-    if question_type == "evening":
+    if question_type in ("evening", "evening_roundup"):
         return evening_roundup_card()
     if question_type in ("patterns", "insights"):
         return insights_card()
     return [f"\n━━━ Unknown ━━━\n\nCan't handle that yet."]
 
 
-async def _run_meal_scenario(text: str, anchor: str, *, profile_config: dict[str, Any] | None = None) -> list[str]:
-    result = await run_companion_scenario(text, anchor=anchor, use_llm_parse=True, profile_config=profile_config)
+def _situation_category(text: str) -> str:
+    lower = text.lower()
+    if any(word in lower for word in ["run", "gym", "workout", "exercise", "walk", "sport"]):
+        return "exercise"
+    if any(word in lower for word in ["beer", "wine", "alcohol", "drink", "drank"]):
+        return "alcohol"
+    if any(word in lower for word in ["sick", "ill", "flu", "cold", "vomit", "infection"]):
+        return "illness"
+    return "heat"
+
+
+async def _run_meal_scenario(
+    text: str,
+    anchor: str,
+    *,
+    profile_config: dict[str, Any] | None = None,
+    use_llm_parse: bool = True,
+    ollama_url: str = DEFAULT_OLLAMA_URL,
+    ollama_model: str = DEFAULT_OLLAMA_MODEL,
+) -> list[str]:
+    result = await run_companion_scenario(
+        text,
+        anchor=anchor,
+        use_llm_parse=use_llm_parse,
+        profile_config=profile_config,
+        ollama_url=ollama_url,
+        ollama_model=ollama_model,
+    )
     if result.get("database_error"):
         return [f"\n{result['response']}"]
 
@@ -141,14 +207,16 @@ async def _run_meal_scenario(text: str, anchor: str, *, profile_config: dict[str
     chart = result.get("response", "")
     if "📈" in chart:
         cs = chart[chart.find("📈"):]
-        for m in ["## Monitoring", "Educational simulation"]:
+        for m in ["## Monitoring Suggestions", "## Monitoring", "Educational simulation"]:
             idx = cs.find(m)
             if idx >= 0:
                 cs = cs[:idx].strip()
         chart = cs if cs else ""
 
+    parse_metadata = result.get("parse_metadata", {})
+    parser_label = parse_metadata.get("parser", "unknown").replace("_", " ")
     return meal_pipeline_section(
-        profile_label=result["profile"].get("anchor_label", anchor),
+        profile_label=f"{result['profile'].get('anchor_label', anchor)} | Parser: {parser_label}",
         parsed_foods=result["parsed_foods"],
         food_evidence=result["food_evidence"],
         meal_totals=result["meal_totals"],
@@ -159,14 +227,37 @@ async def _run_meal_scenario(text: str, anchor: str, *, profile_config: dict[str
     )
 
 
-async def _run_what_if(text: str, anchor: str, *, profile_config: dict[str, Any] | None = None) -> list[str]:
+async def _run_what_if(
+    text: str,
+    anchor: str,
+    *,
+    profile_config: dict[str, Any] | None = None,
+    use_llm_parse: bool = True,
+    ollama_url: str = DEFAULT_OLLAMA_URL,
+    ollama_model: str = DEFAULT_OLLAMA_MODEL,
+) -> list[str]:
     import re
     cleaned = re.sub(r"\b(can|i|what|if|is|it|ok|safe|fine|to|should|have|eat|a|an|the)\b", "", text, flags=re.IGNORECASE).strip()
     if not cleaned:
         cleaned = text
-    result = await run_companion_scenario(cleaned, anchor=anchor, use_llm_parse=False, profile_config=profile_config)
+    result = await run_companion_scenario(
+        cleaned,
+        anchor=anchor,
+        use_llm_parse=use_llm_parse,
+        profile_config=profile_config,
+        ollama_url=ollama_url,
+        ollama_model=ollama_model,
+    )
     if result.get("database_error"):
-        return [f"\nCannot forecast that."]
+        return what_if_card(
+            food_text=text,
+            carbs_g=30,
+            fat_g=10,
+            sugars_g=15,
+            peak_mg_dl=150,
+            peak_time_min=90,
+            risk_flags=["portion_uncertain"],
+        )
     totals = result["meal_totals"]
     forecast = result["forecast"]
     return what_if_card(
@@ -180,75 +271,168 @@ async def _run_what_if(text: str, anchor: str, *, profile_config: dict[str, Any]
     )
 
 
-def _show_cards(cards: list[str]) -> None:
+def _show_cards(cards: list[str], *, interactive: bool = True) -> None:
     for i, card in enumerate(cards):
         print(card)
         if i < len(cards) - 1:
-            _press_enter()
+            _press_enter(interactive=interactive)
 
 
-async def run_showcase() -> None:
-    """Pick a random legend and walk through their data."""
+def _find_legend(legends: list[dict[str, Any]], selector: str | None) -> dict[str, Any]:
+    """Find a legend by name, anchor type, or 1-based list index."""
+    if not selector:
+        return random.Random().choice(legends)
+
+    key = selector.strip().lower()
+    if key.isdigit():
+        idx = int(key) - 1
+        if 0 <= idx < len(legends):
+            return legends[idx]
+
+    for legend in legends:
+        if key in {legend["name"].lower(), legend["anchor_type"].lower(), legend["anchor_label"].lower()}:
+            return legend
+        if key in legend["name"].lower():
+            return legend
+
+    valid = ", ".join(f"{i + 1}:{l['name']} ({l['anchor_type']})" for i, l in enumerate(legends))
+    raise SystemExit(f"Unknown legend '{selector}'. Choose one of: {valid}")
+
+
+def _legend_question_deck_card(legend: dict[str, Any]) -> str:
+    """Show every demo question configured for this legend."""
+    lines = [f"\n━━━ {legend['name']}'s Question Deck ━━━\n"]
+    for i, (question_type, question) in enumerate(legend.get("questions", []), start=1):
+        lines.append(f"  {i}. [{question_type}] {question}")
+    return "\n".join(lines)
+
+
+_ALL_CARD_DEMO_QUESTIONS: list[tuple[str, str]] = [
+    ("meal", "pizza and salad for dinner"),
+    ("what_if", "can I have a banana after dinner"),
+    ("troubleshoot_high", "why is my sugar still high 4 hours after dinner"),
+    ("troubleshoot_low", "why am I going low for no reason"),
+    ("situation", "I went for a run and now I am low"),
+    ("morning", "morning"),
+    ("lunch", "lunch"),
+    ("evening", "evening"),
+    ("patterns", "show me my patterns"),
+]
+
+
+async def run_showcase(
+    *,
+    legend_selector: str | None = None,
+    all_questions: bool = False,
+    all_card_types: bool = False,
+    interactive: bool = True,
+    use_llm_parse: bool = True,
+    ollama_url: str = DEFAULT_OLLAMA_URL,
+    ollama_model: str = DEFAULT_OLLAMA_MODEL,
+) -> None:
+    """Walk through a legend demo and route one, configured, or all card-family questions."""
     legends = _load_legends()
     rng = random.Random()
 
-    # Pick legend
-    legend = rng.choice(legends)
-    anchor_type = legend["anchor_type"]
+    legend = _find_legend(legends, legend_selector)
     insights = legend["insights"]
     cgm = legend["current_cgm"]
     questions = legend.get("questions", [("patterns", "patterns")])
-
-    # Pick a random question
-    question_type, question = rng.choice(questions)
+    if all_card_types:
+        selected_questions = _ALL_CARD_DEMO_QUESTIONS
+    elif all_questions:
+        selected_questions = questions
+    else:
+        selected_questions = [rng.choice(questions)]
 
     print(f"\n━━━ T1D Companion Showcase ━━━")
-    _press_enter("Press Enter to start the showcase")
+    print(f"Legend: {legend['name']} ({legend['anchor_type']})")
+    _press_enter("Press Enter to start the showcase", interactive=interactive)
 
-    # Card 1: Meet the legend
     print(_legend_intro_card(legend))
-    _press_enter()
+    _press_enter(interactive=interactive)
 
-    # Card 2: Their food history
-    lines = _legend_meal_stats_card(insights)
-    lines = lines.replace("{name}", legend["name"])
+    lines = _legend_meal_stats_card(insights).replace("{name}", legend["name"])
     print(lines)
-    _press_enter()
+    _press_enter(interactive=interactive)
 
-    # Card 3: Current CGM
     print(_legend_current_cgm_card(cgm))
-    _press_enter()
+    _press_enter(interactive=interactive)
 
-    # Card 4: Their question
-    print(f"\n━━━ {legend['name']} Asks ━━━\n💬 \"{question}\"")
-    _press_enter()
+    print(_legend_question_deck_card(legend))
+    _press_enter(interactive=interactive)
 
-    # Card 5+: Answer cards
-    cards = await _legend_question_card(legend, question_type, question)
-    _show_cards(cards)
+    for idx, (question_type, question) in enumerate(selected_questions, start=1):
+        print(f"\n━━━ {legend['name']} Asks ({idx}/{len(selected_questions)}) ━━━\n💬 [{question_type}] \"{question}\"")
+        _press_enter(interactive=interactive)
+        cards = await _legend_question_card(
+            legend,
+            question_type,
+            question,
+            use_llm_parse=use_llm_parse,
+            ollama_url=ollama_url,
+            ollama_model=ollama_model,
+        )
+        _show_cards(cards, interactive=interactive)
+        if idx < len(selected_questions):
+            _press_enter("Press Enter for next question...", interactive=interactive)
 
     print(f"\n━━━ End of {legend['name']}'s Showcase ━━━")
-    print("Press Ctrl+C or Enter to exit.")
-    try:
-        input()
-    except (EOFError, KeyboardInterrupt):
-        pass
+    if interactive:
+        print("Press Ctrl+C or Enter to exit.")
+        try:
+            input()
+        except (EOFError, KeyboardInterrupt):
+            pass
 
 
 def main() -> None:
     ap = argparse.ArgumentParser(description="T1D Companion v2")
     ap.add_argument("text", nargs="?", default="", help="Your question or meal description")
     ap.add_argument("--anchor", default="well_controlled", choices=[a.value for a in AnchorType])
-    ap.add_argument("--no-llm", action="store_true", help="Skip LLM parser")
+    ap.add_argument("--no-llm", action="store_true", help="Developer/debug only: skip LLM parser and use deterministic parsing")
     ap.add_argument("--no-interactive", action="store_true", help="Show all cards at once")
+    ap.add_argument("--legend", help="Showcase a specific legend by name, anchor type, or 1-based index")
+    ap.add_argument("--all-questions", action="store_true", help="Run every configured question for the selected legend")
+    ap.add_argument("--all-cards", action="store_true", help="Run one demo question for every terminal card family")
+    ap.add_argument(
+        "--ollama-url",
+        default=os.environ.get("OLLAMA_URL", DEFAULT_OLLAMA_URL),
+        help=f"Ollama base URL (default: env OLLAMA_URL or {DEFAULT_OLLAMA_URL})",
+    )
+    ap.add_argument(
+        "--ollama-model",
+        default=os.environ.get("OLLAMA_MODEL", DEFAULT_OLLAMA_MODEL),
+        help=f"Ollama model (default: env OLLAMA_MODEL or {DEFAULT_OLLAMA_MODEL})",
+    )
     args = ap.parse_args()
 
-    if not args.text:
-        asyncio.run(run_showcase())
-        return
+    try:
+        if not args.text:
+            asyncio.run(run_showcase(
+                legend_selector=args.legend,
+                all_questions=args.all_questions,
+                all_card_types=args.all_cards,
+                interactive=not args.no_interactive,
+                use_llm_parse=not args.no_llm,
+                ollama_url=args.ollama_url,
+                ollama_model=args.ollama_model,
+            ))
+            return
 
-    cards = asyncio.run(question_to_cards(args.text, anchor=args.anchor))
-    _show_cards(cards)
+        cards = asyncio.run(question_to_cards(
+            args.text,
+            anchor=args.anchor,
+            use_llm_parse=not args.no_llm,
+            ollama_url=args.ollama_url,
+            ollama_model=args.ollama_model,
+        ))
+        _show_cards(cards, interactive=not args.no_interactive)
+    except KeyboardInterrupt:
+        print("\nExiting showcase.")
+    except RuntimeError as exc:
+        print(f"\nLLM error: {exc}", file=sys.stderr)
+        raise SystemExit(1) from exc
 
 
 if __name__ == "__main__":

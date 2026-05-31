@@ -282,7 +282,7 @@ class TestLegendTheaterCLI:
         assert "--demo" in result.stdout
 
     def test_demo_preset_overrides_showcase_flags(self):
-        """Product demo pins a deterministic legend and keeps LLM parsing enabled."""
+        """Product demo pins deterministic showcase flags while preserving explicit --no-llm."""
         from argparse import Namespace
 
         args = Namespace(
@@ -301,7 +301,7 @@ class TestLegendTheaterCLI:
         assert args.all_questions is False
         assert args.all_cards is True
         assert args.no_interactive is True
-        assert args.no_llm is False
+        assert args.no_llm is True
 
     def test_situation_routing_categories(self):
         """Situation question text routes to the expected subcategory."""
@@ -332,7 +332,7 @@ class TestLegendTheaterCLI:
         assert "Product demo Coverage Checklist" in output
         assert "Meal pipeline" in output
         assert "Situation routing" in output
-        assert "Capabilities shown:" in output
+        assert "What was demonstrated:" in output
 
     def test_demo_ctrl_c_exits_cleanly(self, monkeypatch, capsys):
         """Ctrl-C during the demo should not emit an asyncio traceback."""

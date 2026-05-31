@@ -18,6 +18,7 @@ from pathlib import Path
 from typing import Any
 
 from app.simulator.schemas import AnchorType
+from app.simulator.patient_factory import generate_patient_config, generate_profile_json
 from src.companion import (
     Intent,
     detect_intent,
@@ -395,6 +396,7 @@ def main() -> None:
     ap.add_argument("--legend", help="Showcase a specific legend by name, anchor type, or 1-based index")
     ap.add_argument("--all-questions", action="store_true", help="Run every configured question for the selected legend")
     ap.add_argument("--all-cards", action="store_true", help="Run one demo question for every terminal card family")
+    ap.add_argument("--compare-legends", metavar="MEAL", help="Compare meal forecast across all 12 legend profiles")
     ap.add_argument(
         "--ollama-url",
         default=os.environ.get("OLLAMA_URL", DEFAULT_OLLAMA_URL),
@@ -408,6 +410,10 @@ def main() -> None:
     args = ap.parse_args()
 
     try:
+        if args.compare_legends:
+            asyncio.run(_run_legend_theater(args.compare_legends, use_llm=False))
+            return
+
         if not args.text:
             asyncio.run(run_showcase(
                 legend_selector=args.legend,
@@ -432,6 +438,134 @@ def main() -> None:
         print("\nExiting showcase.")
     except RuntimeError as exc:
         print(f"\nLLM error: {exc}", file=sys.stderr)
+        raise SystemExit(1) from exc
+
+
+# ── Legend Theater: compare same meal across all 12 profiles ──
+
+async def _run_legend_theater(meal_text: str, *, use_llm: bool = False) -> None:
+    """Run a meal across all 12 legend profiles and print a comparison table."""
+    from src.forecast.model import MealTotals
+    from src.forecast.stage import ForecastStage, make_forecaster
+    from src.parser.deterministic import DeterministicParser
+    from app.food.service import combine_food_evidence, calculate_food_evidence, FoodService
+    from app.core.database import db_manager, get_settings
+
+    # Parse meal
+    if use_llm:
+        from src.runner import parse_meal_llm
+        foods, _ = await parse_meal_llm(meal_text)
+    else:
+        foods = DeterministicParser().parse(meal_text)
+
+    if not foods:
+        print("No foods parsed from input.")
+        return
+
+    # Get food evidence (best-effort; works without DB via archetype fallback)
+    evidence = []
+    try:
+        settings = get_settings()
+        db_manager.init_db(settings.database_url)
+        async with db_manager.get_session() as session:
+            service = FoodService(session)
+            evidence = [
+                calculate_food_evidence(f, await service.search_food_candidates(f))
+                for f in foods
+            ]
+    except Exception:
+        pass
+
+    # Fallback totals if no DB evidence
+    meal = combine_food_evidence(evidence)
+    totals_dict = meal.get("totals", {})
+    if not totals_dict.get("carbs_g"):
+        # Rough heuristic: ~30g carbs per food item if no evidence
+        totals_dict = {
+            "carbs_g": len(foods) * 30.0,
+            "fat_g": len(foods) * 10.0,
+            "sugars_g": len(foods) * 5.0,
+            "protein_g": len(foods) * 8.0,
+            "kcal": len(foods) * 250.0,
+        }
+    totals = MealTotals.from_dict(totals_dict)
+
+    legends = _load_legends()
+    results: list[dict[str, Any]] = []
+
+    for legend in legends:
+        pc = legend.get("profile_config", {})
+        anchor = legend["anchor_type"]
+        label = legend.get("anchor_label", anchor.replace("_", " ").title())
+
+        # Build ForecastStage
+        stage = ForecastStage(
+            anchor_type=anchor,
+            basal_mg_dl=pc.get("basal_glucose_mean", 110),
+            carb_ratio=pc.get("carb_ratio", 15),
+            insulin_sensitivity=pc.get("insulin_sensitivity", 40),
+            fat_delay_hours=pc.get("fat_delay_hours", 3.0),
+            exercise_drop_factor=pc.get("exercise_drop_factor", 1.0),
+        )
+
+        forecast = stage.forecast(totals)
+
+        # Risk flags from totals
+        flags: list[str] = []
+        if totals.carbs_g >= 80:
+            flags.append("large_carb_load")
+        if totals.fat_g >= 15:
+            flags.append("fat_delay")
+        if totals.sugars_g >= 50:
+            flags.append("rapid_sugar")
+
+        band = forecast.uncertainty_band
+        pr = list(band.peak_range_mg_dl) if band else [forecast.peak_mg_dl, forecast.peak_mg_dl]
+
+        results.append({
+            "name": legend["name"],
+            "anchor": anchor,
+            "label": label,
+            "baseline": forecast.baseline_mg_dl,
+            "peak": forecast.peak_mg_dl,
+            "peak_time": forecast.peak_time_minutes,
+            "peak_low": pr[0],
+            "peak_high": pr[1],
+            "flags": flags,
+            "cgm": legend.get("current_cgm", {}).get("mg_dl", "?"),
+        })
+
+    # Sort by peak descending
+    results.sort(key=lambda r: r["peak"], reverse=True)
+
+    # ── Render table ──
+    print(f"\n━━━ Legend Theater: \"{meal_text}\" ━━━")
+    print(f"  Meal totals: {totals.carbs_g:.0f}g carbs, {totals.fat_g:.0f}g fat, {totals.sugars_g:.0f}g sugars")
+    print(f"  {'Profile':<24s} {'Baseline':>8s} {'Peak':>6s} {'Range':>14s} {'Time':>6s} {'Flags':<20s}")
+    print(f"  {'─'*24} {'─'*8} {'─'*6} {'─'*14} {'─'*6} {'─'*20}")
+    for r in results:
+        range_str = f"{r['peak_low']}–{r['peak_high']}"
+        flags_str = ", ".join(r["flags"]) if r["flags"] else "—"
+        print(f"  {r['label']:<24s} {r['baseline']:>8} {r['peak']:>6} {range_str:>14} {r['peak_time']:>6} {flags_str:<20s}")
+
+    print(f"\n  Meal parsed: {', '.join(f.item for f in foods)}")
+    print(f"  Legend CGM baseline shown for context.")
+    print(f"  Synthetic/demo forecasts — not medical advice.")
+
+    # Summary insight
+    best = results[-1]
+    worst = results[0]
+    spread = worst["peak"] - best["peak"]
+    print(f"\n  Peak spread: {spread} mg/dL between profiles.")
+    print(f"  Highest peak: {worst['label']} ({worst['peak']} mg/dL)")
+    print(f"  Lowest peak:  {best['label']} ({best['peak']} mg/dL)")
+    if spread > 60:
+        print(f"  This meal behaves very differently across profile types — personalization matters.")
+    elif spread > 30:
+        print(f"  Moderate profile sensitivity — some users will see notably different outcomes.")
+    else:
+        print(f"  Relatively consistent response across profiles.")
+
         raise SystemExit(1) from exc
 
 

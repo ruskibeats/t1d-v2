@@ -77,6 +77,9 @@ ANCHOR_MEAL_PROFILES: dict[str, dict[str, tuple[float, float, float, float]]] = 
     "newly_diagnosed": {"breakfast": (30, 6, 10, 0.4), "morning_snack": (15, 3, 8, 0.4),
         "lunch": (50, 10, 14, 0.3), "afternoon_snack": (18, 4, 8, 0.4),
         "dinner": (55, 12, 12, 0.3), "evening_snack": (10, 2, 5, 0.5)},
+    "foot_to_floor": {"breakfast": (55, 22, 12, 0.25), "morning_snack": (20, 5, 10, 0.3),
+        "lunch": (60, 15, 14, 0.2), "afternoon_snack": (22, 6, 10, 0.3),
+        "dinner": (65, 18, 12, 0.2), "evening_snack": (12, 3, 5, 0.35)},
 }
 
 FOOD_NAMES: dict[str, list[str]] = {
@@ -101,6 +104,14 @@ QUESTIONS_PER_ANCHOR: dict[str, list[tuple[str, str]]] = {
     "insulin_resistant": [("troubleshoot_high", "why does my sugar stay high for hours"), ("meal", "pizza and garlic bread"), ("evening", "evening"), ("patterns", "patterns")],
     "high_variability": [("patterns", "why is my glucose so unpredictable"), ("meal", "a sandwich and crisps for lunch"), ("evening", "evening"), ("troubleshoot_high", "why am I going high after the same meal I had yesterday")],
     "newly_diagnosed": [("morning", "morning what should I know"), ("meal", "breakfast ideas"), ("lunch", "lunch what should I watch for"), ("troubleshoot_high", "why am I going high and what does this mean"), ("patterns", "patterns")],
+    "foot_to_floor": [
+        ("morning", "morning"),
+        ("patterns", "why do I spike after getting out of bed"),
+        ("meal", "2 brown toast slices and 4 scrambled eggs with butter and avocado"),
+        ("troubleshoot_high", "why do I spike before breakfast"),
+        ("what_if", "what if I delay breakfast until 9am"),
+        ("insights", "what patterns do you see in my mornings"),
+    ],
 }
 
 
@@ -170,7 +181,7 @@ def _compute_insights(anchor_type: str, rows: list[dict[str, Any]]) -> dict[str,
 def _generate_current_cgm(anchor_type: str, rng: random.Random) -> dict[str, Any]:
     basal = {"well_controlled": 110, "high_fat_delayed": 115, "post_meal_spike": 120, "brittle": 130,
              "dawn_phenomenon": 140, "overnight_hypo": 95, "exercise_sensitive": 105, "exercise_regimen": 108,
-             "insulin_sensitive": 100, "insulin_resistant": 140, "high_variability": 125, "newly_diagnosed": 135}
+             "insulin_sensitive": 100, "insulin_resistant": 140, "high_variability": 125, "newly_diagnosed": 135, "foot_to_floor": 108}
     base = basal.get(anchor_type, 110)
     return {"mg_dl": max(40, min(400, round(base + rng.gauss(0, 15)))),
             "trend": rng.choice(["stable", "rising slow", "rising fast", "falling slow", "falling fast"]),
@@ -186,10 +197,80 @@ class Legend:
     current_cgm: dict[str, Any]; questions: list[tuple[str, str]]
 
 
-def build_legends() -> list[dict[str, Any]]:
+def _build_tom_legend() -> dict[str, Any]:
+    """Build the Tom Batchelor real CGM legend."""
+    ak = "foot_to_floor"
+    rng = random.Random(_SEED + 99)
+    food_history = _generate_food_history(ak, rng)
+    return asdict(Legend(
+        name="Tom Batchelor",
+        age=27,
+        diagnosis_years=4.0,
+        anchor_type=ak,
+        anchor_label="Foot2Floor",
+        profile_config={
+            "data_source": {
+                "type": "nightscout",
+                "connection": "librelinkup",
+                "base_url": "http://192.168.0.92:4000/api/v1",
+                "real_data_scope": "cgm_only",
+                "write_enabled": False,
+            },
+            "known_settings": {
+                "carb_ratio": {
+                    "insulin_units": 2,
+                    "carbs_g": 10,
+                    "display": "2 units per 10g carbs",
+                    "units_per_10g": 2.0,
+                    "grams_per_unit": 5.0,
+                    "use_for_dosing": False,
+                },
+            },
+            "pattern_profile": {
+                "primary_pattern": "foot_to_floor",
+                "wake_window_local": "06:30-07:00",
+                "observation_window_minutes": 90,
+                "pattern_definition": "glucose rise after waking/getting up, without a linked logged food or treatment source",
+            },
+            "clinical_assumptions": {
+                "food_logs_available": False,
+                "treatment_logs_available": False,
+                "insulin_data_available": False,
+                "do_not_infer_dosing": True,
+            },
+        },
+        profile_summary={
+            "anchor_label": "Foot2Floor",
+            "profile": {
+                "summary": "Tom is a 27-year-old living with type 1 diabetes for 4 years. His profile focuses on a Foot2Floor pattern: glucose tends to rise between waking and breakfast. Live CGM comes from LibreLinkUp via Nightscout.",
+                "data_context": "CGM data is real where available; food history is a mix of user-provided breakfast routine and synthetic demo context.",
+                "known_routine": "Breakfast at 08:00: 2 brown toast slices and 4 scrambled eggs with butter and avocado.",
+                "target_range": "3.9–10.0 mmol/L, with ~70% time in range target.",
+            },
+            "patient_config": {},
+        },
+        food_history=food_history,
+        insights=_compute_insights(ak, food_history),
+        current_cgm={
+            "mg_dl": max(40, min(400, round(rng.gauss(108, 15)))),
+            "mmol_l": round(max(2.0, min(22.0, rng.gauss(6.0, 0.8))), 1),
+            "trend": rng.choice(["stable", "rising slow", "rising fast", "falling slow", "falling fast"]),
+            "arrow": rng.choice(["→", "↗", "↑", "↘", "↓"]),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "units": "mmol/L",
+        },
+        questions=QUESTIONS_PER_ANCHOR.get(ak, [("patterns", "patterns")]),
+    ))
+
+
+def build_legends(*, include_real: bool = False) -> list[dict[str, Any]]:
     profiles = json.loads(Path("/root/t1d/data/profile_configs.json").read_text())
     legends = []
     for i, anchor_type in enumerate(AnchorType):
+        if anchor_type == AnchorType.FOOT2FLOOR:
+            if include_real:
+                legends.append(_build_tom_legend())
+            continue
         rng = random.Random(_SEED + i)
         ak = anchor_type.value
         pd = profiles.get(ak, {})
@@ -267,8 +348,16 @@ async def _write_legends_to_db(legends: list[dict[str, Any]]) -> None:
 def main() -> None:
     ap = argparse.ArgumentParser("Build T1D companion legends")
     ap.add_argument("--write-to-db", action="store_true")
+    ap.add_argument("--include-real", action="store_true",
+                        help="Include Tom Batchelor / Foot2Floor real CGM legend as 13th legend")
+    ap.add_argument("--sync-cgm", action="store_true",
+                        help="Sync CGM data for real legends (requires --include-real)")
     args = ap.parse_args()
-    legends = build_legends()
+
+    if args.sync_cgm and not args.include_real:
+        ap.error("--sync-cgm requires --include-real (real CGM legend must be included to sync)")
+
+    legends = build_legends(include_real=args.include_real)
     out = Path("data/legends.json")
     out.write_text(json.dumps(legends, indent=2))
     meals = sum(len(l["food_history"]) for l in legends)

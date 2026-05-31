@@ -14,6 +14,7 @@ class AnchorType(str, Enum):
     INSULIN_RESISTANT = "insulin_resistant"
     HIGH_VARIABILITY = "high_variability"
     NEWLY_DIAGNOSED = "newly_diagnosed"
+    FOOT2FLOOR = "foot_to_floor"
 
 @dataclass
 class PatientConfig:

@@ -34,6 +34,7 @@ _DEFAULT_ENTRIES: dict[str, CalibrationEntry] = {
     "insulin_resistant": CalibrationEntry(2.5, 1.6, "Lower rise per carb"),
     "high_variability": CalibrationEntry(2.6, 1.5, "Wide response variance"),
     "newly_diagnosed": CalibrationEntry(2.8, 1.7, "Higher variability, honeymoon effect"),
+    "foot_to_floor": CalibrationEntry(1.8, 1.1, "Morning foot-to-floor rise, moderate carb response"),
 }
 
 _ANCHOR_NAMES: set[str] = {a.value for a in AnchorType}

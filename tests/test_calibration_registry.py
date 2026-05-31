@@ -28,10 +28,10 @@ class TestCalibrationEntry:
 class TestCalibrationRegistry:
     """Test the CalibrationRegistry."""
 
-    def test_all_12_anchors_present(self):
+    def test_all_anchors_present(self):
         registry = CalibrationRegistry()
         entries = registry.all_entries()
-        assert len(entries) == 12
+        assert len(entries) == 13
 
     def test_get_well_controlled(self):
         registry = CalibrationRegistry()
@@ -67,7 +67,7 @@ class TestCalibrationRegistry:
     def test_repr(self):
         registry = CalibrationRegistry()
         assert "CalibrationRegistry" in repr(registry)
-        assert "12" in repr(registry)
+        assert "13" in repr(registry)
 
 
 class TestJsonOverride:

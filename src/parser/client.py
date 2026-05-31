@@ -32,8 +32,8 @@ class OllamaClient:
         ollama_url: str | None = None,
         model: str | None = None,
         *,
-        max_retries: int = 2,
-        timeout_seconds: float = 15.0,
+        max_retries: int = 3,
+        timeout_seconds: float = 120.0,
         prompts_dir: Path | None = None,
     ):
         self.ollama_url = (ollama_url or os.getenv("OLLAMA_URL") or os.getenv("OLLAMA_HOST", "http://192.168.0.137:11434")).rstrip("/")

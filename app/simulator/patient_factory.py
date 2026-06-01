@@ -114,6 +114,15 @@ _PROFILE_OVERRIDES: dict[AnchorType, dict] = {
         "fat_delay_hours": 2.5,
         "exercise_drop_factor": 1.1,
     },
+    AnchorType.FOOT2FLOOR: {
+        "basal_glucose_mean": 108,
+        "basal_glucose_amplitude": 18,
+        "meal_rise_factor": 1.8,
+        "insulin_sensitivity": 40,
+        "carb_ratio": 20,
+        "fat_delay_hours": 2.5,
+        "exercise_drop_factor": 1.2,
+    },
 }
 
 

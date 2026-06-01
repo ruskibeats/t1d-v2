@@ -461,3 +461,216 @@ class TestPatternGenomePipelineIntegration:
 
         step8 = [c for c in cards if "Pattern Genome" in c]
         assert len(step8) == 0, "Step 8 should be omitted when no genome provided"
+
+
+# ── Issue #43: glucose-first, food-fallback tests ──
+
+class TestDataSourceLabels:
+    """Every TraitInsight must carry data_source (Issue #43)."""
+
+    def test_synthetic_legend_gets_synthetic_legend_source(self):
+        """Synthetic legend data produces synthetic_legend data_source."""
+        rows = _make_full_history()
+        genome = analyze_pattern_genome(rows, "Test", "well_controlled")
+        for trait in genome.traits:
+            assert trait.data_source == "synthetic_legend", (
+                f"{trait.trait_id}: expected synthetic_legend, got {trait.data_source}")
+
+    def test_no_anchor_no_glucose_gets_food_proxy(self):
+        """No anchor + no glucose = food_proxy data_source."""
+        rows = _make_full_history()
+        genome = analyze_pattern_genome(rows, "Test", "")
+        for trait in genome.traits:
+            assert trait.data_source == "food_proxy", (
+                f"{trait.trait_id}: expected food_proxy, got {trait.data_source}")
+
+    def test_with_cgm_gets_real_cgm(self):
+        """With CGM data and no anchor = real_cgm data_source."""
+        rows = _make_full_history()
+        cgm = _make_cgm_readings()
+        genome = analyze_pattern_genome(rows, "Test", "", glucose_readings=cgm)
+        for trait in genome.traits:
+            assert trait.data_source == "real_cgm", (
+                f"{trait.trait_id}: expected real_cgm, got {trait.data_source}")
+
+    def test_data_source_values_are_valid(self):
+        """data_source must be one of the three valid values."""
+        valid = {"real_cgm", "food_proxy", "synthetic_legend"}
+        rows = _make_full_history()
+        genome = analyze_pattern_genome(rows, "Test", "well_controlled")
+        for trait in genome.traits:
+            assert trait.data_source in valid, (
+                f"{trait.trait_id}: invalid data_source '{trait.data_source}'")
+
+
+class TestGlucoseFirstDetectors:
+    """Detectors use glucose data when available (Issue #43)."""
+
+    def test_breakfast_spike_with_cgm_uses_glucose(self):
+        """_analyze_breakfast_spike uses CGM peaks when glucose data exists."""
+        rows = _make_food_history("breakfast", 10, carbs=40, fat=5, sugars=20)
+        cgm = []
+        for i in range(10):
+            # meals are at T12:00:00, so post-meal windows are 12:00-15:00
+            cgm.append({"timestamp": f"2025-01-{i+1:02d}T12:30:00+00:00", "value": 200})
+            cgm.append({"timestamp": f"2025-01-{i+1:02d}T13:00:00+00:00", "value": 170})
+            cgm.append({"timestamp": f"2025-01-{i+1:02d}T14:00:00+00:00", "value": 140})
+
+        trait = _analyze_breakfast_spike(rows, "", cgm)
+        assert trait.data_source == "real_cgm"
+        assert trait.confidence in ("high", "medium")
+        assert "mg/dL" in trait.detail
+
+    def test_breakfast_spike_without_cgm_uses_food_proxy(self):
+        """_analyze_breakfast_spike falls back to sugar content."""
+        rows = _make_food_history("breakfast", 10, carbs=40, fat=5, sugars=20)
+        trait = _analyze_breakfast_spike(rows, "")
+        assert trait.data_source == "food_proxy"
+        assert "food proxy" in trait.detail
+
+    def test_fat_delay_with_cgm_uses_glucose(self):
+        """_analyze_fat_delay_tendency uses post-dinner CGM curves."""
+        rows = _make_food_history("dinner", 10, carbs=60, fat=30, sugars=8)
+        cgm = []
+        for i in range(10):
+            # meals at T12:00:00, delayed peak at T14:30 (150 min)
+            cgm.append({"timestamp": f"2025-01-{i+1:02d}T13:00:00+00:00", "value": 120})
+            cgm.append({"timestamp": f"2025-01-{i+1:02d}T14:00:00+00:00", "value": 150})
+            cgm.append({"timestamp": f"2025-01-{i+1:02d}T14:30:00+00:00", "value": 190})
+            cgm.append({"timestamp": f"2025-01-{i+1:02d}T16:00:00+00:00", "value": 160})
+
+        trait = _analyze_fat_delay_tendency(rows, "", cgm)
+        assert trait.data_source == "real_cgm"
+        assert "mg/dL" in trait.detail
+
+    def test_overnight_risk_with_cgm_uses_glucose(self):
+        """_analyze_overnight_risk uses overnight CGM patterns."""
+        rows = []
+        cgm = []
+        for i in range(10):
+            dinner_day = f"2025-01-{i+1:02d}"
+            rows.append({
+                "timestamp": f"{dinner_day}T19:00:00+00:00",
+                "meal_type": "dinner",
+                "food": "Dinner",
+                "carb_estimate_g": 60, "fat_g": 25, "sugars_g": 8,
+                "protein_g": 20, "kcal": 400, "anchor_type": "",
+            })
+            # overnight low at 3 AM next day -> belongs to night of dinner_day
+            next_day = f"2025-01-{i+2:02d}"
+            cgm.append({"timestamp": f"{next_day}T03:00:00+00:00", "value": 55})
+            cgm.append({"timestamp": f"{next_day}T05:00:00+00:00", "value": 65})
+            cgm.append({"timestamp": f"{next_day}T06:30:00+00:00", "value": 100})
+
+        trait = _analyze_overnight_risk(rows, "", cgm)
+        # Even though CGM exists, the overnight readings may not register as
+        # post-dinner food-proxy is used for triggering. Just verify source.
+        assert trait.data_source == "real_cgm"
+
+    def test_variability_with_cgm_uses_glucose(self):
+        """_analyze_variability uses glucose outcome variability."""
+        rows = _make_full_history()
+        cgm = [{"timestamp": f"2025-01-{i+1:02d}T12:00:00+00:00", "value": 80 + (i % 5) * 40}
+               for i in range(50)]
+        trait = _analyze_variability(rows, "", cgm)
+        assert trait.data_source == "real_cgm"
+        assert "mg/dL" in trait.detail
+
+    def test_trigger_foods_with_cgm_uses_glucose(self):
+        """_analyze_trigger_foods uses glucose outcome associations."""
+        rows = []
+        cgm = []
+        for i in range(10):
+            rows.append({
+                "timestamp": f"2025-01-{i+1:02d}T12:00:00+00:00",
+                "meal_type": "lunch",
+                "food": "Pizza",
+                "carb_estimate_g": 60, "fat_g": 20, "sugars_g": 8,
+                "protein_g": 20, "kcal": 400, "anchor_type": "",
+            })
+            # Pizza consistently causes high glucose within 3h
+            cgm.append({"timestamp": f"2025-01-{i+1:02d}T13:00:00+00:00", "value": 200})
+            cgm.append({"timestamp": f"2025-01-{i+1:02d}T14:00:00+00:00", "value": 210})
+            cgm.append({"timestamp": f"2025-01-{i+1:02d}T15:00:00+00:00", "value": 180})
+
+        trait = _analyze_trigger_foods(rows, "", cgm)
+        assert trait.data_source == "real_cgm"
+
+    def test_exercise_sensitivity_with_activity_and_cgm(self):
+        """_analyze_exercise_sensitivity uses activity-day vs rest-day glucose."""
+        rows = _make_food_history("afternoon_snack", 10, carbs=30, fat=5, sugars=5)
+        cgm = []
+        activity = []
+        for i in range(10):
+            day = f"2025-01-{i+1:02d}"
+            if i % 2 == 0:
+                # activity day
+                activity.append({"timestamp": f"{day}T18:00:00+00:00"})
+                cgm.append({"timestamp": f"{day}T14:00:00+00:00", "value": 100})
+                cgm.append({"timestamp": f"{day}T18:00:00+00:00", "value": 90})
+            else:
+                # rest day
+                cgm.append({"timestamp": f"{day}T14:00:00+00:00", "value": 130})
+                cgm.append({"timestamp": f"{day}T18:00:00+00:00", "value": 140})
+
+        trait = _analyze_exercise_sensitivity(rows, "", cgm, activity)
+        assert trait.data_source == "real_cgm"
+        assert "mg/dL" in trait.detail
+
+
+class TestBackwardCompatibility:
+    """Synthetic legend data still produces same output as before (Issue #43)."""
+
+    def test_legends_produce_synthetic_legend_source(self):
+        """All 12 legend profiles produce synthetic_legend data_source."""
+        anchors = [
+            "well_controlled", "high_fat_delayed", "post_meal_spike", "brittle",
+            "dawn_phenomenon", "overnight_hypo", "exercise_sensitive",
+            "exercise_regimen", "insulin_sensitive", "insulin_resistant",
+            "high_variability", "newly_diagnosed",
+        ]
+        for anchor in anchors:
+            genome = genome_from_legends(anchor)
+            for trait in genome.traits:
+                assert trait.data_source == "synthetic_legend", (
+                    f"{anchor}/{trait.trait_id}: got {trait.data_source}")
+
+    def test_legends_still_produce_6_traits(self):
+        """Backward compat: all 12 legends still produce 6 traits."""
+        anchors = [
+            "well_controlled", "high_fat_delayed", "post_meal_spike", "brittle",
+            "dawn_phenomenon", "overnight_hypo", "exercise_sensitive",
+            "exercise_regimen", "insulin_sensitive", "insulin_resistant",
+            "high_variability", "newly_diagnosed",
+        ]
+        for anchor in anchors:
+            genome = genome_from_legends(anchor)
+            assert genome.total_meals_analyzed > 0, f"No meals for {anchor}"
+            assert len(genome.traits) == 6, f"Wrong trait count for {anchor}"
+
+    def test_high_fat_delayed_still_shows_fat_delay(self):
+        """High Fat Delayed profile still shows high-fat dinner pattern."""
+        genome = genome_from_legends("high_fat_delayed")
+        fat_trait = next(t for t in genome.traits if t.trait_id == "fat_delay")
+        assert fat_trait.confidence in ("high", "medium")
+        assert fat_trait.evidence_count > 50
+
+    def test_post_meal_spike_still_shows_breakfast_spike(self):
+        """Post Meal Spike profile still shows breakfast spike tendency."""
+        genome = genome_from_legends("post_meal_spike")
+        spike_trait = next(t for t in genome.traits if t.trait_id == "breakfast_spike")
+        assert spike_trait.confidence in ("high", "medium")
+
+
+# ── Helper for CGM test data ──
+
+def _make_cgm_readings() -> list[dict]:
+    """Generate synthetic CGM readings for testing."""
+    readings = []
+    for day in range(30):
+        for hour in range(24):
+            readings.append({
+                "timestamp": f"2025-01-{day+1:02d}T{hour:02d}:00:00+00:00",
+                "value": 110 + (day % 3) * 10,
+            })
+    return readings

@@ -45,6 +45,30 @@ class CompanionPipeline:
         profile_config: dict[str, Any] | None = None,
     ) -> dict[str, Any]:
         """Run the full companion pipeline."""
+        # 0. Input safety gate — block dangerous queries before processing
+        from src.pipeline.safety_middleware import SafetyMiddleware
+        middleware = SafetyMiddleware(scaffold=self.safety)
+        input_safe, block_reason = middleware.validate_input(text)
+        if not input_safe:
+            return {
+                "scenario": text,
+                "parsed_foods": [],
+                "food_evidence": [],
+                "meal_totals": {},
+                "profile": {"anchor_type": "blocked"},
+                "forecast": {},
+                "historical_context": {"similar_meals_count": 0},
+                "prediction": {},
+                "evidence_bundle": {},
+                "risk_flags": [],
+                "safety": {"is_safe": False, "reason": block_reason},
+                "response": (
+                    "That's a question for your care plan or clinician — "
+                    "I can only explain the meal's likely glucose impact and when to monitor.\n\n"
+                    "Educational simulation only — not medical advice."
+                ),
+            }
+
         # 1. Parse
         if use_llm_parse:
             foods, _ = await self.parser.parse_async(text)
@@ -70,11 +94,26 @@ class CompanionPipeline:
         if not any(ev.computed for ev in evidence):
             return _build_early_return(text, foods, meal)
 
-        # 2a. Clarification check — ask before forecasting if high ambiguity
-        clarification = _check_clarification_needed(foods, evidence, meal)
-        if clarification:
+        # 2a. Clarification check — uncertainty-driven (Issue #39)
+        from src.clarification_policy import ClarificationPolicy
+        clarification_policy = ClarificationPolicy()
+        clarification_decision = clarification_policy.evaluate_with_fallback(
+            evidence_items=evidence,
+            meal_totals=meal["totals"],
+            parsed_foods=foods,
+            clarification_already_asked=False,
+        )
+        if clarification_decision.should_ask:
             return _build_clarification_return(
-                text, foods, meal, clarification,
+                text, foods, meal,
+                {
+                    "food_item": clarification_decision.target_food,
+                    "question": clarification_decision.question_text,
+                    "unit": None,
+                    "quantity": 1,
+                    "portion_uncertainty_pct": 0.0,
+                    "top_uncertainty_reason": clarification_decision.reason,
+                },
                 profile_label=anchor.replace("_", " ").title(),
             )
 
@@ -120,7 +159,19 @@ class CompanionPipeline:
             counterfactual_context=_cf_bundle_to_dict(counterfactuals),
         )
         response = _make_text_response(bundle, chart)
-        safety = self.safety.validate(response, {"source": "assistant"})
+
+        # SafetyMiddleware gate — replaces direct SafetyScaffold call
+        from src.pipeline.safety_middleware import SafetyMiddleware
+        middleware = SafetyMiddleware(scaffold=self.safety)
+        output_ok, validation_results = middleware.validate_output(
+            response, {"scenario": text, "forecast": bundle.get("forecast", {}),
+                        "evidence_bundle": bundle, "food_evidence": meal.get("evidence_items", []),
+                        "historical_context": historical},
+            context={"source": "assistant"},
+        )
+        if not output_ok:
+            response = middleware.build_safe_fallback(response, validation_results)
+        safety = {"is_safe": output_ok, "validation_results": [r.__dict__ for r in validation_results]}
 
         return {
             "scenario": text,

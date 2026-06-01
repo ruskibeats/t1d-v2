@@ -42,7 +42,7 @@ class TestLegendTheaterCore:
     def test_all_12_profiles_produce_different_peaks(self):
         """Different anchor types should produce different forecast peaks."""
         legends = _load_legends()
-        assert len(legends) == 12
+        assert len(legends) == 13
 
         totals = MealTotals(carbs_g=60, fat_g=20, sugars_g=8)
         peaks = {}

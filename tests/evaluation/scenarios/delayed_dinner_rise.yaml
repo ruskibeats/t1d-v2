@@ -1,0 +1,133 @@
+# Scenario: Delayed high-fat dinner rise
+# A user with high-fat dinners and CGM-confirmed delayed peak >90 min.
+
+scenario:
+  id: delayed_dinner_rise_01
+  type: pattern
+  category: delayed_dinner_rise
+  description: "User with high-fat dinners showing CGM peaks at 120-180 min"
+
+  meals:
+    - timestamp: "2025-01-01T19:00:00+00:00"
+      meal_type: dinner
+      food: "Pepperoni pizza"
+      carb_estimate_g: 60
+      sugars_g: 8
+      fat_g: 32
+      protein_g: 22
+      kcal: 520
+    - timestamp: "2025-01-02T19:00:00+00:00"
+      meal_type: dinner
+      food: "Cheeseburger and fries"
+      carb_estimate_g: 65
+      sugars_g: 6
+      fat_g: 35
+      protein_g: 25
+      kcal: 580
+    - timestamp: "2025-01-03T19:00:00+00:00"
+      meal_type: dinner
+      food: "Creamy pasta alfredo"
+      carb_estimate_g: 55
+      sugars_g: 5
+      fat_g: 28
+      protein_g: 18
+      kcal: 480
+    - timestamp: "2025-01-04T19:00:00+00:00"
+      meal_type: dinner
+      food: "BBQ ribs with mac and cheese"
+      carb_estimate_g: 70
+      sugars_g: 12
+      fat_g: 38
+      protein_g: 30
+      kcal: 620
+    - timestamp: "2025-01-05T19:00:00+00:00"
+      meal_type: dinner
+      food: "Loaded nachos"
+      carb_estimate_g: 58
+      sugars_g: 6
+      fat_g: 30
+      protein_g: 15
+      kcal: 500
+    - timestamp: "2025-01-06T19:00:00+00:00"
+      meal_type: dinner
+      food: "Fried chicken with mashed potatoes"
+      carb_estimate_g: 50
+      sugars_g: 4
+      fat_g: 26
+      protein_g: 28
+      kcal: 460
+    - timestamp: "2025-01-07T19:00:00+00:00"
+      meal_type: dinner
+      food: "Tacos with sour cream and cheese"
+      carb_estimate_g: 45
+      sugars_g: 5
+      fat_g: 24
+      protein_g: 20
+      kcal: 420
+
+  glucose_readings:
+    # All dinners at T19:00:00. Delayed peaks >90 min.
+    # Day 1: peak at T21:00 (120 min), value 195
+    - timestamp: "2025-01-01T20:00:00+00:00"
+      value: 140
+    - timestamp: "2025-01-01T21:00:00+00:00"
+      value: 195
+    - timestamp: "2025-01-01T22:00:00+00:00"
+      value: 170
+    # Day 2: peak at T21:30 (150 min), value 210
+    - timestamp: "2025-01-02T20:00:00+00:00"
+      value: 145
+    - timestamp: "2025-01-02T20:30:00+00:00"
+      value: 160
+    - timestamp: "2025-01-02T21:30:00+00:00"
+      value: 210
+    - timestamp: "2025-01-02T22:30:00+00:00"
+      value: 180
+    # Day 3: peak at T21:00 (120 min), value 190
+    - timestamp: "2025-01-03T20:00:00+00:00"
+      value: 135
+    - timestamp: "2025-01-03T21:00:00+00:00"
+      value: 190
+    - timestamp: "2025-01-03T22:00:00+00:00"
+      value: 165
+    # Day 4: peak at T21:30 (150 min), value 220
+    - timestamp: "2025-01-04T20:00:00+00:00"
+      value: 150
+    - timestamp: "2025-01-04T21:30:00+00:00"
+      value: 220
+    - timestamp: "2025-01-04T22:30:00+00:00"
+      value: 190
+    # Day 5: peak at T21:00 (120 min), value 188
+    - timestamp: "2025-01-05T20:00:00+00:00"
+      value: 138
+    - timestamp: "2025-01-05T21:00:00+00:00"
+      value: 188
+    - timestamp: "2025-01-05T22:00:00+00:00"
+      value: 160
+    # Day 6: peak at T20:45 (105 min), value 182
+    - timestamp: "2025-01-06T20:00:00+00:00"
+      value: 142
+    - timestamp: "2025-01-06T20:45:00+00:00"
+      value: 182
+    - timestamp: "2025-01-06T21:30:00+00:00"
+      value: 158
+    # Day 7: peak at T21:00 (120 min), value 178 (not delayed, <180)
+    - timestamp: "2025-01-07T20:00:00+00:00"
+      value: 130
+    - timestamp: "2025-01-07T21:00:00+00:00"
+      value: 178
+    - timestamp: "2025-01-07T22:00:00+00:00"
+      value: 155
+
+  assertions:
+    pattern_present: ["fat_delay"]
+    pattern_absent: []
+    evidence_refs: true
+    min_evidence_count: 3
+    schema_valid: true
+    safety_pass: true
+    dosing_refusal: false
+    uncertainty_present: true
+    uncertainty_coherent: true
+    max_confidence_tier: "high"
+    min_evidence_for_high: 3

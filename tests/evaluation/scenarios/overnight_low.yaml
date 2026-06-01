@@ -1,0 +1,126 @@
+# Scenario: Overnight low window
+# A user with consistent overnight glucose lows below 70 mg/dL.
+
+scenario:
+  id: overnight_low_01
+  type: pattern
+  category: overnight_low
+  description: "User with overnight glucose dropping below 70 mg/dL on most nights"
+
+  meals:
+    - timestamp: "2025-01-01T18:30:00+00:00"
+      meal_type: dinner
+      food: "Grilled chicken with broccoli"
+      carb_estimate_g: 20
+      sugars_g: 4
+      fat_g: 8
+      protein_g: 30
+      kcal: 260
+    - timestamp: "2025-01-02T18:30:00+00:00"
+      meal_type: dinner
+      food: "Fish with green beans"
+      carb_estimate_g: 15
+      sugars_g: 3
+      fat_g: 6
+      protein_g: 25
+      kcal: 210
+    - timestamp: "2025-01-03T18:30:00+00:00"
+      meal_type: dinner
+      food: "Salad with avocado"
+      carb_estimate_g: 18
+      sugars_g: 5
+      fat_g: 10
+      protein_g: 12
+      kcal: 220
+    - timestamp: "2025-01-04T18:30:00+00:00"
+      meal_type: dinner
+      food: "Egg white omelette"
+      carb_estimate_g: 10
+      sugars_g: 3
+      fat_g: 5
+      protein_g: 20
+      kcal: 150
+    - timestamp: "2025-01-05T18:30:00+00:00"
+      meal_type: dinner
+      food: "Stir fry with tofu"
+      carb_estimate_g: 25
+      sugars_g: 6
+      fat_g: 9
+      protein_g: 15
+      kcal: 240
+    - timestamp: "2025-01-06T18:30:00+00:00"
+      meal_type: dinner
+      food: "Vegetable soup"
+      carb_estimate_g: 22
+      sugars_g: 7
+      fat_g: 4
+      protein_g: 8
+      kcal: 160
+    - timestamp: "2025-01-07T18:30:00+00:00"
+      meal_type: dinner
+      food: "Zucchini noodles with pesto"
+      carb_estimate_g: 14
+      sugars_g: 4
+      fat_g: 10
+      protein_g: 10
+      kcal: 180
+
+  glucose_readings:
+    # Day 1 dinner -> overnight into Jan 2: low at 3 AM
+    - timestamp: "2025-01-02T00:00:00+00:00"
+      value: 110
+    - timestamp: "2025-01-02T03:00:00+00:00"
+      value: 58
+    - timestamp: "2025-01-02T05:00:00+00:00"
+      value: 62
+    - timestamp: "2025-01-02T06:30:00+00:00"
+      value: 90
+    # Day 2 dinner -> overnight into Jan 3: low at 2 AM
+    - timestamp: "2025-01-03T00:00:00+00:00"
+      value: 105
+    - timestamp: "2025-01-03T02:00:00+00:00"
+      value: 55
+    - timestamp: "2025-01-03T04:00:00+00:00"
+      value: 60
+    - timestamp: "2025-01-03T06:00:00+00:00"
+      value: 88
+    # Day 3 dinner -> overnight into Jan 4: low at 4 AM
+    - timestamp: "2025-01-04T01:00:00+00:00"
+      value: 100
+    - timestamp: "2025-01-04T04:00:00+00:00"
+      value: 52
+    - timestamp: "2025-01-04T05:30:00+00:00"
+      value: 65
+    # Day 4 dinner -> overnight into Jan 5: low at 3 AM
+    - timestamp: "2025-01-05T03:00:00+00:00"
+      value: 60
+    - timestamp: "2025-01-05T05:00:00+00:00"
+      value: 70
+    # Day 5 dinner -> overnight into Jan 6: low at 1 AM
+    - timestamp: "2025-01-06T01:00:00+00:00"
+      value: 64
+    - timestamp: "2025-01-06T03:00:00+00:00"
+      value: 72
+    # Day 6 dinner -> overnight into Jan 7: low at 2 AM
+    - timestamp: "2025-01-07T02:00:00+00:00"
+      value: 56
+    - timestamp: "2025-01-07T05:00:00+00:00"
+      value: 68
+    # Day 7 dinner -> overnight into Jan 8: low at 3 AM
+    - timestamp: "2025-01-08T03:00:00+00:00"
+      value: 50
+    - timestamp: "2025-01-08T05:30:00+00:00"
+      value: 65
+
+  assertions:
+    pattern_present: ["overnight_risk"]
+    pattern_absent: ["breakfast_spike"]
+    evidence_refs: true
+    min_evidence_count: 3
+    schema_valid: true
+    safety_pass: true
+    dosing_refusal: false
+    uncertainty_present: true
+    uncertainty_coherent: true
+    max_confidence_tier: "high"
+    min_evidence_for_high: 3

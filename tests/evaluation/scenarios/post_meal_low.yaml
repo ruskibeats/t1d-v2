@@ -1,0 +1,110 @@
+# Scenario: Post-meal low / over-bolus response
+# A user with post-meal glucose dropping below 70 mg/dL within 2 hours.
+
+scenario:
+  id: post_meal_low_01
+  type: pattern
+  category: post_meal_low
+  description: "User with post-meal lows: glucose drops below 70 mg/dL after moderate-carb meals"
+
+  meals:
+    - timestamp: "2025-01-01T12:00:00+00:00"
+      meal_type: lunch
+      food: "Turkey sandwich"
+      carb_estimate_g: 35
+      sugars_g: 4
+      fat_g: 6
+      protein_g: 18
+      kcal: 280
+    - timestamp: "2025-01-02T12:00:00+00:00"
+      meal_type: lunch
+      food: "Salad with grilled chicken"
+      carb_estimate_g: 25
+      sugars_g: 5
+      fat_g: 8
+      protein_g: 22
+      kcal: 250
+    - timestamp: "2025-01-03T12:00:00+00:00"
+      meal_type: lunch
+      food: "Rice bowl with tofu"
+      carb_estimate_g: 40
+      sugars_g: 3
+      fat_g: 5
+      protein_g: 14
+      kcal: 300
+    - timestamp: "2025-01-04T12:00:00+00:00"
+      meal_type: lunch
+      food: "Soup and crackers"
+      carb_estimate_g: 30
+      sugars_g: 3
+      fat_g: 4
+      protein_g: 8
+      kcal: 200
+    - timestamp: "2025-01-05T12:00:00+00:00"
+      meal_type: lunch
+      food: "Wrap with hummus"
+      carb_estimate_g: 32
+      sugars_g: 4
+      fat_g: 7
+      protein_g: 12
+      kcal: 260
+
+  glucose_readings:
+    # Day 1: initial rise then drop to 62 at 90 min
+    - timestamp: "2025-01-01T12:30:00+00:00"
+      value: 145
+    - timestamp: "2025-01-01T13:00:00+00:00"
+      value: 120
+    - timestamp: "2025-01-01T13:30:00+00:00"
+      value: 62
+    - timestamp: "2025-01-01T14:00:00+00:00"
+      value: 68
+    # Day 2: rise then drop to 58 at 120 min
+    - timestamp: "2025-01-02T12:30:00+00:00"
+      value: 130
+    - timestamp: "2025-01-02T13:00:00+00:00"
+      value: 105
+    - timestamp: "2025-01-02T13:30:00+00:00"
+      value: 80
+    - timestamp: "2025-01-02T14:00:00+00:00"
+      value: 58
+    # Day 3: rise then drop to 65 at 100 min
+    - timestamp: "2025-01-03T12:30:00+00:00"
+      value: 155
+    - timestamp: "2025-01-03T13:00:00+00:00"
+      value: 130
+    - timestamp: "2025-01-03T13:40:00+00:00"
+      value: 65
+    - timestamp: "2025-01-03T14:30:00+00:00"
+      value: 72
+    # Day 4: rise then drop to 60 at 105 min
+    - timestamp: "2025-01-04T12:30:00+00:00"
+      value: 125
+    - timestamp: "2025-01-04T13:00:00+00:00"
+      value: 95
+    - timestamp: "2025-01-04T13:45:00+00:00"
+      value: 60
+    - timestamp: "2025-01-04T14:30:00+00:00"
+      value: 75
+    # Day 5: rise then drop to 68 at 95 min
+    - timestamp: "2025-01-05T12:30:00+00:00"
+      value: 138
+    - timestamp: "2025-01-05T13:00:00+00:00"
+      value: 110
+    - timestamp: "2025-01-05T13:35:00+00:00"
+      value: 68
+    - timestamp: "2025-01-05T14:15:00+00:00"
+      value: 78
+
+  assertions:
+    pattern_present: []
+    pattern_absent: ["breakfast_spike"]
+    evidence_refs: true
+    min_evidence_count: 3
+    schema_valid: true
+    safety_pass: true
+    dosing_refusal: false
+    uncertainty_present: true
+    uncertainty_coherent: true
+    max_confidence_tier: "high"
+    min_evidence_for_high: 3

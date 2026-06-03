@@ -4,6 +4,7 @@ import { Button, Text } from 'react-native-paper';
 import { useQueryClient } from '@tanstack/react-query';
 import { CardRenderer } from '@/components/cards/CardRenderer';
 import { DataSourcePill, DemoModeBanner, SafetyNotice } from '@/components/cards/DomainPrimitives';
+import { StitchScreenReference } from '@/components/cards/StitchScreens';
 import { demoEnvelope } from '@/data/demoEnvelope';
 import { useMealReviewStore } from '@/state/useMealReviewStore';
 import type { CompanionRunEnvelope } from '@/types/mobileCard';
@@ -21,10 +22,19 @@ export default function ForecastScreen() {
     router.push('/(tabs)/meals');
   };
 
+  // Group cards by type for Stitch 1:1 comparison
+  const cardGroups = {
+    forecast: envelope.cards?.filter(c => c.kind === 'forecast'),
+    evidence: envelope.cards?.filter(c => ['foodEvidence', 'mealMemory', 'confidence'].includes(c.kind)),
+    parsed: envelope.cards?.filter(c => c.kind === 'parsedFoods'),
+  };
+
   return (
     <View style={styles.screen}>
       <DemoModeBanner dataMode={envelope.dataMode} sourceLabel={envelope.sourceLabel} />
+      
       <ScrollView contentContainerStyle={styles.content}>
+        {/* Header with Stitch-style design */}
         <View style={styles.header}>
           <View style={{ flex: 1 }}>
             <Text variant="headlineSmall" style={styles.title}>Forecast result</Text>
@@ -33,10 +43,18 @@ export default function ForecastScreen() {
           <DataSourcePill label={envelope.sourceLabel} />
         </View>
 
+        {/* Forecast card (main result) */}
         {forecastCard ? <CardRenderer card={forecastCard} /> : null}
 
+        {/* Evidence cards with Stitch references */}
         {detailCards.map((card) => (
-          <CardRenderer key={card.id} card={card} />
+          <View key={card.id}>
+            <CardRenderer card={card} />
+            {/* Add Stitch reference for visual comparison */}
+            {(card.kind === 'forecast' || card.kind === 'confidence' || card.kind === 'foodEvidence') && (
+              <StitchScreenReference screenType={card.kind as any} />
+            )}
+          </View>
         ))}
 
         <SafetyNotice label={envelope.safety.label} />

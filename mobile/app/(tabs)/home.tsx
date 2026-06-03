@@ -1,179 +1,131 @@
 import { router } from 'expo-router';
-import { useState, useEffect } from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
-import { Button, Card, IconButton, Menu, Text } from 'react-native-paper';
-import { DemoModeBanner, DomainCard, SafetyNotice, DataSourcePill } from '@/components/cards/DomainPrimitives';
-import { demoEnvelope } from '@/data/demoEnvelope';
+import { ScrollView, StyleSheet, View, Pressable } from 'react-native';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { Text } from 'react-native-paper';
+import { SafetyNotice } from '@/components/cards/DomainPrimitives';
 import { colors, spacing } from '@/theme/theme';
 import { useLegendProfile } from '@/state/useLegendProfile';
 import { tomLegend } from '@/data/tomLegend';
+import { StitchCard, StitchHeader, IconBubble, PrimaryPillButton, styles as stitchStyles } from '@/components/stitch/StitchNative';
+import { demoEnvelope } from '@/data/demoEnvelope';
 
-type TimeRange = 'week' | 'month' | 'year' | 'all';
-
-const mockFoodHistory = [
-  { id: 1, food: 'Pepperoni Pizza', date: 'Today 19:30', avgRise: '+45 mg/dL', confidence: 'high' },
-  { id: 2, food: 'Grilled Chicken Salad', date: 'Yesterday 12:15', avgRise: '+12 mg/dL', confidence: 'medium' },
-  { id: 3, food: 'Oatmeal with Berries', date: '2 days ago 08:00', avgRise: '+28 mg/dL', confidence: 'high' },
+const entries = [
+  { emoji: '🍣', food: 'Sushi Dinner', delta: '+45 mg/dL', date: 'Oct 24' },
+  { emoji: '🥗', food: 'Greek Salad', delta: '+12 mg/dL', date: 'Oct 23' },
+  { emoji: '🍞', food: 'Toast & Eggs', delta: '+50 mg/dL', date: 'Today' },
 ];
 
 export default function HomeScreen() {
-  const [timeRange, setTimeRange] = useState<TimeRange>('week');
-  const [menuVisible, setMenuVisible] = useState(false);
-  const { selectedProfile, getProfileInfo } = useLegendProfile();
-
-  const getAvgGlucose = () => {
-    const avgs = { week: 125, month: 132, year: 118, all: 128 };
-    return avgs[timeRange];
-  };
-
-  const getCurrentGlucose = () => {
-    return selectedProfile === 'foot_to_floor_tom' ? tomLegend.current_cgm.mg_dl : 105;
-  };
-
-  const getAnchorLabel = () => {
-    return selectedProfile === 'foot_to_floor_tom' ? tomLegend.anchor_label : 'WELL-CONTROLLED';
-  };
+  const { selectedProfile } = useLegendProfile();
+  const current = selectedProfile === 'foot_to_floor_tom' ? tomLegend.current_cgm.mg_dl : 105;
 
   return (
-    <ScrollView contentContainerStyle={styles.content}>
-      <DemoModeBanner dataMode={demoEnvelope.dataMode} sourceLabel={demoEnvelope.sourceLabel} />
-      
-      {/* Current Reading Section */}
-      <View style={styles.readingCard}>
-        <View style={styles.readingHeader}>
-          <Text variant="labelLarge" style={styles.label}>Current Glucose</Text>
-          <View style={styles.badge}>
-            <Text variant="labelMedium" style={styles.badgeText}>{getAnchorLabel()}</Text>
+    <View style={stitchStyles.screen}>
+      <StitchHeader title="T1D Companion" left="menu" right="account-circle-outline" />
+      <ScrollView contentContainerStyle={stitchStyles.content}>
+        <StitchCard>
+          <View style={local.readingHeader}>
+            <Text variant="labelLarge" style={local.muted}>Current Glucose</Text>
+            <View style={local.anchorPill}>
+              <Text variant="labelMedium" style={local.anchorText}>{selectedProfile === 'foot_to_floor_tom' ? 'FOOT2FLOOR' : 'WELL-CONTROLLED'}</Text>
+            </View>
           </View>
+          <View style={local.glucoseRow}>
+            <Text style={local.glucoseValue}>{current}</Text>
+            <Text variant="titleMedium" style={local.unit}>mg/dL</Text>
+            <MaterialCommunityIcons name="trending-neutral" size={28} color={colors.primary} style={{ marginLeft: 'auto' }} />
+          </View>
+          <View style={local.inlineMeta}>
+            <MaterialCommunityIcons name="clock-outline" size={16} color={colors.onSurfaceVariant} />
+            <Text variant="bodySmall" style={local.muted}>Updated 2 mins ago · Tom Batchelor</Text>
+          </View>
+        </StitchCard>
+
+        <View style={local.quickGrid}>
+          <QuickAction icon="silverware-fork-knife" label="Log Meal" onPress={() => router.push('/(tabs)/log-meal')} />
+          <QuickAction icon="needle" label="Log Insulin" />
+          <QuickAction icon="run" label="Exercise" />
         </View>
-        <View style={styles.glucoseRow}>
-          <Text variant="displayMedium" style={styles.glucoseValue}>{getCurrentGlucose()}</Text>
-          <Text variant="titleMedium" style={styles.unit}>mg/dL</Text>
-          <Text variant="headlineSmall" style={styles.trend}>→</Text>
-        </View>
-        {selectedProfile === 'foot_to_floor_tom' && (
-          <Text variant="bodySmall" style={styles.muted}>
-            Tom Batchelor • Updated {new Date(tomLegend.current_cgm.timestamp).toLocaleTimeString()}
-          </Text>
-        )}
-      </View>
 
-      {/* Profile Indicator */}
-      <View style={styles.profileRow}>
-        <Text variant="labelSmall" style={styles.profileLabel}>Profile</Text>
-        <DataSourcePill 
-          source={selectedProfile === 'foot_to_floor_tom' ? 'real_cgm' : 'synthetic_legend'}
-          label={selectedProfile === 'foot_to_floor_tom' ? tomLegend.name : 'Demo'}
-        />
-      </View>
-
-      {/* Quick Actions Grid */}
-      <View style={styles.actionsGrid}>
-        <Button
-          mode="contained"
-          icon="flatware"
-          style={styles.actionButton}
-          onPress={() => router.push('/(tabs)/meals')}
-        >
-          Log Meal
-        </Button>
-        <Button mode="outlined" icon="syringe" style={styles.actionButton} onPress={() => router.push('/meal-entry')}>
-          Log Insulin
-        </Button>
-        <Button mode="outlined" icon="directions-run" style={styles.actionButton}>
-          Exercise
-        </Button>
-      </View>
-
-      {/* Food Memory Card */}
-      <Card mode="outlined" style={styles.foodCard}>
-        <Card.Content>
-          <View style={styles.foodHeader}>
-            <Text variant="titleMedium" style={styles.foodTitle}>Food Memory</Text>
-            <Menu
-              visible={menuVisible}
-              onDismiss={() => setMenuVisible(false)}
-              anchor={<Button mode="text" onPress={() => setMenuVisible(true)}>{timeRange.charAt(0).toUpperCase() + timeRange.slice(1)}</Button>}
-            >
-              <Menu.Item onPress={() => { setTimeRange('week'); setMenuVisible(false); }} title="Last Week" />
-              <Menu.Item onPress={() => { setTimeRange('month'); setMenuVisible(false); }} title="Last Month" />
-              <Menu.Item onPress={() => { setTimeRange('year'); setMenuVisible(false); }} title="Last Year" />
-              <Menu.Item onPress={() => { setTimeRange('all'); setMenuVisible(false); }} title="All Time" />
-            </Menu>
-          </View>
-          
-          {/* Average Graph Placeholder */}
-          <View style={styles.avgGraph}>
-            <Text variant="displaySmall" style={styles.avgValue}>{getAvgGlucose()} mg/dL</Text>
-            <Text variant="bodySmall" style={styles.avgLabel}>average after similar meals</Text>
+        <StitchCard variant="low">
+          <View style={local.foodHeader}>
+            <View style={local.inlineMeta}>
+              <MaterialCommunityIcons name="history" size={18} color={colors.primary} />
+              <Text variant="titleLarge" style={local.sectionTitle}>Food Memory</Text>
+            </View>
+            <View style={local.infoPill}>
+              <MaterialCommunityIcons name="information-outline" size={14} color={colors.onSurfaceVariant} />
+              <Text variant="labelSmall" style={local.muted}>Last 3 Entries</Text>
+            </View>
           </View>
 
-          {/* Last 3 Food History */}
-          <View style={styles.historyList}>
-            {mockFoodHistory.map((item) => (
-              <View key={item.id} style={styles.historyRow}>
-                <View style={styles.historyIcon}>
-                  <Text style={styles.foodEmoji}>🍕</Text>
-                </View>
-                <View style={styles.historyInfo}>
-                  <Text variant="bodyLarge" style={styles.foodName}>{item.food}</Text>
-                  <Text variant="bodySmall" style={styles.foodDate}>{item.date}</Text>
-                </View>
-                <Text variant="bodyMedium" style={styles.avgRise}>{item.avgRise}</Text>
+          <View style={local.segmentedControl}>
+            {['Week', 'Month', 'Year', 'All'].map((label, idx) => (
+              <View key={label} style={[local.segment, idx === 0 && local.segmentActive]}>
+                <Text variant="labelMedium" style={idx === 0 ? local.segmentActiveText : local.segmentText}>{label}</Text>
               </View>
             ))}
           </View>
-        </Card.Content>
-      </Card>
 
-      {/* Forecast Chart Placeholder */}
-      <Card mode="outlined" style={styles.chartCard}>
-        <Card.Content>
-          <Text variant="titleMedium" style={styles.chartTitle}>Forecast (3h)</Text>
-        </Card.Content>
-      </Card>
+          <View style={local.averagePanel}>
+            <Text variant="labelMedium" style={local.muted}>Avg. Glucose After Similar Meals</Text>
+            <Text style={local.avgValue}>138 mg/dL</Text>
+            <Text variant="bodySmall" style={local.muted}>Within 2 hours post-meal</Text>
+          </View>
 
-      <SafetyNotice label={demoEnvelope.safety.label} />
-    </ScrollView>
+          <View style={{ gap: spacing.sm }}>
+            {entries.map((entry) => (
+              <View key={entry.food} style={local.entryRow}>
+                <Text style={local.emoji}>{entry.emoji}</Text>
+                <View style={{ flex: 1 }}>
+                  <Text variant="bodyMedium" style={local.entryFood}>{entry.food}</Text>
+                  <Text variant="bodySmall" style={local.muted}>{entry.date}</Text>
+                </View>
+                <Text variant="labelLarge" style={local.delta}>{entry.delta}</Text>
+              </View>
+            ))}
+          </View>
+        </StitchCard>
+
+        <SafetyNotice label={demoEnvelope.safety.label} />
+      </ScrollView>
+    </View>
   );
 }
 
-const styles = StyleSheet.create({
-  content: { padding: spacing.screenEdge, gap: spacing.md, backgroundColor: colors.surface, flexGrow: 1 },
-  readingCard: {
-    backgroundColor: colors.surfaceContainerLowest,
-    borderRadius: 20,
-    padding: spacing.lg,
-    borderWidth: 1,
-    borderColor: colors.outlineVariant,
-  },
-  readingHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: spacing.xs },
-  label: { color: colors.onSurfaceVariant },
-  badge: { backgroundColor: colors.secondaryContainer, borderRadius: 999, paddingHorizontal: spacing.sm, paddingVertical: 2 },
-  badgeText: { color: colors.onSecondaryContainer, fontWeight: '600', fontSize: 12 },
-  glucoseRow: { flexDirection: 'row', alignItems: 'baseline', gap: spacing.xs, marginVertical: spacing.xs },
-  glucoseValue: { color: colors.primary, fontWeight: '700' },
-  unit: { color: colors.onSurfaceVariant },
-  trend: { color: colors.primary, marginLeft: 'auto' },
+function QuickAction({ icon, label, onPress }: { icon: keyof typeof MaterialCommunityIcons.glyphMap; label: string; onPress?: () => void }) {
+  return (
+    <Pressable style={local.quickAction} onPress={onPress} accessibilityRole="button">
+      <IconBubble icon={icon} tone="primary" />
+      <Text variant="labelLarge" style={local.quickLabel}>{label}</Text>
+    </Pressable>
+  );
+}
+
+const local = StyleSheet.create({
   muted: { color: colors.onSurfaceVariant },
-  profileRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, marginBottom: spacing.sm },
-  profileLabel: { color: colors.onSurfaceVariant, fontSize: 10 },
-  actionsGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
-  actionButton: { flex: 1, minWidth: '30%' },
-  foodCard: { backgroundColor: colors.surfaceContainerLowest },
-  foodHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: spacing.md },
-  foodTitle: { color: colors.onSurface },
-  avgGraph: { alignItems: 'center', paddingVertical: spacing.lg, borderBottomWidth: 1, borderBottomColor: colors.outlineVariant, marginBottom: spacing.md },
-  avgValue: { color: colors.primary, fontWeight: '700' },
-  avgLabel: { color: colors.onSurfaceVariant },
-  historyList: { gap: spacing.sm },
-  historyRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
-  historyIcon: { width: 40, height: 40, borderRadius: 20, backgroundColor: colors.surfaceContainer, alignItems: 'center', justifyContent: 'center' },
-  foodEmoji: { fontSize: 20 },
-  historyInfo: { flex: 1 },
-  foodName: { color: colors.onSurface },
-  foodDate: { color: colors.onSurfaceVariant },
-  avgRise: { color: colors.onSurfaceVariant },
-  chartCard: { backgroundColor: colors.surfaceContainerLowest },
-  chartTitle: { color: colors.onSurface },
+  readingHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  anchorPill: { backgroundColor: colors.secondaryContainer, borderRadius: 999, paddingHorizontal: spacing.sm, paddingVertical: 4 },
+  anchorText: { color: colors.onSecondaryContainer, fontWeight: '800' },
+  glucoseRow: { flexDirection: 'row', alignItems: 'baseline', gap: spacing.xs, marginTop: spacing.xs },
+  glucoseValue: { fontSize: 48, lineHeight: 56, fontWeight: '800', color: colors.primary, letterSpacing: -1 },
+  unit: { color: colors.onSurfaceVariant, fontWeight: '600' },
+  inlineMeta: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+  quickGrid: { flexDirection: 'row', gap: spacing.sm },
+  quickAction: { flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.surfaceContainerLowest, borderRadius: 24, padding: spacing.md, gap: spacing.sm, borderWidth: StyleSheet.hairlineWidth, borderColor: 'rgba(193,198,211,0.35)', shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.05, shadowRadius: 20, elevation: 2 },
+  quickLabel: { color: colors.onSurface, fontWeight: '800', textAlign: 'center' },
+  foodHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  sectionTitle: { color: colors.onSurface, fontWeight: '800' },
+  infoPill: { flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: 'rgba(255,255,255,0.65)', borderRadius: 999, paddingHorizontal: spacing.sm, paddingVertical: 4 },
+  segmentedControl: { flexDirection: 'row', gap: spacing.xs, backgroundColor: 'rgba(255,255,255,0.35)', padding: 4, borderRadius: 999, marginTop: spacing.md },
+  segment: { flex: 1, alignItems: 'center', paddingVertical: 7, borderRadius: 999 },
+  segmentActive: { backgroundColor: '#ffffff' },
+  segmentText: { color: colors.onSurfaceVariant, fontWeight: '700' },
+  segmentActiveText: { color: colors.primary, fontWeight: '800' },
+  averagePanel: { backgroundColor: 'rgba(255,255,255,0.65)', borderRadius: 16, padding: spacing.md, alignItems: 'center', borderWidth: StyleSheet.hairlineWidth, borderColor: 'rgba(255,255,255,0.8)', marginVertical: spacing.md },
+  avgValue: { color: colors.primary, fontWeight: '800', fontSize: 32, lineHeight: 40 },
+  entryRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, backgroundColor: 'rgba(255,255,255,0.45)', borderRadius: 12, padding: spacing.sm },
+  emoji: { fontSize: 24 },
+  entryFood: { color: colors.onSurface, fontWeight: '700' },
+  delta: { color: colors.primary, fontWeight: '800' },
 });

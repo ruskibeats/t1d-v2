@@ -6,18 +6,26 @@ export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
+        headerShown: false,
         tabBarActiveTintColor: colors.primary,
         tabBarInactiveTintColor: '#6F797A',
-        tabBarStyle: { backgroundColor: '#FFFFFF' },
-        headerStyle: { backgroundColor: colors.surface },
-        headerTintColor: colors.primary,
+        tabBarShowLabel: true,
+        tabBarStyle: { backgroundColor: '#FFFFFF', borderTopColor: '#E1E3E4', height: 72, paddingBottom: 10, paddingTop: 8, width: 430, alignSelf: 'center', marginHorizontal: 'auto' },
+        tabBarLabelStyle: { fontWeight: '600' },
       }}
     >
       <Tabs.Screen
         name="home"
         options={{
-          title: 'Home',
+          title: 'Today',
           tabBarIcon: ({ color, size }) => <MaterialCommunityIcons name="home" color={color} size={size} />,
+        }}
+      />
+      <Tabs.Screen
+        name="log-meal"
+        options={{
+          title: 'Log Meal',
+          tabBarIcon: ({ color, size }) => <MaterialCommunityIcons name="silverware-fork-knife" color={color} size={size} />,
         }}
       />
       <Tabs.Screen
@@ -30,17 +38,11 @@ export default function TabLayout() {
       <Tabs.Screen
         name="meals"
         options={{
-          title: 'Meals',
-          tabBarIcon: ({ color, size }) => <MaterialCommunityIcons name="silverware-fork-knife" color={color} size={size} />,
+          title: 'History',
+          tabBarIcon: ({ color, size }) => <MaterialCommunityIcons name="history" color={color} size={size} />,
         }}
       />
-      <Tabs.Screen
-        name="chat"
-        options={{
-          title: 'Chat',
-          tabBarIcon: ({ color, size }) => <MaterialCommunityIcons name="chat" color={color} size={size} />,
-        }}
-      />
+      <Tabs.Screen name="chat" options={{ href: null }} />
     </Tabs>
   );
 }

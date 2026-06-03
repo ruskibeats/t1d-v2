@@ -1,78 +1,37 @@
 import { useLocalSearchParams, router } from 'expo-router';
-import { ScrollView, StyleSheet, View } from 'react-native';
-import { Button, Text } from 'react-native-paper';
+import { ScrollView, View } from 'react-native';
+import { Button } from 'react-native-paper';
 import { useQueryClient } from '@tanstack/react-query';
 import { CardRenderer } from '@/components/cards/CardRenderer';
-import { DataSourcePill, DemoModeBanner, SafetyNotice } from '@/components/cards/DomainPrimitives';
-import { StitchScreenReference } from '@/components/cards/StitchScreens';
 import { demoEnvelope } from '@/data/demoEnvelope';
 import { useMealReviewStore } from '@/state/useMealReviewStore';
 import type { CompanionRunEnvelope } from '@/types/mobileCard';
+import { BottomActions, OutlinePillButton, PrimaryPillButton, StitchHeader, styles as stitchStyles } from '@/components/stitch/StitchNative';
+import { spacing } from '@/theme/theme';
 
 export default function ForecastScreen() {
   const { runId } = useLocalSearchParams<{ runId: string }>();
   const queryClient = useQueryClient();
   const saveDemoReview = useMealReviewStore((state) => state.saveDemoReview);
   const envelope = queryClient.getQueryData<CompanionRunEnvelope>(['companion-run', runId]) ?? demoEnvelope;
-  const forecastCard = envelope.cards?.find((card) => card.kind === 'forecast');
-  const detailCards = envelope.cards?.filter((card) => card.kind !== 'forecast' && card.kind !== 'safetyStatus') ?? [];
+  const cards = envelope.cards?.filter((card) => card.kind !== 'safetyStatus') ?? [];
 
   const handleSave = () => {
     saveDemoReview(envelope);
     router.push('/(tabs)/meals');
   };
 
-  // Group cards by type for Stitch 1:1 comparison
-  const cardGroups = {
-    forecast: envelope.cards?.filter(c => c.kind === 'forecast'),
-    evidence: envelope.cards?.filter(c => ['foodEvidence', 'mealMemory', 'confidence'].includes(c.kind)),
-    parsed: envelope.cards?.filter(c => c.kind === 'parsedFoods'),
-  };
-
   return (
-    <View style={styles.screen}>
-      <DemoModeBanner dataMode={envelope.dataMode} sourceLabel={envelope.sourceLabel} />
-      
-      <ScrollView contentContainerStyle={styles.content}>
-        {/* Header with Stitch-style design */}
-        <View style={styles.header}>
-          <View style={{ flex: 1 }}>
-            <Text variant="headlineSmall" style={styles.title}>Forecast result</Text>
-            <Text variant="bodyMedium" style={styles.muted}>Result first, evidence below.</Text>
-          </View>
-          <DataSourcePill label={envelope.sourceLabel} />
-        </View>
-
-        {/* Forecast card (main result) */}
-        {forecastCard ? <CardRenderer card={forecastCard} /> : null}
-
-        {/* Evidence cards with Stitch references */}
-        {detailCards.map((card) => (
-          <View key={card.id}>
-            <CardRenderer card={card} />
-            {/* Add Stitch reference for visual comparison */}
-            {(card.kind === 'forecast' || card.kind === 'confidence' || card.kind === 'foodEvidence') && (
-              <StitchScreenReference screenType={card.kind as any} />
-            )}
-          </View>
-        ))}
-
-        <SafetyNotice label={envelope.safety.label} />
+    <View style={stitchStyles.screen}>
+      <StitchHeader title="Meal Results" />
+      <ScrollView contentContainerStyle={[stitchStyles.content, { paddingBottom: 156 }]}>
+        {cards.map((card) => <CardRenderer key={card.id} card={card} />)}
       </ScrollView>
-
-      <View style={styles.actionBar}>
-        <Button mode="contained" onPress={handleSave}>Save meal review</Button>
-        <Button mode="outlined" onPress={() => router.push('/(tabs)/chat')}>Discuss</Button>
-      </View>
+      <BottomActions>
+        <PrimaryPillButton label="Confirm & Save" icon="check" onPress={handleSave} />
+        <OutlinePillButton label="Edit Details" icon="pencil" onPress={() => router.push('/(tabs)/log-meal')} />
+        <Button mode="text" onPress={() => router.push('/(tabs)/chat')}>Discuss with AI</Button>
+      </BottomActions>
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: '#F8F9FA' },
-  content: { padding: 16, paddingBottom: 110 },
-  header: { flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 12 },
-  title: { color: '#004349', fontWeight: '700' },
-  muted: { color: '#5F6B6D' },
-  actionBar: { flexDirection: 'row', gap: 12, padding: 16, backgroundColor: '#FFFFFF', borderTopColor: '#E1E3E4', borderTopWidth: StyleSheet.hairlineWidth },
-});

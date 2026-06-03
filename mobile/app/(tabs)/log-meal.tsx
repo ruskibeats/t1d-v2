@@ -1,27 +1,23 @@
 import { router } from 'expo-router';
 import { useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { Button, Switch, Text, TextInput } from 'react-native-paper';
 import { useQueryClient } from '@tanstack/react-query';
 import { SafetyNotice, DataSourcePill } from '@/components/cards/DomainPrimitives';
 import { colors, spacing } from '@/theme/theme';
 import { useLegendProfile } from '@/state/useLegendProfile';
 import { getTomEnvelope, tomLegend } from '@/data/tomLegend';
+import { OutlinePillButton, PrimaryPillButton, StitchCard, StitchHeader, StitchHero, stitchImages, styles as stitchStyles } from '@/components/stitch/StitchNative';
 
 export default function LogMealScreen() {
   const [mealDescription, setMealDescription] = useState('');
   const [aiEnabled, setAiEnabled] = useState(false);
-  const [carbs, setCarbs] = useState(45);
-  const [protein, setProtein] = useState(22);
-  const [fat, setFat] = useState(12);
   const queryClient = useQueryClient();
   const { selectedProfile, getProfileInfo } = useLegendProfile();
 
-  // Generate forecast based on selected legend profile
   const generateForecast = () => {
-    const envelope = selectedProfile === 'foot_to_floor_tom' 
-      ? getTomEnvelope(mealDescription || 'breakfast routine', 'breakfast')
-      : require('@/data/demoEnvelope').getDemoEnvelope();
+    const envelope = getTomEnvelope(mealDescription || 'breakfast routine', 'breakfast');
     queryClient.setQueryData(['companion-run', envelope.runId], envelope);
     router.push(`/forecast/${envelope.runId}`);
   };
@@ -29,82 +25,63 @@ export default function LogMealScreen() {
   const profileInfo = getProfileInfo();
 
   return (
-    <View style={styles.container}>
-      <ScrollView contentContainerStyle={styles.content}>
-        {/* Profile Indicator */}
-        {profileInfo && (
-          <View style={styles.profileRow}>
-            <Text variant="labelSmall" style={styles.profileLabel}>Active Profile</Text>
-            <DataSourcePill 
-              source={profileInfo.key === 'foot_to_floor_tom' ? 'real_cgm' : 'synthetic_legend'}
-              label={tomLegend.name + ' • ' + profileInfo.anchorLabel}
-            />
+    <View style={stitchStyles.screen}>
+      <StitchHeader title="Log Meal" right="dots-vertical" />
+      <ScrollView contentContainerStyle={stitchStyles.content}>
+        <StitchHero uri={stitchImages.logMealHero} height={240} label="Dinner • Today 19:45" />
+
+        {profileInfo ? (
+          <View style={local.profileRow}>
+            <Text variant="labelSmall" style={local.profileLabel}>Active Profile</Text>
+            <DataSourcePill source={profileInfo.key === 'foot_to_floor_tom' ? 'real_cgm' : 'synthetic_legend'} label={`${tomLegend.name} • ${profileInfo.anchorLabel}`} />
           </View>
-        )}
+        ) : null}
 
-        {/* Hero Placeholder */}
-        <View style={styles.heroPlaceholder}>
-          <Text variant="titleLarge" style={styles.heroEmoji}>🍽️</Text>
-          <Text variant="bodySmall" style={styles.heroText}>Meal logging for T1D management</Text>
-        </View>
-
-        {/* Meal Description Area */}
-        <View style={styles.card}>
-          <Text variant="labelLarge" style={styles.label}>What are you eating?</Text>
+        <StitchCard>
+          <Text variant="titleLarge" style={local.question}>What are you eating?</Text>
           <TextInput
             mode="outlined"
             multiline
             numberOfLines={4}
             value={mealDescription}
             onChangeText={setMealDescription}
-            placeholder="Describe your meal in detail (e.g., Grilled salmon with half cup of quinoa and roasted asparagus)"
-            style={styles.textInput}
+            placeholder="Describe your meal in detail"
+            style={local.input}
+            outlineColor="transparent"
+            activeOutlineColor={colors.primary}
           />
-          
-          {/* AI Toggle */}
-          <View style={styles.aiToggle}>
-            <View style={styles.aiToggleContent}>
-              <Text variant="labelLarge" style={styles.aiLabel}>AI Smart Parse</Text>
-              <Switch value={aiEnabled} onValueChange={setAiEnabled} />
+          <View style={local.aiToggle}>
+            <View style={local.inlineMeta}>
+              <MaterialCommunityIcons name="auto-fix" size={20} color={colors.primary} />
+              <Text variant="labelLarge" style={local.aiLabel}>AI Smart Parse</Text>
             </View>
+            <Switch value={aiEnabled} onValueChange={setAiEnabled} />
           </View>
+        </StitchCard>
+
+        <StitchCard variant="low">
+          <Text variant="labelLarge" style={local.routineLabel}>KNOWN ROUTINE</Text>
+          <Text variant="bodyMedium" style={local.routineText}>{tomLegend.profile_summary.known_routine}</Text>
+        </StitchCard>
+
+        <View style={local.nutrientRow}>
+          <Nutrient icon="nutrition" label="Carbs" value="45g" />
+          <Nutrient icon="arm-flex-outline" label="Protein" value="22g" />
+          <Nutrient icon="water" label="Fat" value="12g" />
         </View>
 
-        {/* Known Routine for Tom */}
-        {selectedProfile === 'foot_to_floor_tom' && (
-          <View style={styles.routineCard}>
-            <Text variant="labelSmall" style={styles.routineLabel}>Known routine (breakfast)</Text>
-            <Text variant="bodyMedium" style={styles.routineText}>
-              {tomLegend.profile_summary.known_routine}
-            </Text>
+        <View style={local.actionGrid}>
+          <View style={local.fullSpan}>
+            <PrimaryPillButton label="Save Meal" icon="check-circle" onPress={generateForecast} />
           </View>
-        )}
-
-        {/* Nutrient Chips */}
-        <View style={styles.nutrientRow}>
-          <View style={[styles.nutrientChip, styles.carbsChip]}>
-            <Text variant="labelMedium">Carbs: <Text style={styles.nutrientValue}>{carbs}g</Text></Text>
+          <View style={local.halfSpan}>
+            <OutlinePillButton label="Clarify" icon="chat" />
           </View>
-          <View style={[styles.nutrientChip, styles.proteinChip]}>
-            <Text variant="labelMedium">Protein: <Text style={styles.nutrientValue}>{protein}g</Text></Text>
+          <View style={local.halfSpan}>
+            <OutlinePillButton label="Edit Details" icon="note-edit" />
           </View>
-          <View style={[styles.nutrientChip, styles.fatChip]}>
-            <Text variant="labelMedium">Fat: <Text style={styles.nutrientValue}>{fat}g</Text></Text>
-          </View>
-        </View>
-
-        {/* Action Buttons */}
-        <View style={styles.actions}>
-          <Button mode="contained" onPress={generateForecast} style={styles.saveButton}>
-            Save Meal
-          </Button>
-          <View style={styles.secondaryActions}>
-            <Button mode="outlined" icon="chat-bubble" style={styles.secondaryButton}>
-              Clarify
-            </Button>
-            <Button mode="outlined" icon="edit" style={styles.secondaryButton}>
-              Edit Details
-            </Button>
+          <View style={local.fullSpan}>
+            <OutlinePillButton label="Export Entry" icon="export-variant" />
           </View>
         </View>
 
@@ -114,62 +91,30 @@ export default function LogMealScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.surface },
-  content: { padding: spacing.screenEdge, gap: spacing.md },
-  profileRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, marginBottom: spacing.sm },
-  profileLabel: { color: colors.onSurfaceVariant, fontSize: 10 },
-  heroPlaceholder: {
-    height: 120,
-    backgroundColor: colors.surfaceContainerLow,
-    borderRadius: 16,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: spacing.sm,
-  },
-  heroEmoji: { fontSize: 48 },
-  heroText: { color: colors.onSurfaceVariant },
-  card: {
-    backgroundColor: colors.surfaceContainerLowest,
-    borderRadius: 20,
-    padding: spacing.lg,
-    gap: spacing.md,
-    borderWidth: 1,
-    borderColor: colors.outlineVariant,
-  },
-  label: { color: colors.onSurfaceVariant },
-  textInput: { backgroundColor: colors.surfaceContainerLow },
-  aiToggle: {
-    backgroundColor: colors.primaryFixed + '50',
-    borderRadius: 12,
-    padding: spacing.sm,
-  },
-  aiToggleContent: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  aiLabel: { color: colors.primary },
-  routineCard: {
-    backgroundColor: colors.surfaceContainer,
-    borderRadius: 16,
-    padding: spacing.md,
-    borderLeftWidth: 4,
-    borderLeftColor: colors.primary,
-  },
-  routineLabel: { color: colors.onSurfaceVariant, marginBottom: spacing.xs, fontWeight: '600' },
-  routineText: { color: colors.onSurface },
+function Nutrient({ icon, label, value }: { icon: keyof typeof MaterialCommunityIcons.glyphMap; label: string; value: string }) {
+  return (
+    <View style={local.nutrientChip}>
+      <MaterialCommunityIcons name={icon} size={18} color={colors.primary} />
+      <Text variant="labelMedium" style={local.nutrientText}>{label}: <Text style={local.nutrientValue}>{value}</Text></Text>
+    </View>
+  );
+}
+
+const local = StyleSheet.create({
+  profileRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
+  profileLabel: { color: colors.onSurfaceVariant, fontSize: 10, fontWeight: '700' },
+  question: { color: colors.onSurface, fontWeight: '800', marginBottom: spacing.md },
+  input: { backgroundColor: colors.surfaceContainerLow, minHeight: 112, borderRadius: 16 },
+  aiToggle: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: spacing.md, paddingVertical: spacing.sm, paddingHorizontal: spacing.md, borderRadius: 16, backgroundColor: 'rgba(212,227,255,0.35)' },
+  inlineMeta: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs },
+  aiLabel: { color: colors.primary, fontWeight: '800' },
+  routineLabel: { color: colors.outline, fontWeight: '800', marginBottom: spacing.xs },
+  routineText: { color: colors.onSurface, lineHeight: 22 },
   nutrientRow: { flexDirection: 'row', gap: spacing.xs },
-  nutrientChip: {
-    flex: 1,
-    backgroundColor: colors.surfaceContainerLow,
-    borderRadius: 999,
-    paddingVertical: spacing.xs,
-    paddingHorizontal: spacing.sm,
-    alignItems: 'center',
-  },
-  carbsChip: { backgroundColor: colors.primaryFixed + '50' },
-  proteinChip: { backgroundColor: colors.secondaryFixed + '50' },
-  fatChip: { backgroundColor: colors.tertiaryFixed + '50' },
-  nutrientValue: { fontWeight: '600' },
-  actions: { gap: spacing.sm },
-  saveButton: { borderRadius: 16 },
-  secondaryActions: { flexDirection: 'row', gap: spacing.sm },
-  secondaryButton: { flex: 1, borderRadius: 16 },
+  nutrientChip: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 4, paddingVertical: spacing.sm, paddingHorizontal: spacing.xs, borderRadius: 16, backgroundColor: colors.surfaceContainerLowest, borderWidth: StyleSheet.hairlineWidth, borderColor: 'rgba(193,198,211,0.35)' },
+  nutrientText: { color: colors.onSurfaceVariant, textAlign: 'center' },
+  nutrientValue: { color: colors.primary, fontWeight: '800' },
+  actionGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
+  fullSpan: { width: '100%' },
+  halfSpan: { flex: 1, minWidth: '45%' },
 });

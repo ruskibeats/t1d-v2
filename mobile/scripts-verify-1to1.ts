@@ -1,0 +1,1 @@
+../scripts/verify-1to1.ts

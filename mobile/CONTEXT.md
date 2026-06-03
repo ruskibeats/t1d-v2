@@ -40,9 +40,8 @@ Terminal CLI (Python)
 | `app/(tabs)/meals.tsx` | History / saved meal reviews |
 | `app/forecast/[runId].tsx` | Forecast result screen (renders all cards via CardRenderer) |
 | `app/settings/index.tsx` | Settings with legend profile radio selection |
-| `scripts/user-journey.ts` | Prints full CLI → Stitch → Mobile journey |
-| `scripts/push-cards-to-stitch.ts` | Pushes card prompts to Stitch MCP |
-| `scripts/stitch-workflow.py` | Python workflow reference |
+| `scripts-user-journey.ts` | Symlink to ../scripts/user-journey.ts — prints full CLI → Stitch → Mobile journey |
+| `scripts-push-cards-to-stitch.ts` | Symlink to ../scripts/push-cards-to-stitch.ts — pushes card prompts to Stitch MCP |
 | `assets/stitch-screens/` | Downloaded Stitch screenshots (5 card types) |
 
 ---
@@ -256,14 +255,11 @@ cd mobile && npx tsc --noEmit
 # Start web dev server
 cd mobile && npx expo start --web
 
-# View journey (scripts symlinked from ../scripts/)
-mobile $ npx tsx scripts-user-journey.ts
+# View journey (symlinked scripts)
+cd mobile && npx tsx scripts-user-journey.ts
 
 # Push cards to Stitch
-mobile $ STITCH_API_KEY="..." npx tsx scripts-push-cards-to-stitch.ts --legend tom
-
-# Verify 1:1 alignment
-mobile $ npx tsx scripts-verify-1to1.ts
+cd mobile && STITCH_API_KEY="..." npx tsx scripts-push-cards-to-stitch.ts --legend tom
 ```
 
 ---

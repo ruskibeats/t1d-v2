@@ -1,6 +1,6 @@
-import React, { useMemo, useState } from "react";
-import { SafeAreaView, View, Text, StyleSheet, Pressable, Dimensions } from "react-native";
-import { Canvas, Fill, Oval, Circle, Group, Path } from "@shopify/react-native-skia";
+import React, { useMemo, useRef, useState } from "react";
+import { View, Text, StyleSheet, Pressable, Dimensions, Image, Animated, PanResponder } from "react-native";
+import { Canvas, Fill, Oval, Circle, Group, Path, Text as SkiaText, matchFont } from "@shopify/react-native-skia";
 import * as Haptics from "expo-haptics";
 import { featuresFromBiometric } from "./src/features/normalize";
 import { buildRenderScene } from "./src/renderers/sceneBuilder";
@@ -8,15 +8,23 @@ import type { RenderScene, VisualToken } from "./src/types/artifact";
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
 
-const PAPER = "#F4EFE6";
-const PAPER_CARD = "#F6F2EC";
-const OUTER_CREAM = "#E8DED0";
+const PAPER = "#FBF7EF";
+const PAPER_CARD = "#FBF7EF";
+const OUTER_CREAM = "#FBF7EF";
+const PERSIMMON = "#E67E22";
+const WARM_GREY = "#7E7A75";
+const NAV_BORDER = "#ECE6DD";
+const SATO_LOGO_MARK = require("./assets/sato_logo_mark.png");
+const GLUCOSE_GRAPHICS_PORTRAIT = require("./assets/glucose_graphics_portrait.png");
+const PORTRAIT_MOMENTUM = require("./assets/portrait_momentum.png");
 
 const PHONE_WIDTH = Math.min(SCREEN_WIDTH - 24, 430);
 const PHONE_HEIGHT = Math.min(SCREEN_HEIGHT - 24, 840);
 const ART_HEIGHT = PHONE_HEIGHT * 0.72;
 const BLOOM_WIDTH = Math.min(PHONE_WIDTH - 52, 390);
-const BLOOM_HEIGHT = Math.min(BLOOM_WIDTH * 1.16, PHONE_HEIGHT * 0.5);
+const BLOOM_HEIGHT = Math.min(BLOOM_WIDTH * 1.16, PHONE_HEIGHT * 0.54);
+const BLOOM_TAP_SIZE = Math.min(BLOOM_WIDTH, BLOOM_HEIGHT) * 0.46;
+const FEATURE_SHEET_CLOSED_Y = 430;
 
 function hashString(str: string): number {
   let h = 2166136261;
@@ -350,42 +358,53 @@ function WatercolorStateOrb({ pigments, width, height }: { pigments: StatePigmen
   const consistency = pigments.find((pigment) => pigment.key === "consistency")?.value ?? 0.6;
   const feeling = pigments.find((pigment) => pigment.key === "feeling")?.value ?? 0.7;
   const glow = 0.1 + timeInRange * 0.08 + consistency * 0.06 + feeling * 0.08 + activity * 0.04;
+  const glucoseText = "110mg/dl";
+  const glucoseFont = useMemo(() => matchFont({ fontFamily: "Georgia", fontSize: 25, fontWeight: "300" }), []);
+  const glucoseBounds = glucoseFont.measureText(glucoseText);
 
   return (
     <Canvas style={{ width, height, backgroundColor: PAPER }}>
       <PaperBase width={width} height={height} />
-      <Circle cx={cx} cy={cy} r={radius * 1.08} color="#FFE2B8" opacity={Math.max(0.08, glow * 0.62)} />
-      <Group blendMode="multiply">
-        {petals.map((petal) => (
-          <Oval
-            key={petal.id}
-            x={petal.x - petal.rx}
-            y={petal.y - petal.ry}
-            width={petal.rx * 2}
-            height={petal.ry * 2}
-            color={petal.color}
-            opacity={petal.opacity}
-            transform={[{ rotate: petal.rotation }]}
-            origin={{ x: petal.x, y: petal.y }}
-          />
-        ))}
-      </Group>
-      <Group blendMode="multiply">
-        {centerWash.map((wash) => (
-          <Oval
-            key={wash.id}
-            x={wash.x - wash.rx}
-            y={wash.y - wash.ry}
-            width={wash.rx * 2}
-            height={wash.ry * 2}
-            color={wash.color}
-            opacity={wash.opacity}
-            transform={[{ rotate: wash.rotation }]}
-            origin={{ x: wash.x, y: wash.y }}
-          />
-        ))}
-      </Group>
+        <Circle cx={cx} cy={cy} r={radius * 1.08} color="#FFE2B8" opacity={Math.max(0.08, glow * 0.62)} />
+        <Group blendMode="multiply">
+          {petals.map((petal) => (
+            <Oval
+              key={petal.id}
+              x={petal.x - petal.rx}
+              y={petal.y - petal.ry}
+              width={petal.rx * 2}
+              height={petal.ry * 2}
+              color={petal.color}
+              opacity={petal.opacity}
+              transform={[{ rotate: petal.rotation }]}
+              origin={{ x: petal.x, y: petal.y }}
+            />
+          ))}
+        </Group>
+        <Group blendMode="multiply">
+          {centerWash.map((wash) => (
+            <Oval
+              key={wash.id}
+              x={wash.x - wash.rx}
+              y={wash.y - wash.ry}
+              width={wash.rx * 2}
+              height={wash.ry * 2}
+              color={wash.color}
+              opacity={wash.opacity}
+              transform={[{ rotate: wash.rotation }]}
+              origin={{ x: wash.x, y: wash.y }}
+            />
+          ))}
+        </Group>
       <TextureOverlay width={width} height={height} />
+      <SkiaText
+        x={cx - glucoseBounds.width / 2}
+        y={cy + glucoseBounds.height / 2}
+        text={glucoseText}
+        font={glucoseFont}
+        color="#FFFFFF"
+        opacity={0.92}
+      />
     </Canvas>
   );
 }
@@ -435,6 +454,8 @@ const demoProfiles: { key: ProfileKey; label: string; metrics: CloudMetrics; dat
 export default function App() {
   const [activeProfile, setActiveProfile] = useState(0);
   const [reveal, setReveal] = useState(false);
+  const [sheetVisible, setSheetVisible] = useState(false);
+  const sheetTranslateY = useRef(new Animated.Value(FEATURE_SHEET_CLOSED_Y)).current;
   const profile = demoProfiles[activeProfile];
 
   const scene = useMemo(() => {
@@ -452,51 +473,110 @@ export default function App() {
     }
   };
 
-  const handleBloomPress = () => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => undefined);
+  const dismissFeatureSheet = () => {
+    Animated.spring(sheetTranslateY, {
+      toValue: FEATURE_SHEET_CLOSED_Y,
+      useNativeDriver: true,
+      damping: 24,
+      stiffness: 210,
+    }).start(() => setSheetVisible(false));
   };
 
+  const handleBloomPress = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium).catch(() => undefined);
+    setSheetVisible(true);
+    sheetTranslateY.setValue(FEATURE_SHEET_CLOSED_Y);
+    Animated.spring(sheetTranslateY, {
+      toValue: 0,
+      useNativeDriver: true,
+      damping: 24,
+      stiffness: 210,
+    }).start();
+  };
+
+  const sheetPanResponder = useRef(
+    PanResponder.create({
+      onMoveShouldSetPanResponder: (_, gesture) => Math.abs(gesture.dy) > 8 && Math.abs(gesture.dy) > Math.abs(gesture.dx),
+      onPanResponderMove: (_, gesture) => {
+        if (gesture.dy > 0) sheetTranslateY.setValue(gesture.dy);
+      },
+      onPanResponderRelease: (_, gesture) => {
+        if (gesture.dy > 80 || gesture.vy > 0.75) {
+          Haptics.selectionAsync().catch(() => undefined);
+          dismissFeatureSheet();
+        } else {
+          Animated.spring(sheetTranslateY, {
+            toValue: 0,
+            useNativeDriver: true,
+            damping: 24,
+            stiffness: 210,
+          }).start();
+        }
+      },
+    })
+  ).current;
+
   return (
-    <SafeAreaView style={styles.root}>
+    <View style={styles.root}>
       <View style={styles.phone}>
         <View style={styles.topBar}>
-          <Text style={styles.brand}>Sato</Text>
-          <View style={styles.segment}>
-            {demoProfiles.map((p, i) => (
-              <Pressable key={p.key} onPress={() => handleProfilePress(i)} style={[styles.segBtn, i === activeProfile && { backgroundColor: PROFILE_ACCENTS[p.key] }]}>
-                <Text style={[styles.segText, i === activeProfile && styles.segTextActive]}>{p.label}</Text>
-              </Pressable>
-            ))}
+          <View style={styles.headerRow}>
+            <View style={styles.logoLockup}>
+              <Image source={SATO_LOGO_MARK} style={styles.logoMarkImage} resizeMode="contain" />
+              <View>
+                <Text style={styles.logoText}>Sato</Text>
+                <Text style={styles.logoTagline}>KNOW YOUR RHYTHM</Text>
+              </View>
+            </View>
+            <BellIcon />
           </View>
+          <Text style={styles.welcomeText}>Good morning, Tom</Text>
+          <Text style={styles.rhythmHeadline}>
+            Your body is in{`\n`}a <Text style={styles.rhythmHeadlineAccent}>calm</Text> rhythm.
+          </Text>
         </View>
 
         <View style={styles.stateBloomStage}>
-          <Pressable
-            accessibilityRole="button"
-            hitSlop={8}
-            onPressIn={handleBloomPress}
-            style={({ pressed }) => [styles.orbPanel, pressed && styles.orbPanelPressed]}
-          >
-            <WatercolorStateOrb pigments={statePigments} width={BLOOM_WIDTH} height={BLOOM_HEIGHT} />
-            <View style={styles.orbCopy}>
-              <Text style={styles.orbEyebrow}>{profile.label} state bloom</Text>
-              <Text style={styles.orbTitle}>A drop here, a drop there.</Text>
-              <Text style={styles.orbSub}>Time in range, variability, activity, consistency, and feeling bleed into one living watercolor cloud.</Text>
+          <View style={styles.orbPanel}>
+            <View style={styles.bloomCanvasWrap}>
+              <WatercolorStateOrb pigments={statePigments} width={BLOOM_WIDTH} height={BLOOM_HEIGHT} />
+              <Pressable
+                accessibilityRole="button"
+                hitSlop={12}
+                onPress={handleBloomPress}
+                style={({ pressed }) => [styles.bloomCenterHitBox, pressed && styles.bloomCenterHitBoxPressed]}
+              />
             </View>
-          </Pressable>
-        </View>
-
-        <View style={styles.bottom}>
-          <Text style={styles.todayTitle}>Today</Text>
-          <Text style={styles.todaySub}>How are you feeling?</Text>
-          <View style={styles.legendRow}>
-            {statePigments.map((pigment) => (
-              <Legend key={pigment.key} color={pigment.color} label={pigment.label} />
-            ))}
           </View>
         </View>
+
+        <View style={styles.portraitBottomSection} pointerEvents="box-none">
+          {sheetVisible && (
+            <Animated.View
+              {...sheetPanResponder.panHandlers}
+              style={[styles.featureSheet, { transform: [{ translateY: sheetTranslateY }] }]}
+            >
+              <View style={styles.featureSheetHandle} />
+              <PortraitMomentumCard />
+              <GlucoseRhythmCard />
+              <InsightCard />
+            </Animated.View>
+          )}
+          <BottomNavigation />
+        </View>
       </View>
-    </SafeAreaView>
+    </View>
+  );
+}
+
+function BellIcon() {
+  return (
+    <View style={styles.bellWrap}>
+      <View style={styles.bellDome} />
+      <View style={styles.bellBase} />
+      <View style={styles.bellClapper} />
+      <View style={styles.bellDot} />
+    </View>
   );
 }
 
@@ -509,22 +589,270 @@ function Legend({ color, label }: { color: string; label: string }) {
   );
 }
 
+function InsightSparkle({ color = PERSIMMON, size = 16 }: { color?: string; size?: number }) {
+  return (
+    <View style={[styles.insightSparkle, { width: size, height: size }]}>
+      <View style={[styles.insightSparkleVertical, { backgroundColor: color }]} />
+      <View style={[styles.insightSparkleHorizontal, { backgroundColor: color }]} />
+    </View>
+  );
+}
+
+function ChevronRight({ color = PERSIMMON }: { color?: string }) {
+  return (
+    <View style={styles.chevronBox}>
+      <View style={[styles.chevronStroke, { borderColor: color }]} />
+    </View>
+  );
+}
+
+function PortraitMomentumCard() {
+  return (
+    <View style={styles.portraitMomentumCard}>
+      <Image source={PORTRAIT_MOMENTUM} style={styles.portraitMomentumImage} resizeMode="cover" />
+    </View>
+  );
+}
+
+function GlucoseRhythmCard() {
+  return (
+    <View style={styles.glucoseRhythmCard}>
+      <Image source={GLUCOSE_GRAPHICS_PORTRAIT} style={styles.glucoseRhythmImage} resizeMode="cover" />
+    </View>
+  );
+}
+
+function InsightCard() {
+  return (
+    <View style={styles.insightCard}>
+      <View style={styles.insightCopy}>
+        <View style={styles.insightHeaderRow}>
+          <InsightSparkle />
+          <Text style={styles.insightLabel}>Insight for you</Text>
+        </View>
+        <Text style={styles.insightText}>{"Walking after lunch has often\ncoincided with smaller spikes."}</Text>
+      </View>
+      <Pressable accessibilityRole="button" hitSlop={8} style={({ pressed }) => [styles.insightArrowButton, pressed && styles.insightArrowButtonPressed]}>
+        <ChevronRight />
+      </Pressable>
+    </View>
+  );
+}
+
+type NavItemKey = "portrait" | "foods" | "discover" | "sato" | "profile";
+
+const NAV_ITEMS: { key: NavItemKey; label: string }[] = [
+  { key: "portrait", label: "Portrait" },
+  { key: "foods", label: "Foods" },
+  { key: "discover", label: "Discover" },
+  { key: "sato", label: "Sato" },
+  { key: "profile", label: "Profile" },
+];
+
+function SatoBlossomLogo({ size = 22 }: { size?: number }) {
+  const petalLong = size * 0.68;
+  const petalShort = size * 0.34;
+  const petalOffset = size * 0.19;
+
+  return (
+    <View style={[styles.blossomMark, { width: size, height: size }]}>
+      {[0, 1, 2, 3].map((petal) => (
+        <View
+          key={petal}
+          style={[
+            styles.blossomPetal,
+            {
+              width: petalShort,
+              height: petalLong,
+              borderRadius: petalLong,
+              backgroundColor: PERSIMMON,
+              opacity: 0.42,
+              transform: [{ rotate: `${petal * 90 + 45}deg` }, { translateY: -petalOffset }],
+            },
+          ]}
+        />
+      ))}
+      <View style={styles.blossomStar}>
+        <View style={styles.blossomStarArm} />
+        <View style={[styles.blossomStarArm, styles.blossomStarArmDiagonal]} />
+      </View>
+    </View>
+  );
+}
+
+function FoodsIcon({ color }: { color: string }) {
+  return (
+    <View style={styles.iconBox}>
+      <View style={styles.forkTines}>
+        <View style={[styles.tine, { backgroundColor: color }]} />
+        <View style={[styles.tine, { backgroundColor: color }]} />
+        <View style={[styles.tine, { backgroundColor: color }]} />
+      </View>
+      <View style={[styles.forkHandle, { backgroundColor: color }]} />
+      <View style={[styles.knife, { borderColor: color }]} />
+    </View>
+  );
+}
+
+function DiscoverIcon({ color }: { color: string }) {
+  return (
+    <View style={styles.iconBox}>
+      <View style={[styles.sparkleLine, styles.sparkleVertical, { backgroundColor: color }]} />
+      <View style={[styles.sparkleLine, styles.sparkleHorizontal, { backgroundColor: color }]} />
+      <View style={[styles.sparkleDot, styles.sparkleDotOne, { backgroundColor: color }]} />
+      <View style={[styles.sparkleDot, styles.sparkleDotTwo, { backgroundColor: color }]} />
+    </View>
+  );
+}
+
+function SatoIcon({ color }: { color: string }) {
+  return (
+    <View style={styles.iconBox}>
+      <View style={[styles.bubble, { borderColor: color }]} />
+      <View style={[styles.bubbleTail, { borderBottomColor: color, borderRightColor: color }]} />
+    </View>
+  );
+}
+
+function ProfileIcon({ color }: { color: string }) {
+  return (
+    <View style={styles.iconBox}>
+      <View style={[styles.userHead, { borderColor: color }]} />
+      <View style={[styles.userShoulders, { borderColor: color }]} />
+    </View>
+  );
+}
+
+function NavIcon({ item, color }: { item: NavItemKey; color: string }) {
+  if (item === "portrait") return <SatoBlossomLogo />;
+  if (item === "foods") return <FoodsIcon color={color} />;
+  if (item === "discover") return <DiscoverIcon color={color} />;
+  if (item === "sato") return <SatoIcon color={color} />;
+  return <ProfileIcon color={color} />;
+}
+
+function BottomNavigation() {
+  return (
+    <View style={styles.navSafeArea}>
+      <View style={styles.bottomNav}>
+        {NAV_ITEMS.map((item) => {
+          const active = item.key === "portrait";
+          const color = active ? PERSIMMON : WARM_GREY;
+
+          return (
+            <Pressable key={item.key} style={styles.navItem} accessibilityRole="tab" accessibilityState={{ selected: active }}>
+              <View style={styles.navIconWrap}>
+                <NavIcon item={item.key} color={color} />
+              </View>
+              <Text style={[styles.navLabel, { color }]}>{item.label}</Text>
+              <View style={[styles.navIndicator, active && styles.navIndicatorActive]} />
+            </Pressable>
+          );
+        })}
+      </View>
+    </View>
+  );
+}
+
 const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: OUTER_CREAM, alignItems: "center", justifyContent: "center" },
+  root: { flex: 1, backgroundColor: PAPER_CARD },
   phone: {
-    width: PHONE_WIDTH,
-    height: PHONE_HEIGHT,
+    flex: 1,
+    width: "100%",
     backgroundColor: PAPER_CARD,
-    borderRadius: 40,
-    overflow: "hidden",
-    shadowColor: "#000",
-    shadowOpacity: 0.12,
-    shadowRadius: 24,
-    shadowOffset: { width: 0, height: 12 },
-    elevation: 8,
   },
-  topBar: { paddingTop: 24, paddingHorizontal: 24, paddingBottom: 12, backgroundColor: PAPER_CARD, zIndex: 2, elevation: 2 },
+  topBar: { paddingTop: 48, paddingHorizontal: 12, paddingBottom: 4, backgroundColor: PAPER_CARD, zIndex: 2 },
   brand: { fontFamily: "Georgia", fontSize: 32, color: "#241F1A", fontWeight: "300", letterSpacing: -0.5, marginBottom: 12 },
+  headerRow: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    justifyContent: "space-between",
+    marginBottom: 14,
+  },
+  logoLockup: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+  logoMarkImage: {
+    width: 42,
+    height: 42,
+  },
+  logoText: {
+    fontFamily: "Georgia",
+    fontSize: 26,
+    lineHeight: 29,
+    color: "#1F1B18",
+    fontWeight: "300",
+    letterSpacing: -0.5,
+  },
+  logoTagline: {
+    color: "#9A8A7D",
+    fontSize: 6.5,
+    fontWeight: "700",
+    letterSpacing: 1.55,
+    marginTop: -1,
+  },
+  welcomeText: {
+    color: "#7A6658",
+    fontSize: 12,
+    lineHeight: 17,
+    fontWeight: "500",
+    marginBottom: 7,
+  },
+  rhythmHeadline: {
+    fontFamily: "Georgia",
+    fontSize: 27,
+    lineHeight: 36,
+    color: "#1F1B18",
+    fontWeight: "300",
+    letterSpacing: -0.4,
+  },
+  rhythmHeadlineAccent: {
+    color: PERSIMMON,
+  },
+  bellWrap: {
+    width: 32,
+    height: 32,
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: 2,
+  },
+  bellDome: {
+    width: 14,
+    height: 14,
+    borderWidth: 1.5,
+    borderColor: "#1F1B18",
+    borderBottomWidth: 0,
+    borderTopLeftRadius: 8,
+    borderTopRightRadius: 8,
+  },
+  bellBase: {
+    width: 18,
+    height: 6,
+    borderWidth: 1.5,
+    borderColor: "#1F1B18",
+    borderTopWidth: 0,
+    borderBottomLeftRadius: 8,
+    borderBottomRightRadius: 8,
+    marginTop: -1,
+  },
+  bellClapper: {
+    width: 4,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: "#1F1B18",
+    marginTop: 1,
+  },
+  bellDot: {
+    position: "absolute",
+    right: 3,
+    top: 2,
+    width: 5,
+    height: 5,
+    borderRadius: 3,
+    backgroundColor: PERSIMMON,
+  },
   segment: { flexDirection: "row", backgroundColor: "#FBF7EF", borderRadius: 999, padding: 4 },
   segBtn: { flex: 1, borderRadius: 999, paddingVertical: 8, alignItems: "center" },
   segBtnActive: { backgroundColor: "#102334" },
@@ -532,33 +860,338 @@ const styles = StyleSheet.create({
   segTextActive: { color: "#F8F1E7" },
   artWrap: { flex: 1, alignItems: "center", justifyContent: "center", paddingHorizontal: 20, backgroundColor: PAPER_CARD },
   artPressable: { backgroundColor: PAPER },
-  stateBloomStage: { flex: 1, paddingHorizontal: 14, paddingTop: 12, paddingBottom: 8, backgroundColor: PAPER_CARD, justifyContent: "center" },
+  stateBloomStage: { flex: 1, paddingHorizontal: 14, paddingTop: 4, paddingBottom: 108, backgroundColor: PAPER_CARD, justifyContent: "center" },
   orbPanel: {
     flex: 1,
     paddingHorizontal: 8,
-    paddingTop: 14,
-    paddingBottom: 18,
-    borderRadius: 38,
+    paddingTop: 8,
+    paddingBottom: 8,
     backgroundColor: "#FBF7EF",
     alignItems: "center",
     justifyContent: "center",
-    gap: 12,
-    shadowColor: "#6E604F",
-    shadowOpacity: 0.08,
-    shadowRadius: 18,
-    shadowOffset: { width: 0, height: 8 },
-    elevation: 3,
+    gap: 0,
   },
-  orbPanelPressed: { transform: [{ scale: 0.985 }], opacity: 0.94 },
-  orbCopy: { alignItems: "center" },
+  bloomCanvasWrap: {
+    width: BLOOM_WIDTH,
+    height: BLOOM_HEIGHT,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  bloomCenterHitBox: {
+    position: "absolute",
+    left: (BLOOM_WIDTH - BLOOM_TAP_SIZE) / 2,
+    top: (BLOOM_HEIGHT - BLOOM_TAP_SIZE) / 2,
+    width: BLOOM_TAP_SIZE,
+    height: BLOOM_TAP_SIZE,
+    borderRadius: BLOOM_TAP_SIZE / 2,
+  },
+  bloomCenterHitBoxPressed: { transform: [{ scale: 0.94 }], opacity: 0.94 },
+  orbCopy: { alignItems: "center", backgroundColor: "#FBF7EF" },
   orbEyebrow: { color: "#8E7B62", fontSize: 10, fontWeight: "700", textTransform: "uppercase", letterSpacing: 1.1, marginBottom: 6 },
   orbTitle: { fontFamily: "Georgia", fontSize: 25, color: "#241F1A", fontWeight: "300", marginBottom: 8, textAlign: "center" },
   orbSub: { color: "#7A7167", fontSize: 13, lineHeight: 19, textAlign: "center", maxWidth: 250 },
-  bottom: { paddingHorizontal: 24, paddingBottom: 18, backgroundColor: PAPER_CARD },
+  portraitBottomSection: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: "transparent",
+    zIndex: 5,
+  },
+  featureSheet: {
+    paddingTop: 10,
+    paddingBottom: 8,
+    borderTopLeftRadius: 28,
+    borderTopRightRadius: 28,
+    backgroundColor: "#FBF7EF",
+    shadowColor: "#6E604F",
+    shadowOpacity: 0.08,
+    shadowRadius: 18,
+    shadowOffset: { width: 0, height: -8 },
+    elevation: 5,
+  },
+  featureSheetHandle: {
+    alignSelf: "center",
+    width: 42,
+    height: 4,
+    borderRadius: 999,
+    backgroundColor: "#DED4C8",
+    marginBottom: 10,
+  },
+  bottom: { paddingHorizontal: 24, paddingBottom: 12, backgroundColor: PAPER_CARD },
   todayTitle: { fontFamily: "Georgia", fontSize: 24, color: "#241F1A", fontWeight: "300", marginBottom: 3 },
   todaySub: { color: "#7A7167", fontSize: 13, marginBottom: 12 },
   legendRow: { flexDirection: "row", justifyContent: "space-between" },
   legendItem: { alignItems: "center", gap: 4 },
   legendDot: { width: 10, height: 10, borderRadius: 5, opacity: 0.7 },
   legendLabel: { color: "#7A7167", fontSize: 9, textTransform: "uppercase", letterSpacing: 0.5 },
+  portraitMomentumCard: {
+    marginHorizontal: 16,
+    marginBottom: 10,
+    backgroundColor: "#FBF7EF",
+  },
+  portraitMomentumImage: {
+    width: "100%",
+    height: 111,
+  },
+  glucoseRhythmCard: {
+    marginHorizontal: 16,
+    marginBottom: 10,
+    backgroundColor: "#FBF7EF",
+  },
+  glucoseRhythmImage: {
+    width: "100%",
+    height: 116,
+  },
+  insightCard: {
+    minHeight: 94,
+    marginHorizontal: 16,
+    marginBottom: 0,
+    paddingVertical: 12,
+    paddingLeft: 18,
+    paddingRight: 64,
+    backgroundColor: "#FBF7EF",
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  insightCopy: {
+    flex: 1,
+  },
+  insightHeaderRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 7,
+    marginBottom: 7,
+  },
+  insightSparkle: {
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  insightSparkleVertical: {
+    position: "absolute",
+    width: 1.55,
+    height: 15.5,
+    borderRadius: 1,
+    transform: [{ rotate: "45deg" }],
+  },
+  insightSparkleHorizontal: {
+    position: "absolute",
+    width: 15.5,
+    height: 1.55,
+    borderRadius: 1,
+    transform: [{ rotate: "45deg" }],
+  },
+  insightLabel: {
+    fontFamily: "Georgia",
+    color: "#7A6658",
+    fontSize: 13,
+    fontWeight: "600",
+    letterSpacing: 0.05,
+  },
+  insightText: {
+    fontFamily: "Georgia",
+    color: "#1F1B18",
+    fontSize: 16,
+    fontWeight: "300",
+    lineHeight: 23,
+    letterSpacing: -0.18,
+  },
+  insightArrowButton: {
+    position: "absolute",
+    right: 16,
+    top: "50%",
+    width: 36,
+    height: 36,
+    marginTop: -18,
+    backgroundColor: "#FBF7EF",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  insightArrowButtonPressed: {
+    transform: [{ scale: 0.97 }],
+    opacity: 0.9,
+  },
+  chevronBox: {
+    width: 14,
+    height: 14,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  chevronStroke: {
+    width: 8,
+    height: 8,
+    borderTopWidth: 1.8,
+    borderRightWidth: 1.8,
+    transform: [{ rotate: "45deg" }],
+    borderRadius: 1,
+  },
+  navSafeArea: {
+    backgroundColor: PAPER_CARD,
+    borderTopWidth: 1,
+    borderTopColor: NAV_BORDER,
+    paddingBottom: 24,
+  },
+  bottomNav: {
+    height: 58,
+    backgroundColor: PAPER_CARD,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingHorizontal: 8,
+    shadowColor: "#6E604F",
+    shadowOpacity: 0.025,
+    shadowRadius: 10,
+    shadowOffset: { width: 0, height: -2 },
+  },
+  navItem: {
+    flex: 1,
+    minHeight: 54,
+    alignItems: "center",
+    justifyContent: "center",
+    paddingTop: 4,
+  },
+  navIconWrap: {
+    width: 28,
+    height: 24,
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 3,
+  },
+  navLabel: {
+    fontSize: 12,
+    fontWeight: "500",
+    letterSpacing: 0.05,
+    textAlign: "center",
+  },
+  navIndicator: {
+    width: 4,
+    height: 4,
+    borderRadius: 2,
+    marginTop: 3,
+    opacity: 0,
+  },
+  navIndicatorActive: {
+    backgroundColor: PERSIMMON,
+    opacity: 1,
+  },
+  iconBox: {
+    width: 22,
+    height: 22,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  blossomMark: {
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  blossomPetal: {
+    position: "absolute",
+  },
+  blossomStar: {
+    width: 8,
+    height: 8,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  blossomStarArm: {
+    position: "absolute",
+    width: 2.5,
+    height: 8,
+    borderRadius: 2,
+    backgroundColor: "#FFFFFF",
+  },
+  blossomStarArmDiagonal: {
+    transform: [{ rotate: "90deg" }],
+  },
+  forkTines: {
+    position: "absolute",
+    left: 4,
+    top: 3,
+    width: 7,
+    height: 7,
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+  tine: {
+    width: 1.15,
+    height: 7,
+    borderRadius: 1,
+  },
+  forkHandle: {
+    position: "absolute",
+    left: 7,
+    top: 9,
+    width: 1.2,
+    height: 10,
+    borderRadius: 1,
+  },
+  knife: {
+    position: "absolute",
+    right: 5,
+    top: 4,
+    width: 4.5,
+    height: 15,
+    borderRightWidth: 1.2,
+    borderTopWidth: 1.2,
+    borderTopRightRadius: 5,
+    transform: [{ rotate: "4deg" }],
+  },
+  sparkleLine: {
+    position: "absolute",
+    borderRadius: 1,
+  },
+  sparkleVertical: {
+    width: 1.2,
+    height: 19,
+    transform: [{ rotate: "45deg" }],
+  },
+  sparkleHorizontal: {
+    width: 19,
+    height: 1.2,
+    transform: [{ rotate: "45deg" }],
+  },
+  sparkleDot: {
+    position: "absolute",
+    width: 1.6,
+    height: 1.6,
+    borderRadius: 1,
+  },
+  sparkleDotOne: { right: 2, top: 3 },
+  sparkleDotTwo: { left: 3, bottom: 4 },
+  bubble: {
+    width: 19,
+    height: 14,
+    borderWidth: 1.25,
+    borderRadius: 8,
+  },
+  bubbleTail: {
+    position: "absolute",
+    bottom: 3,
+    left: 7,
+    width: 5,
+    height: 5,
+    borderRightWidth: 1.25,
+    borderBottomWidth: 1.25,
+    transform: [{ rotate: "35deg" }],
+    backgroundColor: PAPER_CARD,
+  },
+  userHead: {
+    position: "absolute",
+    top: 3,
+    width: 7.5,
+    height: 7.5,
+    borderRadius: 4,
+    borderWidth: 1.25,
+  },
+  userShoulders: {
+    position: "absolute",
+    bottom: 2,
+    width: 16,
+    height: 8,
+    borderTopWidth: 1.25,
+    borderLeftWidth: 1.25,
+    borderRightWidth: 1.25,
+    borderTopLeftRadius: 9,
+    borderTopRightRadius: 9,
+  },
 });

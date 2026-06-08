@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "last_updated": "2026-06-08T18:47:54.451Z",
+  "last_updated": "2026-06-08T21:10:55.017Z",
   "pages": {
     "[sources/SRC-2026-06-07-001": {
       "type": "concept",
@@ -1893,6 +1893,21 @@
         "interaction"
       ],
       "source_context": "\"Separating bloom emotion layer from clock/information layer\""
+    },
+    "sources/obs-2026-06-08-sato-bloom-core-halo-satellite-density-increased": {
+      "type": "source",
+      "title": "\"Observation: Sato bloom core/halo/satellite density increased\"",
+      "created": "2026-06-08",
+      "updated": "2026-06-08",
+      "slug": "obs-2026-06-08-sato-bloom-core-halo-satellite-density-increased",
+      "status": "observation",
+      "relevance": "high",
+      "observed_at": "2026-06-08T21:10:55.014Z",
+      "tags": [
+        "sato-bloom",
+        "density",
+        "core-halo-satellites"
+      ]
     },
     "sources/obs-2026-06-08-sato-bloom-corrected-from-nebula-to-brush-strokes": {
       "type": "source",

@@ -51,7 +51,7 @@ export default function PortraitScreen() {
               windows={todayBloomWindows}
               size={Math.min(390, SCREEN_WIDTH - 20)}
               glucose={110}
-              currentHour={13}
+              currentHour={19}
             />
           </View>
 

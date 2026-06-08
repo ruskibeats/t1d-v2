@@ -257,3 +257,6 @@
 ## [2026-06-08T18:47:54.449Z] observe
 - slug: "obs-2026-06-08-sato-portrait-v1-1-story-weighted-pigment-patch-applied", title: "Sato portrait v1.1 story-weighted pigment patch applied", relevance: "critical"
 
+## [2026-06-08T21:10:55.014Z] observe
+- slug: "obs-2026-06-08-sato-bloom-core-halo-satellite-density-increased", title: "Sato bloom core/halo/satellite density increased", relevance: "high"
+

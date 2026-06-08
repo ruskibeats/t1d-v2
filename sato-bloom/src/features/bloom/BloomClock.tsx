@@ -91,10 +91,10 @@ export function BloomClock({
   const lastScrubbedRef = useRef<number | null>(null);
 
   const cx = size / 2;
-  const cy = size * 0.44;
-  const artRadius = size * 0.38;
-  const hitInner = size * 0.12;
-  const hitOuter = size * 0.48;
+  const cy = size * 0.53;
+  const artRadius = size * 0.42;
+  const hitInner = size * 0.13;
+  const hitOuter = size * 0.52;
   const tickRadius = size * 0.46;
 
   // ── animation loop ─────────────────────────────────────────────
@@ -355,22 +355,22 @@ export function BloomClock({
           <Group blendMode="multiply">
             {livedWindows.map((w) => (
               <Group key={w.id}>
-                {Array.from({ length: 6 }).map((_, layer) => {
+                {Array.from({ length: 10 }).map((_, layer) => {
                   const seed = `${w.id}-wash-${layer}`;
-                  const lAngle = w.angle + noise(`${seed}-angle`, -0.28, 0.28);
-                  const orbit = artRadius * noise(`${seed}-orbit`, 0.22, 0.86);
+                  const lAngle = w.angle + noise(`${seed}-angle`, -0.35, 0.35);
+                  const orbit = artRadius * noise(`${seed}-orbit`, 0.15, 0.94);
                   const center = pointFrom(
-                    cx + noise(`${seed}-cx`, -12, 12) + drift * noise(`${seed}-dx`, -0.8, 0.8),
-                    cy + noise(`${seed}-cy`, -8, 8) + breathe * noise(`${seed}-dy`, -0.8, 0.8),
+                    cx + noise(`${seed}-cx`, -16, 16) + drift * noise(`${seed}-dx`, -1.2, 1.2),
+                    cy + noise(`${seed}-cy`, -12, 12) + breathe * noise(`${seed}-dy`, -1.2, 1.2),
                     lAngle,
                     orbit
                   );
-                  const rx = size * noise(`${seed}-rx`, 0.09, 0.17) * (1 + w.intensity * 0.18);
-                  const ry = size * noise(`${seed}-ry`, 0.05, 0.11) * (1 + w.intensity * 0.14);
+                  const rx = size * noise(`${seed}-rx`, 0.09, 0.21) * (1 + w.intensity * 0.25);
+                  const ry = size * noise(`${seed}-ry`, 0.05, 0.14) * (1 + w.intensity * 0.2);
                   const progressScale = w.isCurrent
-                    ? 0.35 + w.progress * 0.42
-                    : 0.55 + w.progress * 0.45;
-                  const opacity = (0.024 + w.confidence * 0.024) * progressScale;
+                    ? 0.42 + w.progress * 0.46
+                    : 0.65 + w.progress * 0.35;
+                  const opacity = (0.048 + w.confidence * 0.042) * progressScale;
                   const lift =
                     selectedIndex === livedWindows.indexOf(w)
                       ? 1.14
@@ -389,7 +389,7 @@ export function BloomClock({
                       transform={[
                         {
                           rotate:
-                            lAngle + Math.PI / 2 + noise(`${seed}-rot`, -0.45, 0.45),
+                            lAngle + Math.PI / 2 + noise(`${seed}-rot`, -0.5, 0.5),
                         },
                       ]}
                       origin={center}
@@ -397,26 +397,47 @@ export function BloomClock({
                   );
                 })}
 
-                {/* Granulation specks for reactive windows */}
-                {(w.state === "reactive" || w.variability > 0.5) &&
-                  Array.from({ length: 6 }).map((_, i) => {
-                    const gSeed = `${w.id}-gran-${i}`;
-                    const gDot = pointFrom(
-                      cx + noise(`${gSeed}-cx`, -size * 0.12, size * 0.12),
-                      cy + noise(`${gSeed}-cy`, -size * 0.1, size * 0.1),
-                      noise(`${gSeed}-a`, 0, Math.PI * 2),
-                      artRadius * noise(`${gSeed}-d`, 0.28, 0.94)
-                    );
-                    return (
-                      <Circle
-                        key={gSeed}
-                        cx={gDot.x}
-                        cy={gDot.y}
-                        r={noise(`${gSeed}-r`, 0.5, 1.5)}
-                        color={rgba(w.color, 0.05 + w.variability * 0.05)}
-                      />
-                    );
-                  })}
+                {/* Pigment pooling at wash intersection — separate layer per window */}
+                <Oval
+                  x={cx - size * 0.12}
+                  y={cy - size * 0.08}
+                  width={size * 0.24}
+                  height={size * 0.16}
+                  color={rgba(
+                    w.color,
+                    0.035 + w.intensity * 0.04 + w.confidence * 0.02
+                  )}
+                  transform={[
+                    { rotate: w.angle + Math.PI / 2 + noise(`${w.id}-pool-angle`, -0.4, 0.4) },
+                  ]}
+                  origin={{
+                    x: cx + noise(`${w.id}-pool-x`, -size * 0.06, size * 0.06),
+                    y: cy + noise(`${w.id}-pool-y`, -size * 0.04, size * 0.04),
+                  }}
+                />
+
+                {/* Granulation specks for all windows */}
+                {Array.from({ length: w.state === "reactive" || w.variability > 0.5 ? 14 : 6 }).map((_, i) => {
+                  const gSeed = `${w.id}-gran-${i}`;
+                  const gDot = pointFrom(
+                    cx + noise(`${gSeed}-cx`, -size * 0.14, size * 0.14),
+                    cy + noise(`${gSeed}-cy`, -size * 0.12, size * 0.12),
+                    noise(`${gSeed}-a`, 0, Math.PI * 2),
+                    artRadius * noise(`${gSeed}-d`, 0.22, 0.96)
+                  );
+                  return (
+                    <Circle
+                      key={gSeed}
+                      cx={gDot.x}
+                      cy={gDot.y}
+                      r={noise(`${gSeed}-r`, 0.4, w.state === "reactive" ? 2.6 : 1.6)}
+                      color={rgba(
+                        w.color,
+                        0.05 + w.variability * 0.07 + (w.state === "reactive" ? 0.04 : 0)
+                      )}
+                    />
+                  );
+                })}
               </Group>
             ))}
           </Group>
@@ -435,9 +456,9 @@ export function BloomClock({
             <BrushStroke
               cx={cx} cy={cy} canvasSize={size}
               angle={-0.85} distance={artRadius * 0.48}
-              length={size * 0.3} maxWidth={size * 0.048}
+              length={size * 0.26} maxWidth={size * 0.048}
               color="#D7B36A" noiseSeed="ochre"
-              opacity={0.12} ghostOpacity={0.05}
+              opacity={0.15} ghostOpacity={0.07}
               ghostOffset={{ x: size * 0.005, y: -size * 0.003 }}
               pigmentPool={{ position: 0.22, radius: size * 0.018, opacity: 0.1 }}
             />
@@ -454,16 +475,16 @@ export function BloomClock({
               angle={-1.2} distance={artRadius * 0.58}
               length={size * 0.18} maxWidth={size * 0.072}
               color="#E8795F" noiseSeed="sugar"
-              opacity={0.12} ghostOpacity={0.05}
+              opacity={0.15} ghostOpacity={0.07}
               ghostOffset={{ x: -size * 0.005, y: size * 0.004 }}
               pigmentPool={{ position: 0.2, radius: size * 0.025, opacity: 0.1 }}
             />
             <BrushStroke
               cx={cx} cy={cy} canvasSize={size}
               angle={-0.35} distance={artRadius * 0.45}
-              length={size * 0.36} maxWidth={size * 0.04}
+              length={size * 0.3} maxWidth={size * 0.04}
               color="#789A7A" noiseSeed="exercise"
-              opacity={0.09} ghostOpacity={0.04}
+              opacity={0.12} ghostOpacity={0.06}
               ghostOffset={{ x: size * 0.003, y: size * 0.003 }}
             />
             <BrushStroke
@@ -471,8 +492,17 @@ export function BloomClock({
               angle={2.1} distance={artRadius * 0.55}
               length={size * 0.26} maxWidth={size * 0.048}
               color="#C9A46A" noiseSeed="protein"
-              opacity={0.09} ghostOpacity={0.04}
+              opacity={0.12} ghostOpacity={0.06}
               ghostOffset={{ x: -size * 0.003, y: -size * 0.003 }}
+            />
+            <BrushStroke
+              cx={cx} cy={cy} canvasSize={size}
+              angle={3.3} distance={artRadius * 0.48}
+              length={size * 0.32} maxWidth={size * 0.07}
+              color="#B9915E" noiseSeed="heavy-meal"
+              opacity={0.22} ghostOpacity={0.1}
+              ghostOffset={{ x: size * 0.005, y: size * 0.004 }}
+              pigmentPool={{ position: 0.25, radius: size * 0.032, opacity: 0.18 }}
             />
           </Group>
 

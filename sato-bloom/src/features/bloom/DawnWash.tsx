@@ -26,16 +26,16 @@ type DawnWashProps = {
 
 export function DawnWash({ cx, cy, size, breathe }: DawnWashProps) {
   return (
-    <Group opacity={0.85}>
-      {Array.from({ length: 12 }).map((_, i) => {
+    <Group opacity={0.92}>
+      {Array.from({ length: 14 }).map((_, i) => {
         const r = size * (0.04 + i * 0.038);
-        const alpha = 0.06 - i * 0.0035;
+        const alpha = 0.065 - i * 0.0035;
         return (
           <Circle
             key={`dawn-${i}`}
-            cx={cx + noise(`dawn-cx-${i}`, -size * 0.015, size * 0.015)}
-            cy={cy + noise(`dawn-cy-${i}`, -size * 0.015, size * 0.015)}
-            r={r + breathe * noise(`dawn-b-${i}`, -1.5, 1.5)}
+            cx={cx + noise(`dawn-cx-${i}`, -size * 0.018, size * 0.018)}
+            cy={cy + noise(`dawn-cy-${i}`, -size * 0.018, size * 0.018)}
+            r={r + breathe * noise(`dawn-b-${i}`, -2, 2)}
             color={rgba("#F2D489", Math.max(0.008, alpha))}
           />
         );

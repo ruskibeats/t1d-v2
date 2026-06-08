@@ -175,6 +175,7 @@
 - [[sources/obs-2026-06-07-sato-wiki-initialized-with-mobile-app-and-companion-ecosyste]] — "Observation: Sato wiki initialized with mobile app and companion ecosystem sources" *(created: 2026-06-07)*
 - [[sources/obs-2026-06-08-sato-bloom-artifact-first-interaction-pass]] — "Observation: Sato Bloom artifact-first interaction pass" *(created: 2026-06-08)*
 - [[sources/obs-2026-06-08-sato-bloom-continuous-portrait-direction-restored]] — "Observation: Sato Bloom continuous portrait direction restored" *(created: 2026-06-08)*
+- [[sources/obs-2026-06-08-sato-bloom-core-halo-satellite-density-increased]] — "Observation: Sato bloom core/halo/satellite density increased" *(created: 2026-06-08)*
 - [[sources/obs-2026-06-08-sato-bloom-corrected-from-nebula-to-brush-strokes]] — "Observation: Sato bloom corrected from nebula to brush strokes" *(created: 2026-06-08)*
 - [[sources/obs-2026-06-08-sato-bloom-enriched-pigment-and-washi-seal-medallion]] — "Observation: Sato bloom enriched pigment and washi seal medallion" *(created: 2026-06-08)*
 - [[sources/obs-2026-06-08-sato-bloom-investor-ready-typography-pass]] — "Observation: Sato Bloom investor-ready typography pass" *(created: 2026-06-08)*
@@ -206,4 +207,4 @@
 - [[sources/SRC-2026-06-07-012]] — SRC-2026-06-07-012 *(created: 2026-06-08)*
 
 ---
-*Last updated: 2026-06-08T18:47:54.451Z* | *Total pages: 194*
+*Last updated: 2026-06-08T21:10:55.017Z* | *Total pages: 195*

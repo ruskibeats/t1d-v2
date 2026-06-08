@@ -247,6 +247,7 @@ export function BloomClock({
     lastScrubbedRef.current = null;
   }, []);
 
+
   const tapGesture = useMemo(
     () => Gesture.Tap().runOnJS(true).onEnd(handleTap),
     [handleTap]
@@ -356,6 +357,202 @@ export function BloomClock({
                 />
               );
             })}
+          </Group>
+
+          {/* Heavy lavender brush stroke — expressive, wide, irregular edges */}
+          <Group blendMode="multiply">
+            {(() => {
+              const strokeAngle = 2.6;
+              const dir = { x: Math.cos(strokeAngle), y: Math.sin(strokeAngle) };
+              const perp = { x: -Math.sin(strokeAngle), y: Math.cos(strokeAngle) };
+              const origin = pointFrom(
+                cx + drift * 3 + size * 0.015,
+                cy + breathe * 2 - size * 0.008,
+                strokeAngle,
+                artRadius * 0.55
+              );
+              const length = size * 0.34;
+              const maxWidth = size * 0.062;
+              const bpath = Skia.Path.Make();
+
+              // Start tip (narrow)
+              const t0 = origin.x - dir.x * length * 0.42 - perp.x * size * 0.006;
+              const t1 = origin.y - dir.y * length * 0.42 - perp.y * size * 0.006;
+              bpath.moveTo(t0, t1);
+
+              // Upper edge — widens then tapers, with amplified organic jitter
+              const jA = perp.x * size * (0.012 + noise('u1', -1, 1) * 0.014);
+              const jB = perp.y * size * (0.012 + noise('u2', -1, 1) * 0.014);
+              const jC = perp.x * size * (0.008 + noise('u3', -1, 1) * 0.016);
+              const jD = perp.y * size * (0.008 + noise('u4', -1, 1) * 0.016);
+              const jE = perp.x * size * (0.006 + noise('u5', -1, 1) * 0.012);
+              const jF = perp.y * size * (0.006 + noise('u6', -1, 1) * 0.012);
+              bpath.cubicTo(
+                origin.x - dir.x * length * 0.2 - perp.x * maxWidth * 0.55 + jA,
+                origin.y - dir.y * length * 0.2 - perp.y * maxWidth * 0.55 + jB,
+                origin.x + dir.x * length * 0.35 - perp.x * maxWidth * 0.92 + jC,
+                origin.y + dir.y * length * 0.35 - perp.y * maxWidth * 0.92 + jD,
+                origin.x + dir.x * length * 0.55 - perp.x * maxWidth * 0.28 + jE,
+                origin.y + dir.y * length * 0.55 - perp.y * maxWidth * 0.28 + jF
+              );
+
+              // End tip (narrow taper) with jitter
+              const jG = perp.x * size * (0.01 + noise('u7', -1, 1) * 0.012);
+              const jH = perp.y * size * (0.01 + noise('u8', -1, 1) * 0.012);
+              const jI = perp.x * size * (0.004 + noise('u9', -1, 1) * 0.01);
+              const jJ = perp.y * size * (0.004 + noise('ua', -1, 1) * 0.01);
+              bpath.cubicTo(
+                origin.x + dir.x * length * 0.62 - jG,
+                origin.y + dir.y * length * 0.62 - jH,
+                origin.x + dir.x * length * 0.65 - jI,
+                origin.y + dir.y * length * 0.65 - jJ,
+                origin.x + dir.x * length * 0.68 + perp.x * size * 0.002,
+                origin.y + dir.y * length * 0.68 + perp.y * size * 0.002
+              );
+
+              // Lower edge — returning, with different wobble
+              const jK = perp.x * size * (0.008 + noise('ub', -1, 1) * 0.014);
+              const jL = perp.y * size * (0.008 + noise('uc', -1, 1) * 0.014);
+              const jM = perp.x * size * (0.01 + noise('ud', -1, 1) * 0.015);
+              const jN = perp.y * size * (0.01 + noise('ue', -1, 1) * 0.015);
+              const jO = perp.x * size * (0.005 + noise('uf', -1, 1) * 0.012);
+              const jP = perp.y * size * (0.005 + noise('ug', -1, 1) * 0.012);
+              bpath.cubicTo(
+                origin.x + dir.x * length * 0.58 + jK,
+                origin.y + dir.y * length * 0.58 + jL,
+                origin.x + dir.x * length * 0.3 + perp.x * maxWidth * 0.88 + jM,
+                origin.y + dir.y * length * 0.3 + perp.y * maxWidth * 0.88 + jN,
+                origin.x - dir.x * length * 0.18 + perp.x * maxWidth * 0.48 + jO,
+                origin.y - dir.y * length * 0.18 + perp.y * maxWidth * 0.48 + jP
+              );
+
+              // Close back to start with jitter
+              const jQ = perp.x * size * (0.008 + noise('uh', -1, 1) * 0.012);
+              const jR = perp.y * size * (0.008 + noise('ui', -1, 1) * 0.012);
+              bpath.cubicTo(
+                origin.x - dir.x * length * 0.32 + jQ,
+                origin.y - dir.y * length * 0.32 + jR,
+                origin.x - dir.x * length * 0.38 + perp.x * size * 0.004,
+                origin.y - dir.y * length * 0.38 + perp.y * size * 0.004,
+                t0,
+                t1
+              );
+              bpath.close();
+
+              return (
+                <Group>
+                  {/* Main brush body */}
+                  <Path path={bpath} color={rgba("#A98BC5", 0.14)} />
+                  {/* Slightly offset watercolor spread */}
+                  <Path
+                    path={bpath}
+                    color={rgba("#A98BC5", 0.06)}
+                    transform={[{ translateX: -size * 0.006 }, { translateY: size * 0.004 }]}
+                  />
+                  {/* Pigment pool at the widest point */}
+                  <Circle
+                    cx={origin.x + dir.x * length * 0.2}
+                    cy={origin.y + dir.y * length * 0.2}
+                    r={size * 0.022}
+                    color={rgba("#A98BC5", 0.12)}
+                  />
+                  {/* A few tiny specks from the brush lifting */}
+                  <Circle
+                    cx={origin.x + dir.x * length * 0.72 + perp.x * size * 0.018}
+                    cy={origin.y + dir.y * length * 0.72 + perp.y * size * 0.018}
+                    r={size * 0.006}
+                    color={rgba("#A98BC5", 0.1)}
+                  />
+                  <Circle
+                    cx={origin.x + dir.x * length * 0.76 - perp.x * size * 0.012}
+                    cy={origin.y + dir.y * length * 0.76 - perp.y * size * 0.012}
+                    r={size * 0.004}
+                    color={rgba("#A98BC5", 0.08)}
+                  />
+                </Group>
+              );
+            })()}
+          </Group>
+
+          {/* ── Second brush stroke: warm ochre, upper area ── */}
+          <Group blendMode="multiply">
+            {(() => {
+              const strokeAngle = -0.85;
+              const dir = { x: Math.cos(strokeAngle), y: Math.sin(strokeAngle) };
+              const perp = { x: -Math.sin(strokeAngle), y: Math.cos(strokeAngle) };
+              const origin = pointFrom(
+                cx - drift * 2 - size * 0.012,
+                cy - breathe * 2.5 + size * 0.015,
+                strokeAngle,
+                artRadius * 0.48
+              );
+              const length = size * 0.3;
+              const maxWidth = size * 0.048;
+              const bpath = Skia.Path.Make();
+              const color = "#D7B36A";
+
+              const t0 = origin.x - dir.x * length * 0.38 - perp.x * size * 0.005;
+              const t1 = origin.y - dir.y * length * 0.38 - perp.y * size * 0.005;
+              bpath.moveTo(t0, t1);
+
+              const jA = perp.x * size * (0.01 + noise('o1', -1, 1) * 0.012);
+              const jB = perp.y * size * (0.01 + noise('o2', -1, 1) * 0.012);
+              const jC = perp.x * size * (0.008 + noise('o3', -1, 1) * 0.014);
+              const jD = perp.y * size * (0.008 + noise('o4', -1, 1) * 0.014);
+              const jE = perp.x * size * (0.005 + noise('o5', -1, 1) * 0.01);
+              const jF = perp.y * size * (0.005 + noise('o6', -1, 1) * 0.01);
+
+              bpath.cubicTo(
+                origin.x - dir.x * length * 0.18 - perp.x * maxWidth * 0.5 + jA,
+                origin.y - dir.y * length * 0.18 - perp.y * maxWidth * 0.5 + jB,
+                origin.x + dir.x * length * 0.32 - perp.x * maxWidth * 0.88 + jC,
+                origin.y + dir.y * length * 0.32 - perp.y * maxWidth * 0.88 + jD,
+                origin.x + dir.x * length * 0.52 - perp.x * maxWidth * 0.24 + jE,
+                origin.y + dir.y * length * 0.52 - perp.y * maxWidth * 0.24 + jF
+              );
+
+              const jG = perp.x * size * (0.008 + noise('o7', -1, 1) * 0.01);
+              const jH = perp.y * size * (0.008 + noise('o8', -1, 1) * 0.01);
+              bpath.cubicTo(
+                origin.x + dir.x * length * 0.58 - jG,
+                origin.y + dir.y * length * 0.58 - jH,
+                origin.x + dir.x * length * 0.62 - perp.x * size * 0.004,
+                origin.y + dir.y * length * 0.62 - perp.y * size * 0.004,
+                origin.x + dir.x * length * 0.65 + perp.x * size * 0.002,
+                origin.y + dir.y * length * 0.65 + perp.y * size * 0.002
+              );
+
+              const jK = perp.x * size * (0.008 + noise('o9', -1, 1) * 0.012);
+              const jL = perp.y * size * (0.008 + noise('oa', -1, 1) * 0.012);
+              const jM = perp.x * size * (0.01 + noise('ob', -1, 1) * 0.014);
+              const jN = perp.y * size * (0.01 + noise('oc', -1, 1) * 0.014);
+              bpath.cubicTo(
+                origin.x + dir.x * length * 0.55 + jK,
+                origin.y + dir.y * length * 0.55 + jL,
+                origin.x + dir.x * length * 0.28 + perp.x * maxWidth * 0.82 + jM,
+                origin.y + dir.y * length * 0.28 + perp.y * maxWidth * 0.82 + jN,
+                origin.x - dir.x * length * 0.15 + perp.x * maxWidth * 0.42,
+                origin.y - dir.y * length * 0.15 + perp.y * maxWidth * 0.42
+              );
+
+              bpath.cubicTo(
+                origin.x - dir.x * length * 0.28 + perp.x * size * 0.01,
+                origin.y - dir.y * length * 0.28 + perp.y * size * 0.01,
+                origin.x - dir.x * length * 0.34 + perp.x * size * 0.003,
+                origin.y - dir.y * length * 0.34 + perp.y * size * 0.003,
+                t0,
+                t1
+              );
+              bpath.close();
+
+              return (
+                <Group>
+                  <Path path={bpath} color={rgba(color, 0.12)} />
+                  <Path path={bpath} color={rgba(color, 0.05)} transform={[{ translateX: size * 0.005 }, { translateY: -size * 0.003 }]} />
+                  <Circle cx={origin.x + dir.x * length * 0.22} cy={origin.y + dir.y * length * 0.22} r={size * 0.018} color={rgba(color, 0.1)} />
+                </Group>
+              );
+            })()}
           </Group>
 
           {/* Continuous watercolor bloom — single composition, no petals */}

@@ -1,0 +1,2171 @@
+{
+  "version": "1.0",
+  "last_updated": "2026-06-08T18:47:54.451Z",
+  "pages": {
+    "[sources/SRC-2026-06-07-001": {
+      "type": "concept",
+      "title": "SRC-2026-06-07-001",
+      "created": "2026-06-07",
+      "updated": "2026-06-07",
+      "sources": [],
+      "status": "stub"
+    },
+    "[sources/SRC-2026-06-07-002": {
+      "type": "concept",
+      "title": "SRC-2026-06-07-002",
+      "created": "2026-06-07",
+      "updated": "2026-06-07",
+      "sources": [],
+      "status": "stub"
+    },
+    "[sources/SRC-2026-06-07-003": {
+      "type": "concept",
+      "title": "SRC-2026-06-07-003",
+      "created": "2026-06-07",
+      "updated": "2026-06-07",
+      "sources": [],
+      "status": "stub"
+    },
+    "[sources/SRC-2026-06-07-004": {
+      "type": "concept",
+      "title": "SRC-2026-06-07-004",
+      "created": "2026-06-07",
+      "updated": "2026-06-07",
+      "sources": [],
+      "status": "stub"
+    },
+    "[sources/SRC-2026-06-07-005": {
+      "type": "concept",
+      "title": "SRC-2026-06-07-005",
+      "created": "2026-06-07",
+      "updated": "2026-06-07",
+      "sources": [],
+      "status": "stub"
+    },
+    "[sources/SRC-2026-06-07-006": {
+      "type": "concept",
+      "title": "SRC-2026-06-07-006",
+      "created": "2026-06-07",
+      "updated": "2026-06-07",
+      "sources": [],
+      "status": "stub"
+    },
+    "[sources/SRC-2026-06-07-007": {
+      "type": "concept",
+      "title": "SRC-2026-06-07-007",
+      "created": "2026-06-07",
+      "updated": "2026-06-07",
+      "sources": [],
+      "status": "stub"
+    },
+    "[sources/SRC-2026-06-07-008": {
+      "type": "concept",
+      "title": "SRC-2026-06-07-008",
+      "created": "2026-06-07",
+      "updated": "2026-06-07",
+      "sources": [],
+      "status": "stub"
+    },
+    "[sources/SRC-2026-06-07-009": {
+      "type": "concept",
+      "title": "SRC-2026-06-07-009",
+      "created": "2026-06-07",
+      "updated": "2026-06-07",
+      "sources": [],
+      "status": "stub"
+    },
+    "[sources/SRC-2026-06-07-010": {
+      "type": "concept",
+      "title": "SRC-2026-06-07-010",
+      "created": "2026-06-07",
+      "updated": "2026-06-07",
+      "sources": [],
+      "status": "stub"
+    },
+    "concepts/5-card-pipeline": {
+      "type": "concept",
+      "title": "5-card-pipeline",
+      "created": "2026-06-07",
+      "updated": "2026-06-07",
+      "sources": [
+        "[[sources/SRC-2026-06-07-008]]"
+      ]
+    },
+    "concepts/addaccents": {
+      "type": "concept",
+      "title": "addaccents",
+      "created": "2026-06-07",
+      "updated": "2026-06-07",
+      "sources": [
+        "[[sources/SRC-2026-06-07-004]]"
+      ]
+    },
+    "concepts/addatmosphere": {
+      "type": "concept",
+      "title": "addatmosphere",
+      "created": "2026-06-07",
+      "updated": "2026-06-07",
+      "sources": [
+        "[[sources/SRC-2026-06-07-004]]"
+      ]
+    },
+    "concepts/addbody": {
+      "type": "concept",
+      "title": "addbody",
+      "created": "2026-06-07",
+      "updated": "2026-06-07",
+      "sources": [
+        "[[sources/SRC-2026-06-07-004]]"
+      ]
+    },
+    "concepts/addground": {
+      "type": "concept",
+      "title": "addground",
+      "created": "2026-06-07",
+      "updated": "2026-06-07",
+      "sources": [
+        "[[sources/SRC-2026-06-07-004]]"
+      ]
+    },
+    "concepts/ai-first-operation": {
+      "type": "concept",
+      "title": "ai-first-operation",
+      "created": "2026-06-07",
+      "updated": "2026-06-07",
+      "sources": [
+        "[[sources/SRC-2026-06-07-010]]"
+      ]
+    },
+    "concepts/artifactfeatures": {
+      "type": "concept",
+      "title": "artifactfeatures",
+      "created": "2026-06-07",
+      "updated": "2026-06-07",
+      "sources": [],
+      "status": "stub"
+    },
+    "concepts/biometric-feature-normalization": {
+      "type": "concept",
+      "title": "biometric-feature-normalization",
+      "created": "2026-06-07",
+      "updated": "2026-06-07",
+      "sources": [
+        "[[sources/SRC-2026-06-07-001]]"
+      ]
+    },
+    "concepts/categorytodomain-mapping": {
+      "type": "concept",
+      "title": "categorytodomain-mapping",
+      "created": "2026-06-07",
+      "updated": "2026-06-07",
+      "sources": [
+        "[[sources/SRC-2026-06-07-004]]"
+      ]
+    },
+    "concepts/clamp-function": {
+      "type": "concept",
+      "title": "clamp-function",
+      "created": "2026-06-07",
+      "updated": "2026-06-07",
+      "sources": [
+        "[[sources/SRC-2026-06-07-004]]"
+      ]
+    },
+    "concepts/concept-name": {
+      "type": "concept",
+      "title": "concept-name",
+      "created": "2026-06-07",
+      "updated": "2026-06-07",
+      "sources": [],
+      "status": "stub"
+    },
+    "concepts/confidence-breakdown": {
+      "type": "concept",
+      "title": "confidence-breakdown",
+      "created": "2026-06-07",
+      "updated": "2026-06-07",
+      "sources": [
+        "[[sources/SRC-2026-06-07-008]]"
+      ]
+    },
+    "concepts/core": {
+      "type": "concept",
+      "title": "core",
+      "created": "2026-06-07",
+      "updated": "2026-06-07",
+      "sources": [
+        "[[sources/SRC-2026-06-07-007]]"
+      ]
+    },
+    "concepts/cross-platform-development": {
+      "type": "concept",
+      "title": "cross-platform-development",
+      "created": "2026-06-07",
+      "updated": "2026-06-07",
+      "sources": [
+        "[[sources/SRC-2026-06-07-006]]"
+      ]
+    },
+    "concepts/enforcesceneconstraints": {
+      "type": "concept",
+      "title": "enforcesceneconstraints",
+      "created": "2026-06-07",
+      "updated": "2026-06-07",
+      "sources": [
+        "[[sources/SRC-2026-06-07-004]]"
+      ]
+    },
+    "concepts/entity-name": {
+      "type": "concept",
+      "title": "entity-name",
+      "created": "2026-06-07",
+      "updated": "2026-06-07",
+      "sources": [],
+      "status": "stub"
+    },
+    "concepts/eventcategory": {
+      "type": "concept",
+      "title": "eventcategory",
+      "created": "2026-06-07",
+      "updated": "2026-06-07",
+      "sources": [],
+      "status": "stub"
+    },
+    "concepts/evidence-bundle": {
+      "type": "concept",
+      "title": "evidence-bundle",
+      "created": "2026-06-07",
+      "updated": "2026-06-07",
+      "sources": [
+        "[[sources/SRC-2026-06-07-009]]"
+      ]
+    },
+    "concepts/expo-sdk": {
+      "type": "concept",
+      "title": "expo-sdk",
+      "created": "2026-06-07",
+      "updated": "2026-06-07",
+      "sources": [
+        "[[sources/SRC-2026-06-07-006]]"
+      ]
+    },
+    "concepts/feature-normalization": {
+      "type": "concept",
+      "title": "feature-normalization",
+      "created": "2026-06-07",
+      "updated": "2026-06-07",
+      "sources": [
+        "[[sources/SRC-2026-06-07-003]]"
+      ]
+    },
+    "concepts/featurestotokens": {
+      "type": "concept",
+      "title": "featurestotokens",
+      "created": "2026-06-07",
+      "updated": "2026-06-07",
+      "sources": [
+        "[[sources/SRC-2026-06-07-005]]"
+      ]
+    },
+    "concepts/golden-matrix-regression-testing": {
+      "type": "concept",
+      "title": "golden-matrix-regression-testing",
+      "created": "2026-06-07",
+      "updated": "2026-06-07",
+      "sources": [
+        "[[sources/SRC-2026-06-07-009]]"
+      ]
+    },
+    "concepts/hashstring": {
+      "type": "concept",
+      "title": "hashstring",
+      "created": "2026-06-07",
+      "updated": "2026-06-07",
+      "sources": [
+        "[[sources/SRC-2026-06-07-005]]"
+      ]
+    },
+    "concepts/health-dimension": {
+      "type": "concept",
+      "title": "health-dimension",
+      "created": "2026-06-07",
+      "updated": "2026-06-07",
+      "sources": [
+        "[[sources/SRC-2026-06-07-007]]"
+      ]
+    },
+    "concepts/health-event-tracking": {
+      "type": "concept",
+      "title": "health-event-tracking",
+      "created": "2026-06-07",
+      "updated": "2026-06-07",
+      "sources": [
+        "[[sources/SRC-2026-06-07-002]]"
+      ]
+    },
+    "concepts/llm-meal-parsing": {
+      "type": "concept",
+      "title": "llm-meal-parsing",
+      "created": "2026-06-07",
+      "updated": "2026-06-07",
+      "sources": [
+        "[[sources/SRC-2026-06-07-010]]"
+      ]
+    },
+    "concepts/maketoken-factory": {
+      "type": "concept",
+      "title": "maketoken-factory",
+      "created": "2026-06-07",
+      "updated": "2026-06-07",
+      "sources": [
+        "[[sources/SRC-2026-06-07-004]]"
+      ]
+    },
+    "concepts/meal-forecast": {
+      "type": "concept",
+      "title": "meal-forecast",
+      "created": "2026-06-07",
+      "updated": "2026-06-07",
+      "sources": [
+        "[[sources/SRC-2026-06-07-008]]"
+      ]
+    },
+    "concepts/meal-macro-balance": {
+      "type": "concept",
+      "title": "meal-macro-balance",
+      "created": "2026-06-07",
+      "updated": "2026-06-07",
+      "sources": [
+        "[[sources/SRC-2026-06-07-003]]"
+      ]
+    },
+    "concepts/pattern-genome": {
+      "type": "concept",
+      "title": "pattern-genome",
+      "created": "2026-06-07",
+      "updated": "2026-06-07",
+      "sources": [
+        "[[sources/SRC-2026-06-07-008]]"
+      ]
+    },
+    "concepts/petal": {
+      "type": "concept",
+      "title": "petal",
+      "created": "2026-06-07",
+      "updated": "2026-06-07",
+      "sources": [
+        "[[sources/SRC-2026-06-07-007]]"
+      ]
+    },
+    "concepts/physiology-inspired-compartment-model": {
+      "type": "concept",
+      "title": "physiology-inspired-compartment-model",
+      "created": "2026-06-07",
+      "updated": "2026-06-07",
+      "sources": [
+        "[[sources/SRC-2026-06-07-009]]"
+      ]
+    },
+    "concepts/pigment": {
+      "type": "concept",
+      "title": "pigment",
+      "created": "2026-06-07",
+      "updated": "2026-06-07",
+      "sources": [
+        "[[sources/SRC-2026-06-07-007]]"
+      ]
+    },
+    "concepts/prediction-schema": {
+      "type": "concept",
+      "title": "prediction-schema",
+      "created": "2026-06-07",
+      "updated": "2026-06-07",
+      "sources": [
+        "[[sources/SRC-2026-06-07-009]]"
+      ]
+    },
+    "concepts/quantitative-wellness-metrics": {
+      "type": "concept",
+      "title": "quantitative-wellness-metrics",
+      "created": "2026-06-07",
+      "updated": "2026-06-07",
+      "sources": [
+        "[[sources/SRC-2026-06-07-002]]"
+      ]
+    },
+    "concepts/react-native-graphics-rendering": {
+      "type": "concept",
+      "title": "react-native-graphics-rendering",
+      "created": "2026-06-07",
+      "updated": "2026-06-07",
+      "sources": [
+        "[[sources/SRC-2026-06-07-006]]"
+      ]
+    },
+    "concepts/react-native": {
+      "type": "concept",
+      "title": "react-native",
+      "created": "2026-06-07",
+      "updated": "2026-06-07",
+      "sources": [],
+      "status": "stub"
+    },
+    "concepts/renderscene": {
+      "type": "concept",
+      "title": "renderscene",
+      "created": "2026-06-07",
+      "updated": "2026-06-07",
+      "sources": [],
+      "status": "stub"
+    },
+    "concepts/safety-veto-gate": {
+      "type": "concept",
+      "title": "safety-veto-gate",
+      "created": "2026-06-07",
+      "updated": "2026-06-07",
+      "sources": [
+        "[[sources/SRC-2026-06-07-009]]"
+      ]
+    },
+    "concepts/scene-composition-layers": {
+      "type": "concept",
+      "title": "scene-composition-layers",
+      "created": "2026-06-07",
+      "updated": "2026-06-07",
+      "sources": [
+        "[[sources/SRC-2026-06-07-002]]"
+      ]
+    },
+    "concepts/seeded-pseudo-random-generation": {
+      "type": "concept",
+      "title": "seeded-pseudo-random-generation",
+      "created": "2026-06-07",
+      "updated": "2026-06-07",
+      "sources": [
+        "[[sources/SRC-2026-06-07-001]]"
+      ]
+    },
+    "concepts/seeded-random-function": {
+      "type": "concept",
+      "title": "seeded-random-function",
+      "created": "2026-06-07",
+      "updated": "2026-06-07",
+      "sources": [
+        "[[sources/SRC-2026-06-07-004]]"
+      ]
+    },
+    "concepts/seeded": {
+      "type": "concept",
+      "title": "seeded",
+      "created": "2026-06-07",
+      "updated": "2026-06-07",
+      "sources": [
+        "[[sources/SRC-2026-06-07-005]]"
+      ]
+    },
+    "concepts/shopifyreact-native-skia": {
+      "type": "concept",
+      "title": "shopifyreact-native-skia",
+      "created": "2026-06-07",
+      "updated": "2026-06-07",
+      "sources": [],
+      "status": "stub"
+    },
+    "concepts/showcase-modes": {
+      "type": "concept",
+      "title": "showcase-modes",
+      "created": "2026-06-07",
+      "updated": "2026-06-07",
+      "sources": [
+        "[[sources/SRC-2026-06-07-010]]"
+      ]
+    },
+    "concepts/sleep-score-impact": {
+      "type": "concept",
+      "title": "sleep-score-impact",
+      "created": "2026-06-07",
+      "updated": "2026-06-07",
+      "sources": [
+        "[[sources/SRC-2026-06-07-003]]"
+      ]
+    },
+    "concepts/statepigment": {
+      "type": "concept",
+      "title": "statepigment",
+      "created": "2026-06-07",
+      "updated": "2026-06-07",
+      "sources": [
+        "[[sources/SRC-2026-06-07-001]]"
+      ]
+    },
+    "concepts/stress-volatility-modeling": {
+      "type": "concept",
+      "title": "stress-volatility-modeling",
+      "created": "2026-06-07",
+      "updated": "2026-06-07",
+      "sources": [
+        "[[sources/SRC-2026-06-07-003]]"
+      ]
+    },
+    "concepts/t1d-companion-v2": {
+      "type": "concept",
+      "title": "t1d-companion-v2",
+      "created": "2026-06-07",
+      "updated": "2026-06-07",
+      "sources": [],
+      "status": "stub"
+    },
+    "concepts/text-first-ux": {
+      "type": "concept",
+      "title": "text-first-ux",
+      "created": "2026-06-07",
+      "updated": "2026-06-07",
+      "sources": [
+        "[[sources/SRC-2026-06-07-009]]"
+      ]
+    },
+    "concepts/ubiquitous-language": {
+      "type": "concept",
+      "title": "ubiquitous-language",
+      "created": "2026-06-07",
+      "updated": "2026-06-07",
+      "sources": [
+        "[[sources/SRC-2026-06-07-007]]"
+      ]
+    },
+    "concepts/visual-token-system": {
+      "type": "concept",
+      "title": "visual-token-system",
+      "created": "2026-06-07",
+      "updated": "2026-06-07",
+      "sources": [
+        "[[sources/SRC-2026-06-07-002]]"
+      ]
+    },
+    "concepts/visualtoken": {
+      "type": "concept",
+      "title": "visualtoken",
+      "created": "2026-06-07",
+      "updated": "2026-06-07",
+      "sources": [
+        "[[sources/SRC-2026-06-07-001]]"
+      ]
+    },
+    "concepts/visualtokens": {
+      "type": "concept",
+      "title": "visualtokens",
+      "created": "2026-06-07",
+      "updated": "2026-06-07",
+      "sources": [],
+      "status": "stub"
+    },
+    "concepts/watercolorstateorb": {
+      "type": "concept",
+      "title": "watercolorstateorb",
+      "created": "2026-06-07",
+      "updated": "2026-06-07",
+      "sources": [
+        "[[sources/SRC-2026-06-07-001]]"
+      ]
+    },
+    "entities/absorption-profile": {
+      "type": "entity",
+      "title": "absorption-profile",
+      "created": "2026-06-07",
+      "updated": "2026-06-07",
+      "sources": [
+        "[[sources/SRC-2026-06-07-007]]"
+      ]
+    },
+    "entities/anchor-type": {
+      "type": "entity",
+      "title": "anchor-type",
+      "created": "2026-06-07",
+      "updated": "2026-06-07",
+      "sources": [
+        "[[sources/SRC-2026-06-07-007]]"
+      ]
+    },
+    "entities/artifactfeatures": {
+      "type": "entity",
+      "title": "artifactfeatures",
+      "created": "2026-06-07",
+      "updated": "2026-06-07",
+      "sources": [
+        "[[sources/SRC-2026-06-07-005]]"
+      ]
+    },
+    "entities/banned-word": {
+      "type": "entity",
+      "title": "banned-word",
+      "created": "2026-06-07",
+      "updated": "2026-06-07",
+      "sources": [
+        "[[sources/SRC-2026-06-07-007]]"
+      ]
+    },
+    "entities/bloom-card": {
+      "type": "entity",
+      "title": "bloom-card",
+      "created": "2026-06-07",
+      "updated": "2026-06-07",
+      "sources": [
+        "[[sources/SRC-2026-06-07-007]]"
+      ]
+    },
+    "entities/bloom-engine": {
+      "type": "entity",
+      "title": "bloom-engine",
+      "created": "2026-06-07",
+      "updated": "2026-06-07",
+      "sources": [
+        "[[sources/SRC-2026-06-07-007]]"
+      ]
+    },
+    "entities/bloom": {
+      "type": "entity",
+      "title": "bloom",
+      "created": "2026-06-07",
+      "updated": "2026-06-07",
+      "sources": [
+        "[[sources/SRC-2026-06-07-007]]"
+      ]
+    },
+    "entities/carb-range": {
+      "type": "entity",
+      "title": "carb-range",
+      "created": "2026-06-07",
+      "updated": "2026-06-07",
+      "sources": [
+        "[[sources/SRC-2026-06-07-007]]"
+      ]
+    },
+    "entities/card": {
+      "type": "entity",
+      "title": "card",
+      "created": "2026-06-07",
+      "updated": "2026-06-07",
+      "sources": [
+        "[[sources/SRC-2026-06-07-007]]"
+      ]
+    },
+    "entities/cgm": {
+      "type": "entity",
+      "title": "cgm",
+      "created": "2026-06-07",
+      "updated": "2026-06-07",
+      "sources": [
+        "[[sources/SRC-2026-06-07-008]]"
+      ]
+    },
+    "entities/clamp": {
+      "type": "entity",
+      "title": "clamp",
+      "created": "2026-06-07",
+      "updated": "2026-06-07",
+      "sources": [
+        "[[sources/SRC-2026-06-07-003]]"
+      ]
+    },
+    "entities/dexcom": {
+      "type": "entity",
+      "title": "dexcom",
+      "created": "2026-06-07",
+      "updated": "2026-06-07",
+      "sources": [
+        "[[sources/SRC-2026-06-07-009]]"
+      ]
+    },
+    "entities/domain": {
+      "type": "entity",
+      "title": "domain",
+      "created": "2026-06-07",
+      "updated": "2026-06-07",
+      "sources": [
+        "[[sources/SRC-2026-06-07-002]]"
+      ]
+    },
+    "entities/domaincolors": {
+      "type": "entity",
+      "title": "domaincolors",
+      "created": "2026-06-07",
+      "updated": "2026-06-07",
+      "sources": [
+        "[[sources/SRC-2026-06-07-004]]"
+      ]
+    },
+    "entities/dosing-pattern": {
+      "type": "entity",
+      "title": "dosing-pattern",
+      "created": "2026-06-07",
+      "updated": "2026-06-07",
+      "sources": [
+        "[[sources/SRC-2026-06-07-007]]"
+      ]
+    },
+    "entities/eventcategory": {
+      "type": "entity",
+      "title": "eventcategory",
+      "created": "2026-06-07",
+      "updated": "2026-06-07",
+      "sources": [
+        "[[sources/SRC-2026-06-07-003]]"
+      ]
+    },
+    "entities/evidence-bundle": {
+      "type": "entity",
+      "title": "evidence-bundle",
+      "created": "2026-06-07",
+      "updated": "2026-06-07",
+      "sources": [
+        "[[sources/SRC-2026-06-07-007]]"
+      ]
+    },
+    "entities/expo-haptics": {
+      "type": "entity",
+      "title": "expo-haptics",
+      "created": "2026-06-07",
+      "updated": "2026-06-07",
+      "sources": [
+        "[[sources/SRC-2026-06-07-001]]"
+      ]
+    },
+    "entities/expo": {
+      "type": "entity",
+      "title": "expo",
+      "created": "2026-06-07",
+      "updated": "2026-06-07",
+      "sources": [
+        "[[sources/SRC-2026-06-07-006]]"
+      ]
+    },
+    "entities/featuresfrombiometric": {
+      "type": "entity",
+      "title": "featuresfrombiometric",
+      "created": "2026-06-07",
+      "updated": "2026-06-07",
+      "sources": [
+        "[[sources/SRC-2026-06-07-003]]"
+      ]
+    },
+    "entities/featurestotokens": {
+      "type": "entity",
+      "title": "featurestotokens",
+      "created": "2026-06-07",
+      "updated": "2026-06-07",
+      "sources": [
+        "[[sources/SRC-2026-06-07-004]]"
+      ]
+    },
+    "entities/food-candidate": {
+      "type": "entity",
+      "title": "food-candidate",
+      "created": "2026-06-07",
+      "updated": "2026-06-07",
+      "sources": [
+        "[[sources/SRC-2026-06-07-007]]"
+      ]
+    },
+    "entities/food-evidence": {
+      "type": "entity",
+      "title": "food-evidence",
+      "created": "2026-06-07",
+      "updated": "2026-06-07",
+      "sources": [
+        "[[sources/SRC-2026-06-07-007]]"
+      ]
+    },
+    "entities/foot2floor": {
+      "type": "entity",
+      "title": "foot2floor",
+      "created": "2026-06-07",
+      "updated": "2026-06-07",
+      "sources": [
+        "[[sources/SRC-2026-06-07-008]]"
+      ]
+    },
+    "entities/forecast-result": {
+      "type": "entity",
+      "title": "forecast-result",
+      "created": "2026-06-07",
+      "updated": "2026-06-07",
+      "sources": [
+        "[[sources/SRC-2026-06-07-007]]"
+      ]
+    },
+    "entities/historical-meal-summary": {
+      "type": "entity",
+      "title": "historical-meal-summary",
+      "created": "2026-06-07",
+      "updated": "2026-06-07",
+      "sources": [
+        "[[sources/SRC-2026-06-07-007]]"
+      ]
+    },
+    "entities/intent": {
+      "type": "entity",
+      "title": "intent",
+      "created": "2026-06-07",
+      "updated": "2026-06-07",
+      "sources": [
+        "[[sources/SRC-2026-06-07-007]]"
+      ]
+    },
+    "entities/legend": {
+      "type": "entity",
+      "title": "legend",
+      "created": "2026-06-07",
+      "updated": "2026-06-07",
+      "sources": [
+        "[[sources/SRC-2026-06-07-007]]"
+      ]
+    },
+    "entities/meal-totals": {
+      "type": "entity",
+      "title": "meal-totals",
+      "created": "2026-06-07",
+      "updated": "2026-06-07",
+      "sources": [
+        "[[sources/SRC-2026-06-07-007]]"
+      ]
+    },
+    "entities/nightscout": {
+      "type": "entity",
+      "title": "nightscout",
+      "created": "2026-06-07",
+      "updated": "2026-06-07",
+      "sources": [
+        "[[sources/SRC-2026-06-07-009]]"
+      ]
+    },
+    "entities/normalizefeatures": {
+      "type": "entity",
+      "title": "normalizefeatures",
+      "created": "2026-06-07",
+      "updated": "2026-06-07",
+      "sources": [
+        "[[sources/SRC-2026-06-07-003]]"
+      ]
+    },
+    "entities/openfoodfacts": {
+      "type": "entity",
+      "title": "openfoodfacts",
+      "created": "2026-06-07",
+      "updated": "2026-06-07",
+      "sources": [
+        "[[sources/SRC-2026-06-07-009]]"
+      ]
+    },
+    "entities/palette": {
+      "type": "entity",
+      "title": "palette",
+      "created": "2026-06-07",
+      "updated": "2026-06-07",
+      "sources": [
+        "[[sources/SRC-2026-06-07-007]]"
+      ]
+    },
+    "entities/palettes": {
+      "type": "entity",
+      "title": "palettes",
+      "created": "2026-06-07",
+      "updated": "2026-06-07",
+      "sources": [
+        "[[sources/SRC-2026-06-07-005]]"
+      ]
+    },
+    "entities/parsed-food": {
+      "type": "entity",
+      "title": "parsed-food",
+      "created": "2026-06-07",
+      "updated": "2026-06-07",
+      "sources": [
+        "[[sources/SRC-2026-06-07-007]]"
+      ]
+    },
+    "entities/physiology-model": {
+      "type": "entity",
+      "title": "physiology-model",
+      "created": "2026-06-07",
+      "updated": "2026-06-07",
+      "sources": [
+        "[[sources/SRC-2026-06-07-007]]"
+      ]
+    },
+    "entities/postgres": {
+      "type": "entity",
+      "title": "postgres",
+      "created": "2026-06-07",
+      "updated": "2026-06-07",
+      "sources": [
+        "[[sources/SRC-2026-06-07-009]]"
+      ]
+    },
+    "entities/primitivekind": {
+      "type": "entity",
+      "title": "primitivekind",
+      "created": "2026-06-07",
+      "updated": "2026-06-07",
+      "sources": [
+        "[[sources/SRC-2026-06-07-002]]"
+      ]
+    },
+    "entities/profile-config": {
+      "type": "entity",
+      "title": "profile-config",
+      "created": "2026-06-07",
+      "updated": "2026-06-07",
+      "sources": [
+        "[[sources/SRC-2026-06-07-007]]"
+      ]
+    },
+    "entities/profile": {
+      "type": "entity",
+      "title": "profile",
+      "created": "2026-06-07",
+      "updated": "2026-06-07",
+      "sources": [
+        "[[sources/SRC-2026-06-07-007]]"
+      ]
+    },
+    "entities/pytest": {
+      "type": "entity",
+      "title": "pytest",
+      "created": "2026-06-07",
+      "updated": "2026-06-07",
+      "sources": [
+        "[[sources/SRC-2026-06-07-009]]"
+      ]
+    },
+    "entities/react-native": {
+      "type": "entity",
+      "title": "react-native",
+      "created": "2026-06-07",
+      "updated": "2026-06-07",
+      "sources": [
+        "[[sources/SRC-2026-06-07-001]]"
+      ]
+    },
+    "entities/renderscene": {
+      "type": "entity",
+      "title": "renderscene",
+      "created": "2026-06-07",
+      "updated": "2026-06-07",
+      "sources": [
+        "[[sources/SRC-2026-06-07-004]]"
+      ]
+    },
+    "entities/response-band": {
+      "type": "entity",
+      "title": "response-band",
+      "created": "2026-06-07",
+      "updated": "2026-06-07",
+      "sources": [
+        "[[sources/SRC-2026-06-07-007]]"
+      ]
+    },
+    "entities/safety-scaffold": {
+      "type": "entity",
+      "title": "safety-scaffold",
+      "created": "2026-06-07",
+      "updated": "2026-06-07",
+      "sources": [
+        "[[sources/SRC-2026-06-07-007]]"
+      ]
+    },
+    "entities/sato-bloom": {
+      "type": "entity",
+      "title": "sato-bloom",
+      "created": "2026-06-07",
+      "updated": "2026-06-07",
+      "sources": [
+        "[[sources/SRC-2026-06-07-006]]"
+      ]
+    },
+    "entities/sato": {
+      "type": "entity",
+      "title": "sato",
+      "created": "2026-06-07",
+      "updated": "2026-06-07",
+      "sources": [
+        "[[sources/SRC-2026-06-07-001]]"
+      ]
+    },
+    "entities/scenebuilderts": {
+      "type": "entity",
+      "title": "scenebuilderts",
+      "created": "2026-06-07",
+      "updated": "2026-06-07",
+      "sources": [
+        "[[sources/SRC-2026-06-07-004]]"
+      ]
+    },
+    "entities/scenelayer": {
+      "type": "entity",
+      "title": "scenelayer",
+      "created": "2026-06-07",
+      "updated": "2026-06-07",
+      "sources": [
+        "[[sources/SRC-2026-06-07-002]]"
+      ]
+    },
+    "entities/shopifyreact-native-skia": {
+      "type": "entity",
+      "title": "shopifyreact-native-skia",
+      "created": "2026-06-07",
+      "updated": "2026-06-07",
+      "sources": [
+        "[[sources/SRC-2026-06-07-001]]"
+      ]
+    },
+    "entities/showcase": {
+      "type": "entity",
+      "title": "showcase",
+      "created": "2026-06-07",
+      "updated": "2026-06-07",
+      "sources": [
+        "[[sources/SRC-2026-06-07-007]]"
+      ]
+    },
+    "entities/state-bloom": {
+      "type": "entity",
+      "title": "state-bloom",
+      "created": "2026-06-07",
+      "updated": "2026-06-07",
+      "sources": [
+        "[[sources/SRC-2026-06-07-007]]"
+      ]
+    },
+    "entities/stitch": {
+      "type": "entity",
+      "title": "stitch",
+      "created": "2026-06-07",
+      "updated": "2026-06-07",
+      "sources": [
+        "[[sources/SRC-2026-06-07-008]]"
+      ]
+    },
+    "entities/t1d-companion-v2": {
+      "type": "entity",
+      "title": "t1d-companion-v2",
+      "created": "2026-06-07",
+      "updated": "2026-06-07",
+      "sources": [
+        "[[sources/SRC-2026-06-07-010]]"
+      ]
+    },
+    "entities/t1d-companion": {
+      "type": "entity",
+      "title": "t1d-companion",
+      "created": "2026-06-07",
+      "updated": "2026-06-07",
+      "sources": [
+        "[[sources/SRC-2026-06-07-008]]"
+      ]
+    },
+    "entities/tom-batchelor": {
+      "type": "entity",
+      "title": "tom-batchelor",
+      "created": "2026-06-07",
+      "updated": "2026-06-07",
+      "sources": [
+        "[[sources/SRC-2026-06-07-008]]"
+      ]
+    },
+    "entities/uncertainty-band": {
+      "type": "entity",
+      "title": "uncertainty-band",
+      "created": "2026-06-07",
+      "updated": "2026-06-07",
+      "sources": [
+        "[[sources/SRC-2026-06-07-007]]"
+      ]
+    },
+    "entities/visualtoken": {
+      "type": "entity",
+      "title": "visualtoken",
+      "created": "2026-06-07",
+      "updated": "2026-06-07",
+      "sources": [
+        "[[sources/SRC-2026-06-07-004]]"
+      ]
+    },
+    "entities/visualtokens": {
+      "type": "entity",
+      "title": "visualtokens",
+      "created": "2026-06-07",
+      "updated": "2026-06-07",
+      "sources": [
+        "[[sources/SRC-2026-06-07-005]]"
+      ]
+    },
+    "entities/zband": {
+      "type": "entity",
+      "title": "zband",
+      "created": "2026-06-07",
+      "updated": "2026-06-07",
+      "sources": [
+        "[[sources/SRC-2026-06-07-002]]"
+      ]
+    },
+    "entities/zosmaaipi-llm-wiki": {
+      "type": "entity",
+      "title": "zosmaaipi-llm-wiki",
+      "created": "2026-06-07",
+      "updated": "2026-06-07",
+      "sources": [
+        "[[sources/SRC-2026-06-07-006]]"
+      ]
+    },
+    "sources/SRC-2026-06-07-001": {
+      "type": "source",
+      "title": "SRC-2026-06-07-001",
+      "created": "2026-06-08",
+      "updated": "2026-06-07",
+      "format": "file",
+      "source_id": "SRC-2026-06-07-001",
+      "raw_path": "raw/sources/SRC-2026-06-07-001/extracted.md",
+      "captured": "2026-06-07",
+      "status": "ingested"
+    },
+    "sources/SRC-2026-06-07-002": {
+      "type": "source",
+      "title": "SRC-2026-06-07-002",
+      "created": "2026-06-08",
+      "updated": "2026-06-07",
+      "format": "file",
+      "source_id": "SRC-2026-06-07-002",
+      "raw_path": "raw/sources/SRC-2026-06-07-002/extracted.md",
+      "captured": "2026-06-07",
+      "status": "ingested"
+    },
+    "sources/SRC-2026-06-07-003": {
+      "type": "source",
+      "title": "SRC-2026-06-07-003",
+      "created": "2026-06-08",
+      "updated": "2026-06-07",
+      "format": "file",
+      "source_id": "SRC-2026-06-07-003",
+      "raw_path": "raw/sources/SRC-2026-06-07-003/extracted.md",
+      "captured": "2026-06-07",
+      "status": "ingested"
+    },
+    "sources/SRC-2026-06-07-004": {
+      "type": "source",
+      "title": "SRC-2026-06-07-004",
+      "created": "2026-06-08",
+      "updated": "2026-06-07",
+      "format": "file",
+      "source_id": "SRC-2026-06-07-004",
+      "raw_path": "raw/sources/SRC-2026-06-07-004/extracted.md",
+      "captured": "2026-06-07",
+      "status": "ingested"
+    },
+    "sources/SRC-2026-06-07-005": {
+      "type": "source",
+      "title": "SRC-2026-06-07-005",
+      "created": "2026-06-08",
+      "updated": "2026-06-07",
+      "format": "file",
+      "source_id": "SRC-2026-06-07-005",
+      "raw_path": "raw/sources/SRC-2026-06-07-005/extracted.md",
+      "captured": "2026-06-07",
+      "status": "ingested"
+    },
+    "sources/SRC-2026-06-07-006": {
+      "type": "source",
+      "title": "SRC-2026-06-07-006",
+      "created": "2026-06-08",
+      "updated": "2026-06-07",
+      "format": "json",
+      "source_id": "SRC-2026-06-07-006",
+      "raw_path": "raw/sources/SRC-2026-06-07-006/extracted.md",
+      "captured": "2026-06-07",
+      "status": "ingested"
+    },
+    "sources/SRC-2026-06-07-007": {
+      "type": "source",
+      "title": "SRC-2026-06-07-007",
+      "created": "2026-06-08",
+      "updated": "2026-06-07",
+      "format": "markdown",
+      "source_id": "SRC-2026-06-07-007",
+      "raw_path": "raw/sources/SRC-2026-06-07-007/extracted.md",
+      "captured": "2026-06-07",
+      "status": "ingested"
+    },
+    "sources/SRC-2026-06-07-008": {
+      "type": "source",
+      "title": "SRC-2026-06-07-008",
+      "created": "2026-06-08",
+      "updated": "2026-06-07",
+      "format": "markdown",
+      "source_id": "SRC-2026-06-07-008",
+      "raw_path": "raw/sources/SRC-2026-06-07-008/extracted.md",
+      "captured": "2026-06-07",
+      "status": "ingested"
+    },
+    "sources/SRC-2026-06-07-009": {
+      "type": "source",
+      "title": "SRC-2026-06-07-009",
+      "created": "2026-06-08",
+      "updated": "2026-06-07",
+      "format": "markdown",
+      "source_id": "SRC-2026-06-07-009",
+      "raw_path": "raw/sources/SRC-2026-06-07-009/extracted.md",
+      "captured": "2026-06-07",
+      "status": "ingested"
+    },
+    "sources/SRC-2026-06-07-010": {
+      "type": "source",
+      "title": "SRC-2026-06-07-010",
+      "created": "2026-06-08",
+      "updated": "2026-06-07",
+      "format": "markdown",
+      "source_id": "SRC-2026-06-07-010",
+      "raw_path": "raw/sources/SRC-2026-06-07-010/extracted.md",
+      "captured": "2026-06-07",
+      "status": "ingested"
+    },
+    "sources/SRC-2026-06-07-011": {
+      "type": "source",
+      "title": "SRC-2026-06-07-011",
+      "created": "2026-06-08",
+      "updated": "2026-06-08",
+      "format": "markdown",
+      "source_id": "SRC-2026-06-07-011",
+      "raw_path": "raw/sources/SRC-2026-06-07-011/extracted.md",
+      "captured": "2026-06-07",
+      "status": "skeleton"
+    },
+    "sources/SRC-2026-06-07-012": {
+      "type": "source",
+      "title": "SRC-2026-06-07-012",
+      "created": "2026-06-08",
+      "updated": "2026-06-08",
+      "format": "markdown",
+      "source_id": "SRC-2026-06-07-012",
+      "raw_path": "raw/sources/SRC-2026-06-07-012/extracted.md",
+      "captured": "2026-06-07",
+      "status": "skeleton"
+    },
+    "sources/obs-2026-06-07-bloom-card-height-reduced-and-state-label-removed": {
+      "type": "source",
+      "title": "\"Observation: Bloom card height reduced and state label removed\"",
+      "created": "2026-06-07",
+      "updated": "2026-06-07",
+      "slug": "obs-2026-06-07-bloom-card-height-reduced-and-state-label-removed",
+      "status": "observation",
+      "relevance": "medium",
+      "observed_at": "2026-06-07T21:35:30.406Z",
+      "tags": [
+        "react-native",
+        "layout",
+        "bloom-card",
+        "sato-bloom"
+      ],
+      "source_context": "\"Fixing cropped bloom between top bar and momentum card\""
+    },
+    "sources/obs-2026-06-07-bloom-card-text-removed-and-canvas-refit": {
+      "type": "source",
+      "title": "\"Observation: Bloom card text removed and canvas refit\"",
+      "created": "2026-06-07",
+      "updated": "2026-06-07",
+      "slug": "obs-2026-06-07-bloom-card-text-removed-and-canvas-refit",
+      "status": "observation",
+      "relevance": "medium",
+      "observed_at": "2026-06-07T21:37:28.273Z",
+      "tags": [
+        "react-native",
+        "layout",
+        "bloom-card",
+        "sato-bloom"
+      ],
+      "source_context": "\"Removing bloom card text and fitting card around artwork\""
+    },
+    "sources/obs-2026-06-07-bloom-card-unified-to-single-background-color": {
+      "type": "source",
+      "title": "\"Observation: Bloom card unified to single background color\"",
+      "created": "2026-06-07",
+      "updated": "2026-06-07",
+      "slug": "obs-2026-06-07-bloom-card-unified-to-single-background-color",
+      "status": "observation",
+      "relevance": "low",
+      "observed_at": "2026-06-07T21:33:39.031Z"
+    },
+    "sources/obs-2026-06-07-bloom-opens-haptic-swipe-dismiss-feature-sheet": {
+      "type": "source",
+      "title": "\"Observation: Bloom opens haptic swipe-dismiss feature sheet\"",
+      "created": "2026-06-07",
+      "updated": "2026-06-07",
+      "slug": "obs-2026-06-07-bloom-opens-haptic-swipe-dismiss-feature-sheet",
+      "status": "observation",
+      "relevance": "high",
+      "observed_at": "2026-06-07T21:48:49.961Z",
+      "tags": [
+        "react-native",
+        "haptics",
+        "bottom-sheet",
+        "animation",
+        "sato-bloom"
+      ],
+      "source_context": "\"Making feature sheet open from bloom tap and swipe down\""
+    },
+    "sources/obs-2026-06-07-bottom-navigation-raised-for-safe-area-height": {
+      "type": "source",
+      "title": "\"Observation: Bottom navigation raised for safe-area height\"",
+      "created": "2026-06-07",
+      "updated": "2026-06-07",
+      "slug": "obs-2026-06-07-bottom-navigation-raised-for-safe-area-height",
+      "status": "observation",
+      "relevance": "low",
+      "observed_at": "2026-06-07T21:30:40.496Z",
+      "tags": [
+        "react-native",
+        "navigation",
+        "layout",
+        "sato-bloom"
+      ],
+      "source_context": "\"Adjusting bottom nav bar height and vertical position\""
+    },
+    "sources/obs-2026-06-07-glucose-rhythm-image-card-added-above-insight": {
+      "type": "source",
+      "title": "\"Observation: Glucose rhythm image card added above insight\"",
+      "created": "2026-06-07",
+      "updated": "2026-06-07",
+      "slug": "obs-2026-06-07-glucose-rhythm-image-card-added-above-insight",
+      "status": "observation",
+      "relevance": "medium",
+      "observed_at": "2026-06-07T21:23:40.315Z",
+      "tags": [
+        "react-native",
+        "assets",
+        "image-card",
+        "sato-bloom"
+      ],
+      "source_context": "\"Adding uploaded glucose graphic card to portrait screen\""
+    },
+    "sources/obs-2026-06-07-good-morning-welcome-text-added-under-logo": {
+      "type": "source",
+      "title": "\"Observation: Good morning welcome text added under logo\"",
+      "created": "2026-06-07",
+      "updated": "2026-06-07",
+      "slug": "obs-2026-06-07-good-morning-welcome-text-added-under-logo",
+      "status": "observation",
+      "relevance": "low",
+      "observed_at": "2026-06-07T21:42:36.209Z",
+      "tags": [
+        "react-native",
+        "topbar",
+        "typography",
+        "sato-bloom"
+      ],
+      "source_context": "\"Adding welcome message under logo\""
+    },
+    "sources/obs-2026-06-07-insight-card-shortened-and-moved-closer-to-nav": {
+      "type": "source",
+      "title": "\"Observation: Insight card shortened and moved closer to nav\"",
+      "created": "2026-06-07",
+      "updated": "2026-06-07",
+      "slug": "obs-2026-06-07-insight-card-shortened-and-moved-closer-to-nav",
+      "status": "observation",
+      "relevance": "low",
+      "observed_at": "2026-06-07T21:39:58.366Z",
+      "tags": [
+        "react-native",
+        "layout",
+        "insight-card",
+        "sato-bloom"
+      ],
+      "source_context": "\"Tightening insight card spacing above bottom nav\""
+    },
+    "sources/obs-2026-06-07-insight-card-typography-matched-orb-title": {
+      "type": "source",
+      "title": "\"Observation: Insight card typography matched orb title\"",
+      "created": "2026-06-07",
+      "updated": "2026-06-07",
+      "slug": "obs-2026-06-07-insight-card-typography-matched-orb-title",
+      "status": "observation",
+      "relevance": "medium",
+      "observed_at": "2026-06-07T21:18:44.076Z",
+      "tags": [
+        "react-native",
+        "typography",
+        "sato-bloom"
+      ],
+      "source_context": "\"Adjusting insight card text styling\""
+    },
+    "sources/obs-2026-06-07-lint-auto-fix-reduces-orphans-but-increases-gaps": {
+      "type": "source",
+      "title": "\"Observation: Lint auto-fix reduces orphans but increases gaps\"",
+      "created": "2026-06-07",
+      "updated": "2026-06-07",
+      "slug": "obs-2026-06-07-lint-auto-fix-reduces-orphans-but-increases-gaps",
+      "status": "observation",
+      "relevance": "medium",
+      "observed_at": "2026-06-07T17:28:46.749Z",
+      "source_context": "\"Running wiki-lint --auto-fix on Sato wiki\""
+    },
+    "sources/obs-2026-06-07-ollama-nomic-embed-text-installed-and-configured-for-wiki-em": {
+      "type": "source",
+      "title": "\"Observation: Ollama nomic-embed-text installed and configured for wiki embeddings\"",
+      "created": "2026-06-07",
+      "updated": "2026-06-07",
+      "slug": "obs-2026-06-07-ollama-nomic-embed-text-installed-and-configured-for-wiki-em",
+      "status": "observation",
+      "relevance": "medium",
+      "observed_at": "2026-06-07T18:54:54.287Z"
+    },
+    "sources/obs-2026-06-07-portrait-feature-cards-grouped-into-bottom-sheet": {
+      "type": "source",
+      "title": "\"Observation: Portrait feature cards grouped into bottom sheet\"",
+      "created": "2026-06-07",
+      "updated": "2026-06-07",
+      "slug": "obs-2026-06-07-portrait-feature-cards-grouped-into-bottom-sheet",
+      "status": "observation",
+      "relevance": "medium",
+      "observed_at": "2026-06-07T21:46:33.105Z",
+      "tags": [
+        "react-native",
+        "layout",
+        "bottom-sheet",
+        "feature-cards",
+        "sato-bloom"
+      ],
+      "source_context": "\"Collecting lower portrait cards into a feature sheet bottom sheet\""
+    },
+    "sources/obs-2026-06-07-portrait-momentum-image-card-added-above-glucose-card": {
+      "type": "source",
+      "title": "\"Observation: Portrait momentum image card added above glucose card\"",
+      "created": "2026-06-07",
+      "updated": "2026-06-07",
+      "slug": "obs-2026-06-07-portrait-momentum-image-card-added-above-glucose-card",
+      "status": "observation",
+      "relevance": "medium",
+      "observed_at": "2026-06-07T21:27:05.107Z",
+      "tags": [
+        "react-native",
+        "assets",
+        "image-card",
+        "portrait-momentum",
+        "sato-bloom"
+      ],
+      "source_context": "\"Adding uploaded portrait momentum graphic card to portrait screen\""
+    },
+    "sources/obs-2026-06-07-portrait-top-header-matched-reference-with-calm-rhythm-headl": {
+      "type": "source",
+      "title": "\"Observation: Portrait top header matched reference with calm rhythm headline\"",
+      "created": "2026-06-07",
+      "updated": "2026-06-07",
+      "slug": "obs-2026-06-07-portrait-top-header-matched-reference-with-calm-rhythm-headl",
+      "status": "observation",
+      "relevance": "medium",
+      "observed_at": "2026-06-07T21:55:46.058Z",
+      "tags": [
+        "react-native",
+        "header",
+        "typography",
+        "portrait",
+        "sato-bloom"
+      ],
+      "source_context": "\"Applying top_of_portrait_page reference to page header\""
+    },
+    "sources/obs-2026-06-07-profile-segment-removed-from-top-bar": {
+      "type": "source",
+      "title": "\"Observation: Profile segment removed from top bar\"",
+      "created": "2026-06-07",
+      "updated": "2026-06-07",
+      "slug": "obs-2026-06-07-profile-segment-removed-from-top-bar",
+      "status": "observation",
+      "relevance": "medium",
+      "observed_at": "2026-06-07T21:28:52.355Z",
+      "tags": [
+        "react-native",
+        "ui",
+        "topbar",
+        "sato-bloom"
+      ],
+      "source_context": "\"Removing profile segment from portrait header\""
+    },
+    "sources/obs-2026-06-07-removed-shadows-and-borders-from-all-cards-for-flat-design": {
+      "type": "source",
+      "title": "\"Observation: Removed shadows and borders from all cards for flat design\"",
+      "created": "2026-06-07",
+      "updated": "2026-06-07",
+      "slug": "obs-2026-06-07-removed-shadows-and-borders-from-all-cards-for-flat-design",
+      "status": "observation",
+      "relevance": "low",
+      "observed_at": "2026-06-07T21:45:02.270Z"
+    },
+    "sources/obs-2026-06-07-sato-bloom-default-skia-font-fix": {
+      "type": "source",
+      "title": "\"Observation: Sato bloom default Skia font fix\"",
+      "created": "2026-06-07",
+      "updated": "2026-06-07",
+      "slug": "obs-2026-06-07-sato-bloom-default-skia-font-fix",
+      "status": "observation",
+      "relevance": "high",
+      "observed_at": "2026-06-07T19:38:38.746Z",
+      "tags": [
+        "sato",
+        "skia",
+        "font",
+        "runtime-error",
+        "react-native"
+      ],
+      "source_context": "\"Fixing Skia center glucose label error and SafeAreaView warning\""
+    },
+    "sources/obs-2026-06-07-sato-bloom-font-free-skia-label-fix": {
+      "type": "source",
+      "title": "\"Observation: Sato bloom font-free Skia label fix\"",
+      "created": "2026-06-07",
+      "updated": "2026-06-07",
+      "slug": "obs-2026-06-07-sato-bloom-font-free-skia-label-fix",
+      "status": "observation",
+      "relevance": "high",
+      "observed_at": "2026-06-07T19:47:04.068Z",
+      "tags": [
+        "sato-bloom",
+        "skia",
+        "font-free",
+        "runtime-error",
+        "pixel-label"
+      ],
+      "source_context": "\"Fixing persistent Skia Expected arraybuffer runtime error for center glucose label\""
+    },
+    "sources/obs-2026-06-07-sato-bloom-hidden-clock-face-grammar": {
+      "type": "source",
+      "title": "\"Observation: Sato Bloom hidden clock-face grammar\"",
+      "created": "2026-06-07",
+      "updated": "2026-06-07",
+      "slug": "obs-2026-06-07-sato-bloom-hidden-clock-face-grammar",
+      "status": "observation",
+      "relevance": "high",
+      "observed_at": "2026-06-07T23:05:50.491Z",
+      "tags": [
+        "sato",
+        "bloom",
+        "clock-face",
+        "metrics",
+        "art"
+      ],
+      "source_context": "\"Grill-me on artistic metric interpretation for premium diabetic companion\""
+    },
+    "sources/obs-2026-06-07-sato-bloom-skia-error-dependency-mismatch": {
+      "type": "source",
+      "title": "\"Observation: Sato bloom Skia error dependency mismatch\"",
+      "created": "2026-06-07",
+      "updated": "2026-06-07",
+      "slug": "obs-2026-06-07-sato-bloom-skia-error-dependency-mismatch",
+      "status": "observation",
+      "relevance": "high",
+      "observed_at": "2026-06-07T19:53:53.576Z",
+      "tags": [
+        "sato-bloom",
+        "skia",
+        "expo",
+        "dependencies",
+        "metro-cache",
+        "runtime-error"
+      ],
+      "source_context": "\"Fixing persistent Expected arraybuffer runtime error\""
+    },
+    "sources/obs-2026-06-07-sato-bloom-skia-native-text-constraint": {
+      "type": "source",
+      "title": "\"Observation: Sato bloom Skia-native text constraint\"",
+      "created": "2026-06-07",
+      "updated": "2026-06-07",
+      "slug": "obs-2026-06-07-sato-bloom-skia-native-text-constraint",
+      "status": "observation",
+      "relevance": "high",
+      "observed_at": "2026-06-07T19:37:04.623Z",
+      "tags": [
+        "sato",
+        "skia",
+        "react-native",
+        "text"
+      ],
+      "source_context": "\"Fixing center bloom glucose label runtime error\""
+    },
+    "sources/obs-2026-06-07-sato-bloom-ui-checkpoint-pushed": {
+      "type": "source",
+      "title": "\"Observation: Sato Bloom UI checkpoint pushed\"",
+      "created": "2026-06-07",
+      "updated": "2026-06-07",
+      "slug": "obs-2026-06-07-sato-bloom-ui-checkpoint-pushed",
+      "status": "observation",
+      "relevance": "medium",
+      "observed_at": "2026-06-07T22:12:43.578Z",
+      "tags": [
+        "sato",
+        "git",
+        "rollback",
+        "ui"
+      ],
+      "source_context": "\"Creating rollback point before UI/UX improvements\""
+    },
+    "sources/obs-2026-06-07-sato-bloom-versus-halo-terminology": {
+      "type": "source",
+      "title": "\"Observation: Sato Bloom versus halo terminology\"",
+      "created": "2026-06-07",
+      "updated": "2026-06-07",
+      "slug": "obs-2026-06-07-sato-bloom-versus-halo-terminology",
+      "status": "observation",
+      "relevance": "high",
+      "observed_at": "2026-06-07T22:48:02.075Z",
+      "tags": [
+        "sato",
+        "terminology",
+        "ui",
+        "bloom",
+        "halo"
+      ],
+      "source_context": "\"Clarifying Bloom visual design language\""
+    },
+    "sources/obs-2026-06-07-sato-bottom-nav-moved-flush-to-screen-bottom": {
+      "type": "source",
+      "title": "\"Observation: Sato bottom nav moved flush to screen bottom\"",
+      "created": "2026-06-07",
+      "updated": "2026-06-07",
+      "slug": "obs-2026-06-07-sato-bottom-nav-moved-flush-to-screen-bottom",
+      "status": "observation",
+      "relevance": "low",
+      "observed_at": "2026-06-07T21:15:14.068Z",
+      "tags": [
+        "sato",
+        "react-native",
+        "navigation",
+        "layout"
+      ],
+      "source_context": "\"Dropping bottom bar to screen bottom\""
+    },
+    "sources/obs-2026-06-07-sato-bottom-nav-raised-5px": {
+      "type": "source",
+      "title": "\"Observation: Sato bottom nav raised 5px\"",
+      "created": "2026-06-07",
+      "updated": "2026-06-07",
+      "slug": "obs-2026-06-07-sato-bottom-nav-raised-5px",
+      "status": "observation",
+      "relevance": "low",
+      "observed_at": "2026-06-07T21:15:42.767Z",
+      "tags": [
+        "sato",
+        "react-native",
+        "navigation",
+        "layout"
+      ],
+      "source_context": "\"Raising bottom nav by 5px\""
+    },
+    "sources/obs-2026-06-07-sato-bottom-nav-shortened-and-insight-serif-typography": {
+      "type": "source",
+      "title": "\"Observation: Sato bottom nav shortened and insight serif typography\"",
+      "created": "2026-06-07",
+      "updated": "2026-06-07",
+      "slug": "obs-2026-06-07-sato-bottom-nav-shortened-and-insight-serif-typography",
+      "status": "observation",
+      "relevance": "low",
+      "observed_at": "2026-06-07T21:13:39.662Z",
+      "tags": [
+        "sato",
+        "react-native",
+        "typography",
+        "navigation"
+      ],
+      "source_context": "\"Refining bottom bar height and insight card font\""
+    },
+    "sources/obs-2026-06-07-sato-bottom-sheet-restored-as-contextual-ui-pattern": {
+      "type": "source",
+      "title": "\"Observation: Sato bottom sheet restored as contextual UI pattern\"",
+      "created": "2026-06-07",
+      "updated": "2026-06-07",
+      "slug": "obs-2026-06-07-sato-bottom-sheet-restored-as-contextual-ui-pattern",
+      "status": "observation",
+      "relevance": "medium",
+      "observed_at": "2026-06-07T22:20:31.320Z",
+      "tags": [
+        "sato",
+        "ui",
+        "bottom-sheet",
+        "react-native"
+      ],
+      "source_context": "\"Restoring bottom sheet after Bloom-first UX pass\""
+    },
+    "sources/obs-2026-06-07-sato-bottom-sheet-restored-as-paper-style-contextual-layer": {
+      "type": "source",
+      "title": "\"Observation: Sato bottom sheet restored as paper-style contextual layer\"",
+      "created": "2026-06-07",
+      "updated": "2026-06-07",
+      "slug": "obs-2026-06-07-sato-bottom-sheet-restored-as-paper-style-contextual-layer",
+      "status": "observation",
+      "relevance": "medium",
+      "observed_at": "2026-06-07T22:20:50.292Z",
+      "tags": [
+        "sato",
+        "ui",
+        "ux",
+        "bottom-sheet",
+        "react-native"
+      ],
+      "source_context": "\"Restoring Sato bottom sheet after minimal paper-page UI iteration\""
+    },
+    "sources/obs-2026-06-07-sato-header-logo-mark-cropped-with-text-lockup": {
+      "type": "source",
+      "title": "\"Observation: Sato header logo mark cropped with text lockup\"",
+      "created": "2026-06-07",
+      "updated": "2026-06-07",
+      "slug": "obs-2026-06-07-sato-header-logo-mark-cropped-with-text-lockup",
+      "status": "observation",
+      "relevance": "medium",
+      "observed_at": "2026-06-07T21:09:35.840Z",
+      "tags": [
+        "sato",
+        "react-native",
+        "logo",
+        "header",
+        "image-processing"
+      ],
+      "source_context": "\"Cropping Sato logo to orange graphic and replacing image text with actual text\""
+    },
+    "sources/obs-2026-06-07-sato-insight-for-you-bottom-section-added": {
+      "type": "source",
+      "title": "\"Observation: Sato Insight for you bottom section added\"",
+      "created": "2026-06-07",
+      "updated": "2026-06-07",
+      "slug": "obs-2026-06-07-sato-insight-for-you-bottom-section-added",
+      "status": "observation",
+      "relevance": "medium",
+      "observed_at": "2026-06-07T20:52:55.221Z",
+      "tags": [
+        "sato",
+        "react-native",
+        "portrait",
+        "insight-card",
+        "navigation"
+      ],
+      "source_context": "\"Creating reference-style Insight for you card above bottom navigation\""
+    },
+    "sources/obs-2026-06-07-sato-paper-page-ux-pass-implemented": {
+      "type": "source",
+      "title": "\"Observation: Sato paper-page UX pass implemented\"",
+      "created": "2026-06-07",
+      "updated": "2026-06-07",
+      "slug": "obs-2026-06-07-sato-paper-page-ux-pass-implemented",
+      "status": "observation",
+      "relevance": "medium",
+      "observed_at": "2026-06-07T22:17:31.158Z",
+      "tags": [
+        "sato",
+        "ui",
+        "ux",
+        "react-native"
+      ],
+      "source_context": "\"Implementing Bloom-first continuous paper UI direction\""
+    },
+    "sources/obs-2026-06-07-sato-phone-mock-frame-removed": {
+      "type": "source",
+      "title": "\"Observation: Sato phone mock frame removed\"",
+      "created": "2026-06-07",
+      "updated": "2026-06-07",
+      "slug": "obs-2026-06-07-sato-phone-mock-frame-removed",
+      "status": "observation",
+      "relevance": "medium",
+      "observed_at": "2026-06-07T20:47:56.320Z",
+      "tags": [
+        "sato",
+        "react-native",
+        "fullscreen",
+        "navigation"
+      ],
+      "source_context": "\"Converting Sato app from phone mock preview to full-screen app\""
+    },
+    "sources/obs-2026-06-07-sato-premium-bloom-first-ux-polish": {
+      "type": "source",
+      "title": "\"Observation: Sato premium Bloom-first UX polish\"",
+      "created": "2026-06-07",
+      "updated": "2026-06-07",
+      "slug": "obs-2026-06-07-sato-premium-bloom-first-ux-polish",
+      "status": "observation",
+      "relevance": "medium",
+      "observed_at": "2026-06-07T22:24:17.763Z",
+      "tags": [
+        "sato",
+        "ux",
+        "ui",
+        "premium",
+        "bottom-sheet"
+      ],
+      "source_context": "\"Billion-dollar page UX/UI polish\""
+    },
+    "sources/obs-2026-06-07-sato-premium-bottom-navigation-implemented": {
+      "type": "source",
+      "title": "\"Observation: Sato premium bottom navigation implemented\"",
+      "created": "2026-06-07",
+      "updated": "2026-06-07",
+      "slug": "obs-2026-06-07-sato-premium-bottom-navigation-implemented",
+      "status": "observation",
+      "relevance": "medium",
+      "observed_at": "2026-06-07T20:43:50.111Z",
+      "tags": [
+        "sato",
+        "react-native",
+        "design",
+        "navigation"
+      ],
+      "source_context": "\"Implementing Sato bottom navigation specification\""
+    },
+    "sources/obs-2026-06-07-sato-uploaded-logo-added-to-portrait-header": {
+      "type": "source",
+      "title": "\"Observation: Sato uploaded logo added to Portrait header\"",
+      "created": "2026-06-07",
+      "updated": "2026-06-07",
+      "slug": "obs-2026-06-07-sato-uploaded-logo-added-to-portrait-header",
+      "status": "observation",
+      "relevance": "medium",
+      "observed_at": "2026-06-07T21:06:35.559Z",
+      "tags": [
+        "sato",
+        "react-native",
+        "logo",
+        "header",
+        "asset"
+      ],
+      "source_context": "\"Replacing top-left Sato text logo with uploaded logo asset\""
+    },
+    "sources/obs-2026-06-07-sato-v1-hidden-clock-bloom-grammar-implemented": {
+      "type": "source",
+      "title": "\"Observation: Sato v1 hidden clock Bloom grammar implemented\"",
+      "created": "2026-06-07",
+      "updated": "2026-06-07",
+      "slug": "obs-2026-06-07-sato-v1-hidden-clock-bloom-grammar-implemented",
+      "status": "observation",
+      "relevance": "high",
+      "observed_at": "2026-06-07T23:16:15.607Z",
+      "tags": [
+        "sato",
+        "bloom",
+        "hidden-clock",
+        "implementation",
+        "metrics",
+        "art"
+      ],
+      "source_context": "\"Implementing artistic metric interpretation for diabetic companion Bloom\""
+    },
+    "sources/obs-2026-06-07-sato-wiki-initialized-with-mobile-app-and-companion-ecosyste": {
+      "type": "source",
+      "title": "\"Observation: Sato wiki initialized with mobile app and companion ecosystem sources\"",
+      "created": "2026-06-07",
+      "updated": "2026-06-07",
+      "slug": "obs-2026-06-07-sato-wiki-initialized-with-mobile-app-and-companion-ecosyste",
+      "status": "observation",
+      "relevance": "high",
+      "observed_at": "2026-06-07T17:28:09.019Z"
+    },
+    "sources/obs-2026-06-08-sato-bloom-artifact-first-interaction-pass": {
+      "type": "source",
+      "title": "\"Observation: Sato Bloom artifact-first interaction pass\"",
+      "created": "2026-06-08",
+      "updated": "2026-06-08",
+      "slug": "obs-2026-06-08-sato-bloom-artifact-first-interaction-pass",
+      "status": "observation",
+      "relevance": "high",
+      "observed_at": "2026-06-08T12:01:12.649Z",
+      "tags": [
+        "sato-bloom",
+        "artifact",
+        "watercolor",
+        "ui"
+      ],
+      "source_context": "\"Converting Sato Bloom from beautiful visualization into living artifact\""
+    },
+    "sources/obs-2026-06-08-sato-bloom-continuous-portrait-direction-restored": {
+      "type": "source",
+      "title": "\"Observation: Sato Bloom continuous portrait direction restored\"",
+      "created": "2026-06-08",
+      "updated": "2026-06-08",
+      "slug": "obs-2026-06-08-sato-bloom-continuous-portrait-direction-restored",
+      "status": "observation",
+      "relevance": "high",
+      "observed_at": "2026-06-08T12:14:41.718Z",
+      "tags": [
+        "sato-bloom",
+        "artifact",
+        "watercolor",
+        "interaction"
+      ],
+      "source_context": "\"Separating bloom emotion layer from clock/information layer\""
+    },
+    "sources/obs-2026-06-08-sato-bloom-corrected-from-nebula-to-brush-strokes": {
+      "type": "source",
+      "title": "\"Observation: Sato bloom corrected from nebula to brush strokes\"",
+      "created": "2026-06-08",
+      "updated": "2026-06-08",
+      "slug": "obs-2026-06-08-sato-bloom-corrected-from-nebula-to-brush-strokes",
+      "status": "observation",
+      "relevance": "critical",
+      "observed_at": "2026-06-08T16:51:04.454Z",
+      "tags": [
+        "sato-bloom",
+        "brush-strokes",
+        "silhouette",
+        "correction"
+      ],
+      "source_context": "\"Correcting bloom from faded nebula to subjectful brush-stroke artifact\""
+    },
+    "sources/obs-2026-06-08-sato-bloom-enriched-pigment-and-washi-seal-medallion": {
+      "type": "source",
+      "title": "\"Observation: Sato bloom enriched pigment and washi seal medallion\"",
+      "created": "2026-06-08",
+      "updated": "2026-06-08",
+      "slug": "obs-2026-06-08-sato-bloom-enriched-pigment-and-washi-seal-medallion",
+      "status": "observation",
+      "relevance": "high",
+      "observed_at": "2026-06-08T16:18:53.670Z",
+      "tags": [
+        "sato-bloom",
+        "pigment",
+        "texture",
+        "washi-seal"
+      ],
+      "source_context": "\"Enriching bloom pigment, texture, and paper atmosphere\""
+    },
+    "sources/obs-2026-06-08-sato-bloom-investor-ready-typography-pass": {
+      "type": "source",
+      "title": "\"Observation: Sato Bloom investor-ready typography pass\"",
+      "created": "2026-06-08",
+      "updated": "2026-06-08",
+      "slug": "obs-2026-06-08-sato-bloom-investor-ready-typography-pass",
+      "status": "observation",
+      "relevance": "high",
+      "observed_at": "2026-06-08T11:32:43.848Z",
+      "tags": [
+        "sato-bloom",
+        "typography",
+        "investor-ready",
+        "ui"
+      ],
+      "source_context": "\"Making the Sato Bloom screen investor ready after font-size feedback\""
+    },
+    "sources/obs-2026-06-08-sato-bloom-metabolic-portrait-engine-principle": {
+      "type": "source",
+      "title": "\"Observation: Sato Bloom Metabolic Portrait Engine principle\"",
+      "created": "2026-06-08",
+      "updated": "2026-06-08",
+      "slug": "obs-2026-06-08-sato-bloom-metabolic-portrait-engine-principle",
+      "status": "observation",
+      "relevance": "critical",
+      "observed_at": "2026-06-08T12:20:00.877Z",
+      "tags": [
+        "sato-bloom",
+        "design-principle",
+        "metabolic-portrait-engine"
+      ],
+      "source_context": "\"Establishing final Sato Bloom product philosophy and internal naming\""
+    },
+    "sources/obs-2026-06-08-sato-bloom-paper-texture-and-pigment-granulation-added": {
+      "type": "source",
+      "title": "\"Observation: Sato Bloom paper texture and pigment granulation added\"",
+      "created": "2026-06-08",
+      "updated": "2026-06-08",
+      "slug": "obs-2026-06-08-sato-bloom-paper-texture-and-pigment-granulation-added",
+      "status": "observation",
+      "relevance": "high",
+      "observed_at": "2026-06-08T12:50:36.958Z",
+      "tags": [
+        "sato-bloom",
+        "texture",
+        "paper-grain",
+        "granulation"
+      ],
+      "source_context": "\"Adding full-screen paper texture and bloom pigment granulation\""
+    },
+    "sources/obs-2026-06-08-sato-bloom-stable-vessel-architecture-added": {
+      "type": "source",
+      "title": "\"Observation: Sato Bloom stable vessel architecture added\"",
+      "created": "2026-06-08",
+      "updated": "2026-06-08",
+      "slug": "obs-2026-06-08-sato-bloom-stable-vessel-architecture-added",
+      "status": "observation",
+      "relevance": "high",
+      "observed_at": "2026-06-08T12:42:04.922Z",
+      "tags": [
+        "sato-bloom",
+        "metabolic-portrait-engine",
+        "identity-bloom",
+        "architecture"
+      ],
+      "source_context": "\"Bolting in permanent Identity Bloom beneath daily metabolic weather\""
+    },
+    "sources/obs-2026-06-08-sato-bloom-watercolor-reference-and-themed-fonts-applied": {
+      "type": "source",
+      "title": "\"Observation: Sato Bloom watercolor reference and themed fonts applied\"",
+      "created": "2026-06-08",
+      "updated": "2026-06-08",
+      "slug": "obs-2026-06-08-sato-bloom-watercolor-reference-and-themed-fonts-applied",
+      "status": "observation",
+      "relevance": "high",
+      "observed_at": "2026-06-08T11:28:07.310Z",
+      "tags": [
+        "sato-bloom",
+        "watercolor",
+        "typography",
+        "haptics",
+        "ui"
+      ],
+      "source_context": "\"Fixing Sato Bloom screen to match watercolor postcard mockup\""
+    },
+    "sources/obs-2026-06-08-sato-inherited-moment-stroke-algorithm-implemented": {
+      "type": "source",
+      "title": "\"Observation: Sato inherited moment-stroke algorithm implemented\"",
+      "created": "2026-06-08",
+      "updated": "2026-06-08",
+      "slug": "obs-2026-06-08-sato-inherited-moment-stroke-algorithm-implemented",
+      "status": "observation",
+      "relevance": "critical",
+      "observed_at": "2026-06-08T17:08:52.978Z",
+      "tags": [
+        "sato-bloom",
+        "inherited-strokes",
+        "algorithm",
+        "organism"
+      ],
+      "source_context": "\"Correcting from independent brush ellipses toward inherited sumi-e/watercolor moment strokes\""
+    },
+    "sources/obs-2026-06-08-sato-inherited-stroke-algorithm-reverted": {
+      "type": "source",
+      "title": "\"Observation: Sato inherited stroke algorithm reverted\"",
+      "created": "2026-06-08",
+      "updated": "2026-06-08",
+      "slug": "obs-2026-06-08-sato-inherited-stroke-algorithm-reverted",
+      "status": "observation",
+      "relevance": "high",
+      "observed_at": "2026-06-08T17:11:39.948Z",
+      "tags": [
+        "sato-bloom",
+        "revert",
+        "correction"
+      ],
+      "source_context": "\"User rejected inherited stroke algorithm and requested revert\""
+    },
+    "sources/obs-2026-06-08-sato-inherited-watercolor-stroke-algorithm-added": {
+      "type": "source",
+      "title": "\"Observation: Sato inherited watercolor stroke algorithm added\"",
+      "created": "2026-06-08",
+      "updated": "2026-06-08",
+      "slug": "obs-2026-06-08-sato-inherited-watercolor-stroke-algorithm-added",
+      "status": "observation",
+      "relevance": "high",
+      "observed_at": "2026-06-08T17:06:40.986Z",
+      "tags": [
+        "sato-bloom",
+        "watercolor",
+        "algorithm",
+        "brush-strokes"
+      ],
+      "source_context": "\"Refining Sato Metabolic Portrait screen from blobs toward inherited sumi-e watercolor strokes\""
+    },
+    "sources/obs-2026-06-08-sato-internal-metabolic-pigment-system-added": {
+      "type": "source",
+      "title": "\"Observation: Sato internal metabolic pigment system added\"",
+      "created": "2026-06-08",
+      "updated": "2026-06-08",
+      "slug": "obs-2026-06-08-sato-internal-metabolic-pigment-system-added",
+      "status": "observation",
+      "relevance": "high",
+      "observed_at": "2026-06-08T17:16:35.491Z",
+      "tags": [
+        "sato-bloom",
+        "pigment-system",
+        "watercolor-engine"
+      ],
+      "source_context": "\"Adding internal metabolic pigment vocabulary for consistent Bloom Engine painting\""
+    },
+    "sources/obs-2026-06-08-sato-nutrient-pigment-portrait-engine-v1-added": {
+      "type": "source",
+      "title": "\"Observation: Sato nutrient-pigment portrait engine v1 added\"",
+      "created": "2026-06-08",
+      "updated": "2026-06-08",
+      "slug": "obs-2026-06-08-sato-nutrient-pigment-portrait-engine-v1-added",
+      "status": "observation",
+      "relevance": "critical",
+      "observed_at": "2026-06-08T18:26:27.234Z",
+      "tags": [
+        "sato-bloom",
+        "portrait-engine",
+        "nutrient-pigment",
+        "v1"
+      ],
+      "source_context": "\"Building Sato Metabolic Portrait Engine v1 from implementation patch\""
+    },
+    "sources/obs-2026-06-08-sato-portrait-anti-clock-deposit-distortion-added": {
+      "type": "source",
+      "title": "\"Observation: Sato portrait anti-clock deposit distortion added\"",
+      "created": "2026-06-08",
+      "updated": "2026-06-08",
+      "slug": "obs-2026-06-08-sato-portrait-anti-clock-deposit-distortion-added",
+      "status": "observation",
+      "relevance": "high",
+      "observed_at": "2026-06-08T18:29:20.487Z",
+      "tags": [
+        "sato-bloom",
+        "anti-clock",
+        "pigment-deposits",
+        "geometry"
+      ],
+      "source_context": "\"Adding hidden-time distortion so pigment marks feel accumulated rather than arranged\""
+    },
+    "sources/obs-2026-06-08-sato-portrait-screen-with-watercolor-bloom-built": {
+      "type": "source",
+      "title": "\"Observation: Sato Portrait screen with watercolor bloom built\"",
+      "created": "2026-06-08",
+      "updated": "2026-06-08",
+      "slug": "obs-2026-06-08-sato-portrait-screen-with-watercolor-bloom-built",
+      "status": "observation",
+      "relevance": "high",
+      "observed_at": "2026-06-08T11:13:16.114Z"
+    },
+    "sources/obs-2026-06-08-sato-portrait-v1-1-story-weighted-pigment-patch-applied": {
+      "type": "source",
+      "title": "\"Observation: Sato portrait v1.1 story-weighted pigment patch applied\"",
+      "created": "2026-06-08",
+      "updated": "2026-06-08",
+      "slug": "obs-2026-06-08-sato-portrait-v1-1-story-weighted-pigment-patch-applied",
+      "status": "observation",
+      "relevance": "critical",
+      "observed_at": "2026-06-08T18:47:54.448Z",
+      "tags": [
+        "sato-bloom",
+        "v1.1",
+        "story-weight",
+        "pigment",
+        "patch"
+      ],
+      "source_context": "\"Applying exact v1.1 parameter changes to portrait engine\""
+    },
+    "sources/obs-2026-06-08-sato-stain-painting-living-bloom-engine-complete": {
+      "type": "source",
+      "title": "\"Observation: Sato stain-painting living bloom engine complete\"",
+      "created": "2026-06-08",
+      "updated": "2026-06-08",
+      "slug": "obs-2026-06-08-sato-stain-painting-living-bloom-engine-complete",
+      "status": "observation",
+      "relevance": "critical",
+      "observed_at": "2026-06-08T14:26:23.591Z",
+      "tags": [
+        "sato-bloom",
+        "stain-painting",
+        "living-bloom",
+        "design-system"
+      ],
+      "source_context": "\"Complete rewrite of MetabolicPortraitEngine implementing all 10 locked design decisions\""
+    },
+    "sources/sato-watercolor-visualization-system": {
+      "type": "source",
+      "title": "\"Sato watercolor visualization system\"",
+      "created": "2026-06-07",
+      "updated": "2026-06-07",
+      "slug": "sato-watercolor-visualization-system",
+      "status": "insight",
+      "category": "architecture"
+    }
+  }
+}

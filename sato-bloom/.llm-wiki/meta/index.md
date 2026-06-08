@@ -1,0 +1,209 @@
+# Wiki Index
+
+> Auto-generated from meta/registry.json. Do not edit manually.
+
+## Concepts
+
+- [[[sources/SRC-2026-06-07-001]] — SRC-2026-06-07-001 *(created: 2026-06-07)*
+- [[[sources/SRC-2026-06-07-002]] — SRC-2026-06-07-002 *(created: 2026-06-07)*
+- [[[sources/SRC-2026-06-07-003]] — SRC-2026-06-07-003 *(created: 2026-06-07)*
+- [[[sources/SRC-2026-06-07-004]] — SRC-2026-06-07-004 *(created: 2026-06-07)*
+- [[[sources/SRC-2026-06-07-005]] — SRC-2026-06-07-005 *(created: 2026-06-07)*
+- [[[sources/SRC-2026-06-07-006]] — SRC-2026-06-07-006 *(created: 2026-06-07)*
+- [[[sources/SRC-2026-06-07-007]] — SRC-2026-06-07-007 *(created: 2026-06-07)*
+- [[[sources/SRC-2026-06-07-008]] — SRC-2026-06-07-008 *(created: 2026-06-07)*
+- [[[sources/SRC-2026-06-07-009]] — SRC-2026-06-07-009 *(created: 2026-06-07)*
+- [[[sources/SRC-2026-06-07-010]] — SRC-2026-06-07-010 *(created: 2026-06-07)*
+- [[concepts/5-card-pipeline]] — 5-card-pipeline *(created: 2026-06-07)*
+- [[concepts/addaccents]] — addaccents *(created: 2026-06-07)*
+- [[concepts/addatmosphere]] — addatmosphere *(created: 2026-06-07)*
+- [[concepts/addbody]] — addbody *(created: 2026-06-07)*
+- [[concepts/addground]] — addground *(created: 2026-06-07)*
+- [[concepts/ai-first-operation]] — ai-first-operation *(created: 2026-06-07)*
+- [[concepts/artifactfeatures]] — artifactfeatures *(created: 2026-06-07)*
+- [[concepts/biometric-feature-normalization]] — biometric-feature-normalization *(created: 2026-06-07)*
+- [[concepts/categorytodomain-mapping]] — categorytodomain-mapping *(created: 2026-06-07)*
+- [[concepts/clamp-function]] — clamp-function *(created: 2026-06-07)*
+- [[concepts/concept-name]] — concept-name *(created: 2026-06-07)*
+- [[concepts/confidence-breakdown]] — confidence-breakdown *(created: 2026-06-07)*
+- [[concepts/core]] — core *(created: 2026-06-07)*
+- [[concepts/cross-platform-development]] — cross-platform-development *(created: 2026-06-07)*
+- [[concepts/enforcesceneconstraints]] — enforcesceneconstraints *(created: 2026-06-07)*
+- [[concepts/entity-name]] — entity-name *(created: 2026-06-07)*
+- [[concepts/eventcategory]] — eventcategory *(created: 2026-06-07)*
+- [[concepts/evidence-bundle]] — evidence-bundle *(created: 2026-06-07)*
+- [[concepts/expo-sdk]] — expo-sdk *(created: 2026-06-07)*
+- [[concepts/feature-normalization]] — feature-normalization *(created: 2026-06-07)*
+- [[concepts/featurestotokens]] — featurestotokens *(created: 2026-06-07)*
+- [[concepts/golden-matrix-regression-testing]] — golden-matrix-regression-testing *(created: 2026-06-07)*
+- [[concepts/hashstring]] — hashstring *(created: 2026-06-07)*
+- [[concepts/health-dimension]] — health-dimension *(created: 2026-06-07)*
+- [[concepts/health-event-tracking]] — health-event-tracking *(created: 2026-06-07)*
+- [[concepts/llm-meal-parsing]] — llm-meal-parsing *(created: 2026-06-07)*
+- [[concepts/maketoken-factory]] — maketoken-factory *(created: 2026-06-07)*
+- [[concepts/meal-forecast]] — meal-forecast *(created: 2026-06-07)*
+- [[concepts/meal-macro-balance]] — meal-macro-balance *(created: 2026-06-07)*
+- [[concepts/pattern-genome]] — pattern-genome *(created: 2026-06-07)*
+- [[concepts/petal]] — petal *(created: 2026-06-07)*
+- [[concepts/physiology-inspired-compartment-model]] — physiology-inspired-compartment-model *(created: 2026-06-07)*
+- [[concepts/pigment]] — pigment *(created: 2026-06-07)*
+- [[concepts/prediction-schema]] — prediction-schema *(created: 2026-06-07)*
+- [[concepts/quantitative-wellness-metrics]] — quantitative-wellness-metrics *(created: 2026-06-07)*
+- [[concepts/react-native]] — react-native *(created: 2026-06-07)*
+- [[concepts/react-native-graphics-rendering]] — react-native-graphics-rendering *(created: 2026-06-07)*
+- [[concepts/renderscene]] — renderscene *(created: 2026-06-07)*
+- [[concepts/safety-veto-gate]] — safety-veto-gate *(created: 2026-06-07)*
+- [[concepts/scene-composition-layers]] — scene-composition-layers *(created: 2026-06-07)*
+- [[concepts/seeded]] — seeded *(created: 2026-06-07)*
+- [[concepts/seeded-pseudo-random-generation]] — seeded-pseudo-random-generation *(created: 2026-06-07)*
+- [[concepts/seeded-random-function]] — seeded-random-function *(created: 2026-06-07)*
+- [[concepts/shopifyreact-native-skia]] — shopifyreact-native-skia *(created: 2026-06-07)*
+- [[concepts/showcase-modes]] — showcase-modes *(created: 2026-06-07)*
+- [[concepts/sleep-score-impact]] — sleep-score-impact *(created: 2026-06-07)*
+- [[concepts/statepigment]] — statepigment *(created: 2026-06-07)*
+- [[concepts/stress-volatility-modeling]] — stress-volatility-modeling *(created: 2026-06-07)*
+- [[concepts/t1d-companion-v2]] — t1d-companion-v2 *(created: 2026-06-07)*
+- [[concepts/text-first-ux]] — text-first-ux *(created: 2026-06-07)*
+- [[concepts/ubiquitous-language]] — ubiquitous-language *(created: 2026-06-07)*
+- [[concepts/visual-token-system]] — visual-token-system *(created: 2026-06-07)*
+- [[concepts/visualtoken]] — visualtoken *(created: 2026-06-07)*
+- [[concepts/visualtokens]] — visualtokens *(created: 2026-06-07)*
+- [[concepts/watercolorstateorb]] — watercolorstateorb *(created: 2026-06-07)*
+
+## Entitys
+
+- [[entities/absorption-profile]] — absorption-profile *(created: 2026-06-07)*
+- [[entities/anchor-type]] — anchor-type *(created: 2026-06-07)*
+- [[entities/artifactfeatures]] — artifactfeatures *(created: 2026-06-07)*
+- [[entities/banned-word]] — banned-word *(created: 2026-06-07)*
+- [[entities/bloom]] — bloom *(created: 2026-06-07)*
+- [[entities/bloom-card]] — bloom-card *(created: 2026-06-07)*
+- [[entities/bloom-engine]] — bloom-engine *(created: 2026-06-07)*
+- [[entities/carb-range]] — carb-range *(created: 2026-06-07)*
+- [[entities/card]] — card *(created: 2026-06-07)*
+- [[entities/cgm]] — cgm *(created: 2026-06-07)*
+- [[entities/clamp]] — clamp *(created: 2026-06-07)*
+- [[entities/dexcom]] — dexcom *(created: 2026-06-07)*
+- [[entities/domain]] — domain *(created: 2026-06-07)*
+- [[entities/domaincolors]] — domaincolors *(created: 2026-06-07)*
+- [[entities/dosing-pattern]] — dosing-pattern *(created: 2026-06-07)*
+- [[entities/eventcategory]] — eventcategory *(created: 2026-06-07)*
+- [[entities/evidence-bundle]] — evidence-bundle *(created: 2026-06-07)*
+- [[entities/expo]] — expo *(created: 2026-06-07)*
+- [[entities/expo-haptics]] — expo-haptics *(created: 2026-06-07)*
+- [[entities/featuresfrombiometric]] — featuresfrombiometric *(created: 2026-06-07)*
+- [[entities/featurestotokens]] — featurestotokens *(created: 2026-06-07)*
+- [[entities/food-candidate]] — food-candidate *(created: 2026-06-07)*
+- [[entities/food-evidence]] — food-evidence *(created: 2026-06-07)*
+- [[entities/foot2floor]] — foot2floor *(created: 2026-06-07)*
+- [[entities/forecast-result]] — forecast-result *(created: 2026-06-07)*
+- [[entities/historical-meal-summary]] — historical-meal-summary *(created: 2026-06-07)*
+- [[entities/intent]] — intent *(created: 2026-06-07)*
+- [[entities/legend]] — legend *(created: 2026-06-07)*
+- [[entities/meal-totals]] — meal-totals *(created: 2026-06-07)*
+- [[entities/nightscout]] — nightscout *(created: 2026-06-07)*
+- [[entities/normalizefeatures]] — normalizefeatures *(created: 2026-06-07)*
+- [[entities/openfoodfacts]] — openfoodfacts *(created: 2026-06-07)*
+- [[entities/palette]] — palette *(created: 2026-06-07)*
+- [[entities/palettes]] — palettes *(created: 2026-06-07)*
+- [[entities/parsed-food]] — parsed-food *(created: 2026-06-07)*
+- [[entities/physiology-model]] — physiology-model *(created: 2026-06-07)*
+- [[entities/postgres]] — postgres *(created: 2026-06-07)*
+- [[entities/primitivekind]] — primitivekind *(created: 2026-06-07)*
+- [[entities/profile]] — profile *(created: 2026-06-07)*
+- [[entities/profile-config]] — profile-config *(created: 2026-06-07)*
+- [[entities/pytest]] — pytest *(created: 2026-06-07)*
+- [[entities/react-native]] — react-native *(created: 2026-06-07)*
+- [[entities/renderscene]] — renderscene *(created: 2026-06-07)*
+- [[entities/response-band]] — response-band *(created: 2026-06-07)*
+- [[entities/safety-scaffold]] — safety-scaffold *(created: 2026-06-07)*
+- [[entities/sato]] — sato *(created: 2026-06-07)*
+- [[entities/sato-bloom]] — sato-bloom *(created: 2026-06-07)*
+- [[entities/scenebuilderts]] — scenebuilderts *(created: 2026-06-07)*
+- [[entities/scenelayer]] — scenelayer *(created: 2026-06-07)*
+- [[entities/shopifyreact-native-skia]] — shopifyreact-native-skia *(created: 2026-06-07)*
+- [[entities/showcase]] — showcase *(created: 2026-06-07)*
+- [[entities/state-bloom]] — state-bloom *(created: 2026-06-07)*
+- [[entities/stitch]] — stitch *(created: 2026-06-07)*
+- [[entities/t1d-companion]] — t1d-companion *(created: 2026-06-07)*
+- [[entities/t1d-companion-v2]] — t1d-companion-v2 *(created: 2026-06-07)*
+- [[entities/tom-batchelor]] — tom-batchelor *(created: 2026-06-07)*
+- [[entities/uncertainty-band]] — uncertainty-band *(created: 2026-06-07)*
+- [[entities/visualtoken]] — visualtoken *(created: 2026-06-07)*
+- [[entities/visualtokens]] — visualtokens *(created: 2026-06-07)*
+- [[entities/zband]] — zband *(created: 2026-06-07)*
+- [[entities/zosmaaipi-llm-wiki]] — zosmaaipi-llm-wiki *(created: 2026-06-07)*
+
+## Sources
+
+- [[sources/obs-2026-06-07-bloom-card-height-reduced-and-state-label-removed]] — "Observation: Bloom card height reduced and state label removed" *(created: 2026-06-07)*
+- [[sources/obs-2026-06-07-bloom-card-text-removed-and-canvas-refit]] — "Observation: Bloom card text removed and canvas refit" *(created: 2026-06-07)*
+- [[sources/obs-2026-06-07-bloom-card-unified-to-single-background-color]] — "Observation: Bloom card unified to single background color" *(created: 2026-06-07)*
+- [[sources/obs-2026-06-07-bloom-opens-haptic-swipe-dismiss-feature-sheet]] — "Observation: Bloom opens haptic swipe-dismiss feature sheet" *(created: 2026-06-07)*
+- [[sources/obs-2026-06-07-bottom-navigation-raised-for-safe-area-height]] — "Observation: Bottom navigation raised for safe-area height" *(created: 2026-06-07)*
+- [[sources/obs-2026-06-07-glucose-rhythm-image-card-added-above-insight]] — "Observation: Glucose rhythm image card added above insight" *(created: 2026-06-07)*
+- [[sources/obs-2026-06-07-good-morning-welcome-text-added-under-logo]] — "Observation: Good morning welcome text added under logo" *(created: 2026-06-07)*
+- [[sources/obs-2026-06-07-insight-card-shortened-and-moved-closer-to-nav]] — "Observation: Insight card shortened and moved closer to nav" *(created: 2026-06-07)*
+- [[sources/obs-2026-06-07-insight-card-typography-matched-orb-title]] — "Observation: Insight card typography matched orb title" *(created: 2026-06-07)*
+- [[sources/obs-2026-06-07-lint-auto-fix-reduces-orphans-but-increases-gaps]] — "Observation: Lint auto-fix reduces orphans but increases gaps" *(created: 2026-06-07)*
+- [[sources/obs-2026-06-07-ollama-nomic-embed-text-installed-and-configured-for-wiki-em]] — "Observation: Ollama nomic-embed-text installed and configured for wiki embeddings" *(created: 2026-06-07)*
+- [[sources/obs-2026-06-07-portrait-feature-cards-grouped-into-bottom-sheet]] — "Observation: Portrait feature cards grouped into bottom sheet" *(created: 2026-06-07)*
+- [[sources/obs-2026-06-07-portrait-momentum-image-card-added-above-glucose-card]] — "Observation: Portrait momentum image card added above glucose card" *(created: 2026-06-07)*
+- [[sources/obs-2026-06-07-portrait-top-header-matched-reference-with-calm-rhythm-headl]] — "Observation: Portrait top header matched reference with calm rhythm headline" *(created: 2026-06-07)*
+- [[sources/obs-2026-06-07-profile-segment-removed-from-top-bar]] — "Observation: Profile segment removed from top bar" *(created: 2026-06-07)*
+- [[sources/obs-2026-06-07-removed-shadows-and-borders-from-all-cards-for-flat-design]] — "Observation: Removed shadows and borders from all cards for flat design" *(created: 2026-06-07)*
+- [[sources/obs-2026-06-07-sato-bloom-default-skia-font-fix]] — "Observation: Sato bloom default Skia font fix" *(created: 2026-06-07)*
+- [[sources/obs-2026-06-07-sato-bloom-font-free-skia-label-fix]] — "Observation: Sato bloom font-free Skia label fix" *(created: 2026-06-07)*
+- [[sources/obs-2026-06-07-sato-bloom-hidden-clock-face-grammar]] — "Observation: Sato Bloom hidden clock-face grammar" *(created: 2026-06-07)*
+- [[sources/obs-2026-06-07-sato-bloom-skia-error-dependency-mismatch]] — "Observation: Sato bloom Skia error dependency mismatch" *(created: 2026-06-07)*
+- [[sources/obs-2026-06-07-sato-bloom-skia-native-text-constraint]] — "Observation: Sato bloom Skia-native text constraint" *(created: 2026-06-07)*
+- [[sources/obs-2026-06-07-sato-bloom-ui-checkpoint-pushed]] — "Observation: Sato Bloom UI checkpoint pushed" *(created: 2026-06-07)*
+- [[sources/obs-2026-06-07-sato-bloom-versus-halo-terminology]] — "Observation: Sato Bloom versus halo terminology" *(created: 2026-06-07)*
+- [[sources/obs-2026-06-07-sato-bottom-nav-moved-flush-to-screen-bottom]] — "Observation: Sato bottom nav moved flush to screen bottom" *(created: 2026-06-07)*
+- [[sources/obs-2026-06-07-sato-bottom-nav-raised-5px]] — "Observation: Sato bottom nav raised 5px" *(created: 2026-06-07)*
+- [[sources/obs-2026-06-07-sato-bottom-nav-shortened-and-insight-serif-typography]] — "Observation: Sato bottom nav shortened and insight serif typography" *(created: 2026-06-07)*
+- [[sources/obs-2026-06-07-sato-bottom-sheet-restored-as-contextual-ui-pattern]] — "Observation: Sato bottom sheet restored as contextual UI pattern" *(created: 2026-06-07)*
+- [[sources/obs-2026-06-07-sato-bottom-sheet-restored-as-paper-style-contextual-layer]] — "Observation: Sato bottom sheet restored as paper-style contextual layer" *(created: 2026-06-07)*
+- [[sources/obs-2026-06-07-sato-header-logo-mark-cropped-with-text-lockup]] — "Observation: Sato header logo mark cropped with text lockup" *(created: 2026-06-07)*
+- [[sources/obs-2026-06-07-sato-insight-for-you-bottom-section-added]] — "Observation: Sato Insight for you bottom section added" *(created: 2026-06-07)*
+- [[sources/obs-2026-06-07-sato-paper-page-ux-pass-implemented]] — "Observation: Sato paper-page UX pass implemented" *(created: 2026-06-07)*
+- [[sources/obs-2026-06-07-sato-phone-mock-frame-removed]] — "Observation: Sato phone mock frame removed" *(created: 2026-06-07)*
+- [[sources/obs-2026-06-07-sato-premium-bloom-first-ux-polish]] — "Observation: Sato premium Bloom-first UX polish" *(created: 2026-06-07)*
+- [[sources/obs-2026-06-07-sato-premium-bottom-navigation-implemented]] — "Observation: Sato premium bottom navigation implemented" *(created: 2026-06-07)*
+- [[sources/obs-2026-06-07-sato-uploaded-logo-added-to-portrait-header]] — "Observation: Sato uploaded logo added to Portrait header" *(created: 2026-06-07)*
+- [[sources/obs-2026-06-07-sato-v1-hidden-clock-bloom-grammar-implemented]] — "Observation: Sato v1 hidden clock Bloom grammar implemented" *(created: 2026-06-07)*
+- [[sources/obs-2026-06-07-sato-wiki-initialized-with-mobile-app-and-companion-ecosyste]] — "Observation: Sato wiki initialized with mobile app and companion ecosystem sources" *(created: 2026-06-07)*
+- [[sources/obs-2026-06-08-sato-bloom-artifact-first-interaction-pass]] — "Observation: Sato Bloom artifact-first interaction pass" *(created: 2026-06-08)*
+- [[sources/obs-2026-06-08-sato-bloom-continuous-portrait-direction-restored]] — "Observation: Sato Bloom continuous portrait direction restored" *(created: 2026-06-08)*
+- [[sources/obs-2026-06-08-sato-bloom-corrected-from-nebula-to-brush-strokes]] — "Observation: Sato bloom corrected from nebula to brush strokes" *(created: 2026-06-08)*
+- [[sources/obs-2026-06-08-sato-bloom-enriched-pigment-and-washi-seal-medallion]] — "Observation: Sato bloom enriched pigment and washi seal medallion" *(created: 2026-06-08)*
+- [[sources/obs-2026-06-08-sato-bloom-investor-ready-typography-pass]] — "Observation: Sato Bloom investor-ready typography pass" *(created: 2026-06-08)*
+- [[sources/obs-2026-06-08-sato-bloom-metabolic-portrait-engine-principle]] — "Observation: Sato Bloom Metabolic Portrait Engine principle" *(created: 2026-06-08)*
+- [[sources/obs-2026-06-08-sato-bloom-paper-texture-and-pigment-granulation-added]] — "Observation: Sato Bloom paper texture and pigment granulation added" *(created: 2026-06-08)*
+- [[sources/obs-2026-06-08-sato-bloom-stable-vessel-architecture-added]] — "Observation: Sato Bloom stable vessel architecture added" *(created: 2026-06-08)*
+- [[sources/obs-2026-06-08-sato-bloom-watercolor-reference-and-themed-fonts-applied]] — "Observation: Sato Bloom watercolor reference and themed fonts applied" *(created: 2026-06-08)*
+- [[sources/obs-2026-06-08-sato-inherited-moment-stroke-algorithm-implemented]] — "Observation: Sato inherited moment-stroke algorithm implemented" *(created: 2026-06-08)*
+- [[sources/obs-2026-06-08-sato-inherited-stroke-algorithm-reverted]] — "Observation: Sato inherited stroke algorithm reverted" *(created: 2026-06-08)*
+- [[sources/obs-2026-06-08-sato-inherited-watercolor-stroke-algorithm-added]] — "Observation: Sato inherited watercolor stroke algorithm added" *(created: 2026-06-08)*
+- [[sources/obs-2026-06-08-sato-internal-metabolic-pigment-system-added]] — "Observation: Sato internal metabolic pigment system added" *(created: 2026-06-08)*
+- [[sources/obs-2026-06-08-sato-nutrient-pigment-portrait-engine-v1-added]] — "Observation: Sato nutrient-pigment portrait engine v1 added" *(created: 2026-06-08)*
+- [[sources/obs-2026-06-08-sato-portrait-anti-clock-deposit-distortion-added]] — "Observation: Sato portrait anti-clock deposit distortion added" *(created: 2026-06-08)*
+- [[sources/obs-2026-06-08-sato-portrait-screen-with-watercolor-bloom-built]] — "Observation: Sato Portrait screen with watercolor bloom built" *(created: 2026-06-08)*
+- [[sources/obs-2026-06-08-sato-portrait-v1-1-story-weighted-pigment-patch-applied]] — "Observation: Sato portrait v1.1 story-weighted pigment patch applied" *(created: 2026-06-08)*
+- [[sources/obs-2026-06-08-sato-stain-painting-living-bloom-engine-complete]] — "Observation: Sato stain-painting living bloom engine complete" *(created: 2026-06-08)*
+- [[sources/sato-watercolor-visualization-system]] — "Sato watercolor visualization system" *(created: 2026-06-07)*
+- [[sources/SRC-2026-06-07-001]] — SRC-2026-06-07-001 *(created: 2026-06-08)*
+- [[sources/SRC-2026-06-07-002]] — SRC-2026-06-07-002 *(created: 2026-06-08)*
+- [[sources/SRC-2026-06-07-003]] — SRC-2026-06-07-003 *(created: 2026-06-08)*
+- [[sources/SRC-2026-06-07-004]] — SRC-2026-06-07-004 *(created: 2026-06-08)*
+- [[sources/SRC-2026-06-07-005]] — SRC-2026-06-07-005 *(created: 2026-06-08)*
+- [[sources/SRC-2026-06-07-006]] — SRC-2026-06-07-006 *(created: 2026-06-08)*
+- [[sources/SRC-2026-06-07-007]] — SRC-2026-06-07-007 *(created: 2026-06-08)*
+- [[sources/SRC-2026-06-07-008]] — SRC-2026-06-07-008 *(created: 2026-06-08)*
+- [[sources/SRC-2026-06-07-009]] — SRC-2026-06-07-009 *(created: 2026-06-08)*
+- [[sources/SRC-2026-06-07-010]] — SRC-2026-06-07-010 *(created: 2026-06-08)*
+- [[sources/SRC-2026-06-07-011]] — SRC-2026-06-07-011 *(created: 2026-06-08)*
+- [[sources/SRC-2026-06-07-012]] — SRC-2026-06-07-012 *(created: 2026-06-08)*
+
+---
+*Last updated: 2026-06-08T18:47:54.451Z* | *Total pages: 194*

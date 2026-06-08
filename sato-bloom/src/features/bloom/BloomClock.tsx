@@ -1,10 +1,22 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { View, Text, StyleSheet } from "react-native";
-import { Canvas, Circle, Group, Oval, Path, Skia } from "@shopify/react-native-skia";
+import {
+  Canvas,
+  Circle,
+  Group,
+  Oval,
+  Path,
+  Skia,
+} from "@shopify/react-native-skia";
 import * as Haptics from "expo-haptics";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import { BloomWindow } from "./bloomTypes";
-import { bloomPalette, colorForBloomValue, interpolateHex } from "./bloomColors";
+import { bloomPalette, colorForBloomValue, rgba } from "./bloomColors";
+import { PaperGrain } from "./PaperGrain";
+import { DawnWash } from "./DawnWash";
+import { CenterMedallion } from "./CenterMedallion";
+import { GalleryCaption } from "./GalleryCaption";
+import { BrushStroke } from "./BrushStroke";
 
 // ── deterministic noise ──────────────────────────────────────────────
 
@@ -30,14 +42,6 @@ function clamp(value: number, min = 0, max = 1) {
 function easeOutCubic(t: number) {
   const p = clamp(t);
   return 1 - Math.pow(1 - p, 3);
-}
-
-function rgba(hex: string, alpha: number) {
-  const h = hex.replace("#", "");
-  const r = parseInt(h.substring(0, 2), 16);
-  const g = parseInt(h.substring(2, 4), 16);
-  const b = parseInt(h.substring(4, 6), 16);
-  return `rgba(${r},${g},${b},${alpha})`;
 }
 
 function pointFrom(cx: number, cy: number, angle: number, distance: number) {
@@ -66,9 +70,11 @@ type LivedWindow = BloomWindow & {
   width: number;
 };
 
-function windowAngle(window: BloomWindow) {
-  return -Math.PI / 2 + ((window.startHour + 1) / 24) * Math.PI * 2;
+function windowAngle(w: BloomWindow) {
+  return -Math.PI / 2 + ((w.startHour + 1) / 24) * Math.PI * 2;
 }
+
+// ── component ───────────────────────────────────────────────────────
 
 export function BloomClock({
   windows,
@@ -78,16 +84,20 @@ export function BloomClock({
 }: BloomClockProps) {
   const [motionMs, setMotionMs] = useState(0);
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
-  const [selectedAnchor, setSelectedAnchor] = useState<{ x: number; y: number } | null>(null);
+  const [selectedAnchor, setSelectedAnchor] = useState<{
+    x: number;
+    y: number;
+  } | null>(null);
   const lastScrubbedRef = useRef<number | null>(null);
 
-  // Base center
   const cx = size / 2;
   const cy = size * 0.44;
   const artRadius = size * 0.38;
   const hitInner = size * 0.12;
   const hitOuter = size * 0.48;
   const tickRadius = size * 0.46;
+
+  // ── animation loop ─────────────────────────────────────────────
 
   useEffect(() => {
     let frame: number;
@@ -100,13 +110,16 @@ export function BloomClock({
     return () => cancelAnimationFrame(frame);
   }, []);
 
-  // ── lived windows (only past + current) ──────────────────────────
+  const breathe = Math.sin((motionMs / 18000) * Math.PI * 2);
+  const drift = Math.sin((motionMs / 22000) * Math.PI * 2);
+  const centerProgress = easeOutCubic((motionMs - 520) / 460);
+
+  // ── lived windows ──────────────────────────────────────────────
 
   const livedWindows: LivedWindow[] = useMemo(() => {
     const baseLength = size * 0.28;
     const baseWidth = size * 0.12;
 
-    // Find strongest reactive window to compute geometric pull
     let strongestAngle = 0;
     let strongestPull = 0;
     for (const w of windows) {
@@ -124,28 +137,31 @@ export function BloomClock({
       .map((w) => {
         const isCurrent = w.startHour <= currentHour && currentHour < w.endHour;
         const isDried = w.endHour <= currentHour;
-        const rawP = isDried
+        const rawProgress = isDried
           ? 1
           : (currentHour - w.startHour) / Math.max(1, w.endHour - w.startHour);
-        const progress = Math.min(1, Math.max(0.06, rawP));
+        const progress = Math.min(1, Math.max(0.06, rawProgress));
         let angle = windowAngle(w);
-        const color = colorForBloomValue(w.value);
-        const length = baseLength * (0.78 + w.intensity * 0.38);
-        const width = baseWidth * (0.85 + w.intensity * 0.22);
-
-        // Geometric distortion: pull adjacent angles toward strongest event
         if (strongestPull > 0) {
           const diff = angle - strongestAngle;
           const normalizedDiff = Math.atan2(Math.sin(diff), Math.cos(diff));
           const influence = Math.max(0, 1 - Math.abs(normalizedDiff) / 1.2);
           angle += strongestPull * influence * 0.5;
         }
-
-        return { ...w, isCurrent, isDried, progress, angle, color, length, width };
+        return {
+          ...w,
+          isCurrent,
+          isDried,
+          progress,
+          angle,
+          color: colorForBloomValue(w.value),
+          length: baseLength * (0.78 + w.intensity * 0.38),
+          width: baseWidth * (0.85 + w.intensity * 0.22),
+        };
       });
   }, [windows, currentHour, size]);
 
-  // ── center drift: nudge paper center opposite strongest event ────
+  // ── center drift ───────────────────────────────────────────────
 
   const { paperCx, paperCy } = useMemo(() => {
     let strongestAngle = 0;
@@ -158,7 +174,6 @@ export function BloomClock({
         }
       }
     }
-    // Nudge center opposite to strongest event
     const driftAmount = size * 0.018 * strongestIntensity;
     const oppositeAngle = strongestAngle + Math.PI;
     return {
@@ -167,7 +182,7 @@ export function BloomClock({
     };
   }, [livedWindows, cx, cy, size]);
 
-  // ── hit testing (invisible radial clock) ─────────────────────────
+  // ── hit testing ────────────────────────────────────────────────
 
   const indexForPoint = useCallback(
     (x: number, y: number) => {
@@ -192,14 +207,14 @@ export function BloomClock({
     [livedWindows, artRadius, cx, cy]
   );
 
+  // ── gestures ───────────────────────────────────────────────────
+
   const selectIndex = useCallback(
     (index: number, feedback: "tap" | "scrub" | "longPress") => {
       if (index < 0 || index >= livedWindows.length) return;
-      if (feedback === "tap") {
-        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
-      } else if (feedback === "longPress") {
-        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium).catch(() => {});
-      } else if (lastScrubbedRef.current !== index) {
+      if (feedback === "tap") Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
+      else if (feedback === "longPress") Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium).catch(() => {});
+      else if (lastScrubbedRef.current !== index) {
         Haptics.selectionAsync().catch(() => {});
         lastScrubbedRef.current = index;
       }
@@ -247,17 +262,9 @@ export function BloomClock({
     lastScrubbedRef.current = null;
   }, []);
 
-
-  const tapGesture = useMemo(
-    () => Gesture.Tap().runOnJS(true).onEnd(handleTap),
-    [handleTap]
-  );
+  const tapGesture = useMemo(() => Gesture.Tap().runOnJS(true).onEnd(handleTap), [handleTap]);
   const longPressGesture = useMemo(
-    () =>
-      Gesture.LongPress()
-        .runOnJS(true)
-        .minDuration(450)
-        .onStart(handleLongPress),
+    () => Gesture.LongPress().runOnJS(true).minDuration(450).onStart(handleLongPress),
     [handleLongPress]
   );
   const panGesture = useMemo(
@@ -275,15 +282,10 @@ export function BloomClock({
     [panGesture, longPressGesture, tapGesture]
   );
 
-  // ── motion ──────────────────────────────────────────────────────
-
-  const breathe = Math.sin((motionMs / 18000) * Math.PI * 2);
-  const drift = Math.sin((motionMs / 22000) * Math.PI * 2);
-  const centerProgress = easeOutCubic((motionMs - 520) / 460);
   const selectedWindow = selectedIndex !== null ? livedWindows[selectedIndex] : null;
   const selAngle = selectedWindow ? selectedWindow.angle : 0;
 
-  // ── charcoal ticks ──────────────────────────────────────────────
+  // ── charcoal ticks ─────────────────────────────────────────────
 
   const tickHours = [0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22];
 
@@ -291,23 +293,13 @@ export function BloomClock({
     <View style={{ width: size, height: size }}>
       <GestureDetector gesture={composedGesture}>
         <Canvas style={{ width: size, height: size }}>
-          {/* Paper grain — felt, not seen */}
-          <Group opacity={0.04}>
-            {Array.from({ length: 260 }).map((_, i) => {
-              const seed = `grain-${i}`;
-              return (
-                <Circle
-                  key={seed}
-                  cx={noise(`${seed}-x`, 0, size)}
-                  cy={noise(`${seed}-y`, 0, size)}
-                  r={noise(`${seed}-r`, 0.3, 1.4)}
-                  color={noise(`${seed}-w`, 0, 1) > 0.5 ? "rgba(180,162,135,0.15)" : "rgba(248,238,220,0.13)"}
-                />
-              );
-            })}
-          </Group>
+          {/* Layer 0 — radial dawn wash */}
+          <DawnWash cx={cx} cy={cy} size={size} breathe={breathe} />
 
-          {/* Halo — soft atmospheric washes */}
+          {/* Paper grain */}
+          <PaperGrain size={size} />
+
+          {/* Halo washes */}
           <Group>
             <Oval
               x={cx - size * 0.42 - breathe * 2}
@@ -338,19 +330,19 @@ export function BloomClock({
             />
           </Group>
 
-          {/* Tiny charcoal ticks — invisible clock skeleton */}
+          {/* Charcoal ticks */}
           <Group>
             {tickHours.map((hour) => {
               const angle = -Math.PI / 2 + (hour / 24) * Math.PI * 2;
               const outer = pointFrom(cx, cy, angle, tickRadius);
               const inner = pointFrom(cx, cy, angle, tickRadius - size * 0.028);
-              const tickPath = Skia.Path.Make();
-              tickPath.moveTo(outer.x, outer.y);
-              tickPath.lineTo(inner.x, inner.y);
+              const p = Skia.Path.Make();
+              p.moveTo(outer.x, outer.y);
+              p.lineTo(inner.x, inner.y);
               return (
                 <Path
                   key={`tick-${hour}`}
-                  path={tickPath}
+                  path={p}
                   color="rgba(36,31,27,0.14)"
                   style="stroke"
                   strokeWidth={1}
@@ -359,203 +351,7 @@ export function BloomClock({
             })}
           </Group>
 
-          {/* Heavy lavender brush stroke — expressive, wide, irregular edges */}
-          <Group blendMode="multiply">
-            {(() => {
-              const strokeAngle = 2.6;
-              const dir = { x: Math.cos(strokeAngle), y: Math.sin(strokeAngle) };
-              const perp = { x: -Math.sin(strokeAngle), y: Math.cos(strokeAngle) };
-              const origin = pointFrom(
-                cx + drift * 3 + size * 0.015,
-                cy + breathe * 2 - size * 0.008,
-                strokeAngle,
-                artRadius * 0.55
-              );
-              const length = size * 0.34;
-              const maxWidth = size * 0.062;
-              const bpath = Skia.Path.Make();
-
-              // Start tip (narrow)
-              const t0 = origin.x - dir.x * length * 0.42 - perp.x * size * 0.006;
-              const t1 = origin.y - dir.y * length * 0.42 - perp.y * size * 0.006;
-              bpath.moveTo(t0, t1);
-
-              // Upper edge — widens then tapers, with amplified organic jitter
-              const jA = perp.x * size * (0.012 + noise('u1', -1, 1) * 0.014);
-              const jB = perp.y * size * (0.012 + noise('u2', -1, 1) * 0.014);
-              const jC = perp.x * size * (0.008 + noise('u3', -1, 1) * 0.016);
-              const jD = perp.y * size * (0.008 + noise('u4', -1, 1) * 0.016);
-              const jE = perp.x * size * (0.006 + noise('u5', -1, 1) * 0.012);
-              const jF = perp.y * size * (0.006 + noise('u6', -1, 1) * 0.012);
-              bpath.cubicTo(
-                origin.x - dir.x * length * 0.2 - perp.x * maxWidth * 0.55 + jA,
-                origin.y - dir.y * length * 0.2 - perp.y * maxWidth * 0.55 + jB,
-                origin.x + dir.x * length * 0.35 - perp.x * maxWidth * 0.92 + jC,
-                origin.y + dir.y * length * 0.35 - perp.y * maxWidth * 0.92 + jD,
-                origin.x + dir.x * length * 0.55 - perp.x * maxWidth * 0.28 + jE,
-                origin.y + dir.y * length * 0.55 - perp.y * maxWidth * 0.28 + jF
-              );
-
-              // End tip (narrow taper) with jitter
-              const jG = perp.x * size * (0.01 + noise('u7', -1, 1) * 0.012);
-              const jH = perp.y * size * (0.01 + noise('u8', -1, 1) * 0.012);
-              const jI = perp.x * size * (0.004 + noise('u9', -1, 1) * 0.01);
-              const jJ = perp.y * size * (0.004 + noise('ua', -1, 1) * 0.01);
-              bpath.cubicTo(
-                origin.x + dir.x * length * 0.62 - jG,
-                origin.y + dir.y * length * 0.62 - jH,
-                origin.x + dir.x * length * 0.65 - jI,
-                origin.y + dir.y * length * 0.65 - jJ,
-                origin.x + dir.x * length * 0.68 + perp.x * size * 0.002,
-                origin.y + dir.y * length * 0.68 + perp.y * size * 0.002
-              );
-
-              // Lower edge — returning, with different wobble
-              const jK = perp.x * size * (0.008 + noise('ub', -1, 1) * 0.014);
-              const jL = perp.y * size * (0.008 + noise('uc', -1, 1) * 0.014);
-              const jM = perp.x * size * (0.01 + noise('ud', -1, 1) * 0.015);
-              const jN = perp.y * size * (0.01 + noise('ue', -1, 1) * 0.015);
-              const jO = perp.x * size * (0.005 + noise('uf', -1, 1) * 0.012);
-              const jP = perp.y * size * (0.005 + noise('ug', -1, 1) * 0.012);
-              bpath.cubicTo(
-                origin.x + dir.x * length * 0.58 + jK,
-                origin.y + dir.y * length * 0.58 + jL,
-                origin.x + dir.x * length * 0.3 + perp.x * maxWidth * 0.88 + jM,
-                origin.y + dir.y * length * 0.3 + perp.y * maxWidth * 0.88 + jN,
-                origin.x - dir.x * length * 0.18 + perp.x * maxWidth * 0.48 + jO,
-                origin.y - dir.y * length * 0.18 + perp.y * maxWidth * 0.48 + jP
-              );
-
-              // Close back to start with jitter
-              const jQ = perp.x * size * (0.008 + noise('uh', -1, 1) * 0.012);
-              const jR = perp.y * size * (0.008 + noise('ui', -1, 1) * 0.012);
-              bpath.cubicTo(
-                origin.x - dir.x * length * 0.32 + jQ,
-                origin.y - dir.y * length * 0.32 + jR,
-                origin.x - dir.x * length * 0.38 + perp.x * size * 0.004,
-                origin.y - dir.y * length * 0.38 + perp.y * size * 0.004,
-                t0,
-                t1
-              );
-              bpath.close();
-
-              return (
-                <Group>
-                  {/* Main brush body */}
-                  <Path path={bpath} color={rgba("#A98BC5", 0.14)} />
-                  {/* Slightly offset watercolor spread */}
-                  <Path
-                    path={bpath}
-                    color={rgba("#A98BC5", 0.06)}
-                    transform={[{ translateX: -size * 0.006 }, { translateY: size * 0.004 }]}
-                  />
-                  {/* Pigment pool at the widest point */}
-                  <Circle
-                    cx={origin.x + dir.x * length * 0.2}
-                    cy={origin.y + dir.y * length * 0.2}
-                    r={size * 0.022}
-                    color={rgba("#A98BC5", 0.12)}
-                  />
-                  {/* A few tiny specks from the brush lifting */}
-                  <Circle
-                    cx={origin.x + dir.x * length * 0.72 + perp.x * size * 0.018}
-                    cy={origin.y + dir.y * length * 0.72 + perp.y * size * 0.018}
-                    r={size * 0.006}
-                    color={rgba("#A98BC5", 0.1)}
-                  />
-                  <Circle
-                    cx={origin.x + dir.x * length * 0.76 - perp.x * size * 0.012}
-                    cy={origin.y + dir.y * length * 0.76 - perp.y * size * 0.012}
-                    r={size * 0.004}
-                    color={rgba("#A98BC5", 0.08)}
-                  />
-                </Group>
-              );
-            })()}
-          </Group>
-
-          {/* ── Second brush stroke: warm ochre, upper area ── */}
-          <Group blendMode="multiply">
-            {(() => {
-              const strokeAngle = -0.85;
-              const dir = { x: Math.cos(strokeAngle), y: Math.sin(strokeAngle) };
-              const perp = { x: -Math.sin(strokeAngle), y: Math.cos(strokeAngle) };
-              const origin = pointFrom(
-                cx - drift * 2 - size * 0.012,
-                cy - breathe * 2.5 + size * 0.015,
-                strokeAngle,
-                artRadius * 0.48
-              );
-              const length = size * 0.3;
-              const maxWidth = size * 0.048;
-              const bpath = Skia.Path.Make();
-              const color = "#D7B36A";
-
-              const t0 = origin.x - dir.x * length * 0.38 - perp.x * size * 0.005;
-              const t1 = origin.y - dir.y * length * 0.38 - perp.y * size * 0.005;
-              bpath.moveTo(t0, t1);
-
-              const jA = perp.x * size * (0.01 + noise('o1', -1, 1) * 0.012);
-              const jB = perp.y * size * (0.01 + noise('o2', -1, 1) * 0.012);
-              const jC = perp.x * size * (0.008 + noise('o3', -1, 1) * 0.014);
-              const jD = perp.y * size * (0.008 + noise('o4', -1, 1) * 0.014);
-              const jE = perp.x * size * (0.005 + noise('o5', -1, 1) * 0.01);
-              const jF = perp.y * size * (0.005 + noise('o6', -1, 1) * 0.01);
-
-              bpath.cubicTo(
-                origin.x - dir.x * length * 0.18 - perp.x * maxWidth * 0.5 + jA,
-                origin.y - dir.y * length * 0.18 - perp.y * maxWidth * 0.5 + jB,
-                origin.x + dir.x * length * 0.32 - perp.x * maxWidth * 0.88 + jC,
-                origin.y + dir.y * length * 0.32 - perp.y * maxWidth * 0.88 + jD,
-                origin.x + dir.x * length * 0.52 - perp.x * maxWidth * 0.24 + jE,
-                origin.y + dir.y * length * 0.52 - perp.y * maxWidth * 0.24 + jF
-              );
-
-              const jG = perp.x * size * (0.008 + noise('o7', -1, 1) * 0.01);
-              const jH = perp.y * size * (0.008 + noise('o8', -1, 1) * 0.01);
-              bpath.cubicTo(
-                origin.x + dir.x * length * 0.58 - jG,
-                origin.y + dir.y * length * 0.58 - jH,
-                origin.x + dir.x * length * 0.62 - perp.x * size * 0.004,
-                origin.y + dir.y * length * 0.62 - perp.y * size * 0.004,
-                origin.x + dir.x * length * 0.65 + perp.x * size * 0.002,
-                origin.y + dir.y * length * 0.65 + perp.y * size * 0.002
-              );
-
-              const jK = perp.x * size * (0.008 + noise('o9', -1, 1) * 0.012);
-              const jL = perp.y * size * (0.008 + noise('oa', -1, 1) * 0.012);
-              const jM = perp.x * size * (0.01 + noise('ob', -1, 1) * 0.014);
-              const jN = perp.y * size * (0.01 + noise('oc', -1, 1) * 0.014);
-              bpath.cubicTo(
-                origin.x + dir.x * length * 0.55 + jK,
-                origin.y + dir.y * length * 0.55 + jL,
-                origin.x + dir.x * length * 0.28 + perp.x * maxWidth * 0.82 + jM,
-                origin.y + dir.y * length * 0.28 + perp.y * maxWidth * 0.82 + jN,
-                origin.x - dir.x * length * 0.15 + perp.x * maxWidth * 0.42,
-                origin.y - dir.y * length * 0.15 + perp.y * maxWidth * 0.42
-              );
-
-              bpath.cubicTo(
-                origin.x - dir.x * length * 0.28 + perp.x * size * 0.01,
-                origin.y - dir.y * length * 0.28 + perp.y * size * 0.01,
-                origin.x - dir.x * length * 0.34 + perp.x * size * 0.003,
-                origin.y - dir.y * length * 0.34 + perp.y * size * 0.003,
-                t0,
-                t1
-              );
-              bpath.close();
-
-              return (
-                <Group>
-                  <Path path={bpath} color={rgba(color, 0.12)} />
-                  <Path path={bpath} color={rgba(color, 0.05)} transform={[{ translateX: size * 0.005 }, { translateY: -size * 0.003 }]} />
-                  <Circle cx={origin.x + dir.x * length * 0.22} cy={origin.y + dir.y * length * 0.22} r={size * 0.018} color={rgba(color, 0.1)} />
-                </Group>
-              );
-            })()}
-          </Group>
-
-          {/* Continuous watercolor bloom — single composition, no petals */}
+          {/* Continuous bloom — lived window washes */}
           <Group blendMode="multiply">
             {livedWindows.map((w) => (
               <Group key={w.id}>
@@ -575,7 +371,12 @@ export function BloomClock({
                     ? 0.35 + w.progress * 0.42
                     : 0.55 + w.progress * 0.45;
                   const opacity = (0.024 + w.confidence * 0.024) * progressScale;
-                  const lift = selectedIndex === livedWindows.indexOf(w) ? 1.14 : selectedIndex !== null ? 0.92 : 1;
+                  const lift =
+                    selectedIndex === livedWindows.indexOf(w)
+                      ? 1.14
+                      : selectedIndex !== null
+                      ? 0.92
+                      : 1;
 
                   return (
                     <Oval
@@ -585,13 +386,18 @@ export function BloomClock({
                       width={rx * 2 * lift}
                       height={ry * 2 * lift}
                       color={rgba(w.color, opacity)}
-                      transform={[{ rotate: lAngle + Math.PI / 2 + noise(`${seed}-rot`, -0.45, 0.45) }]}
+                      transform={[
+                        {
+                          rotate:
+                            lAngle + Math.PI / 2 + noise(`${seed}-rot`, -0.45, 0.45),
+                        },
+                      ]}
                       origin={center}
                     />
                   );
                 })}
 
-                {/* Tiny granulation specks for reactive windows */}
+                {/* Granulation specks for reactive windows */}
                 {(w.state === "reactive" || w.variability > 0.5) &&
                   Array.from({ length: 6 }).map((_, i) => {
                     const gSeed = `${w.id}-gran-${i}`;
@@ -615,7 +421,62 @@ export function BloomClock({
             ))}
           </Group>
 
-          {/* Touch interaction — local pigment brightening, no leaders/ghosts */}
+          {/* Brush strokes — metabolic input marks */}
+          <Group blendMode="multiply">
+            <BrushStroke
+              cx={cx} cy={cy} canvasSize={size}
+              angle={2.6} distance={artRadius * 0.55}
+              length={size * 0.34} maxWidth={size * 0.062}
+              color="#A98BC5" noiseSeed="lavender"
+              opacity={0.14} ghostOpacity={0.06}
+              ghostOffset={{ x: -size * 0.006, y: size * 0.004 }}
+              pigmentPool={{ position: 0.2, radius: size * 0.022, opacity: 0.12 }}
+            />
+            <BrushStroke
+              cx={cx} cy={cy} canvasSize={size}
+              angle={-0.85} distance={artRadius * 0.48}
+              length={size * 0.3} maxWidth={size * 0.048}
+              color="#D7B36A" noiseSeed="ochre"
+              opacity={0.12} ghostOpacity={0.05}
+              ghostOffset={{ x: size * 0.005, y: -size * 0.003 }}
+              pigmentPool={{ position: 0.22, radius: size * 0.018, opacity: 0.1 }}
+            />
+            <BrushStroke
+              cx={cx} cy={cy} canvasSize={size}
+              angle={1.8} distance={artRadius * 0.52}
+              length={size * 0.32} maxWidth={size * 0.055}
+              color="#B9915E" noiseSeed="fat"
+              opacity={0.1} ghostOpacity={0.04}
+              ghostOffset={{ x: size * 0.004, y: -size * 0.003 }}
+            />
+            <BrushStroke
+              cx={cx} cy={cy} canvasSize={size}
+              angle={-1.2} distance={artRadius * 0.58}
+              length={size * 0.18} maxWidth={size * 0.072}
+              color="#E8795F" noiseSeed="sugar"
+              opacity={0.12} ghostOpacity={0.05}
+              ghostOffset={{ x: -size * 0.005, y: size * 0.004 }}
+              pigmentPool={{ position: 0.2, radius: size * 0.025, opacity: 0.1 }}
+            />
+            <BrushStroke
+              cx={cx} cy={cy} canvasSize={size}
+              angle={-0.35} distance={artRadius * 0.45}
+              length={size * 0.36} maxWidth={size * 0.04}
+              color="#789A7A" noiseSeed="exercise"
+              opacity={0.09} ghostOpacity={0.04}
+              ghostOffset={{ x: size * 0.003, y: size * 0.003 }}
+            />
+            <BrushStroke
+              cx={cx} cy={cy} canvasSize={size}
+              angle={2.1} distance={artRadius * 0.55}
+              length={size * 0.26} maxWidth={size * 0.048}
+              color="#C9A46A" noiseSeed="protein"
+              opacity={0.09} ghostOpacity={0.04}
+              ghostOffset={{ x: -size * 0.003, y: -size * 0.003 }}
+            />
+          </Group>
+
+          {/* Touch interaction — local pigment brightening */}
           {selectedAnchor && selectedWindow ? (
             <Oval
               x={selectedAnchor.x - size * 0.12}
@@ -628,56 +489,28 @@ export function BloomClock({
             />
           ) : null}
 
-          {/* Center paper medallion — handmade paper feel */}
-          <Group opacity={centerProgress}>
-            {Array.from({ length: 7 }).map((_, i) => {
-              const r = size * noise(`med-r-${i}`, 0.09, 0.118);
-              return (
-                <Oval
-                  key={`med-${i}`}
-                  x={paperCx - r * noise(`med-rx-${i}`, 0.82, 1.1)}
-                  y={paperCy - r * noise(`med-ry-${i}`, 0.78, 1.06)}
-                  width={r * 2 * noise(`med-w-${i}`, 0.82, 1.1)}
-                  height={r * 2 * noise(`med-h-${i}`, 0.76, 1.06)}
-                  color={rgba(i % 2 === 0 ? bloomPalette.paper : "#FFF9EF", i < 3 ? 0.2 + i * 0.04 : 0.32 + i * 0.045)}
-                  transform={[{ rotate: noise(`med-wobble-${i}`, -0.18, 0.18) }]}
-                  origin={{ x: paperCx, y: paperCy }}
-                />
-              );
-            })}
-            {Array.from({ length: 20 }).map((_, i) => {
-              const dot = pointFrom(
-                paperCx,
-                paperCy,
-                noise(`speck-a-${i}`, 0, Math.PI * 2),
-                size * noise(`speck-r-${i}`, 0.008, 0.095)
-              );
-              return (
-                <Circle
-                  key={`speck-${i}`}
-                  cx={dot.x}
-                  cy={dot.y}
-                  r={noise(`speck-size-${i}`, 0.25, 0.7)}
-                  color="rgba(160,145,125,0.1)"
-                />
-              );
-            })}
-          </Group>
+          {/* Center medallion */}
+          <CenterMedallion
+            paperCx={paperCx}
+            paperCy={paperCy}
+            size={size}
+            centerProgress={centerProgress}
+          />
         </Canvas>
       </GestureDetector>
 
-      {/* Gallery caption — appears on touch, human-first copy */}
+      {/* Gallery caption */}
       {selectedWindow && selectedAnchor ? (
-        <View style={[styles.galleryCaption, { left: selectedAnchor.x - 48, top: selectedAnchor.y - 38 }]}> 
-          <Text style={styles.captionTime}>
-            {selectedWindow.startHour === 12 ? "1 PM" : selectedWindow.label}
-          </Text>
-          <Text style={styles.captionBody}>Your body asked for a little more time.</Text>
-        </View>
+        <GalleryCaption window={selectedWindow} anchor={selectedAnchor} />
       ) : null}
 
-      {/* Center value — inscribed on handmade paper */}
-      <View style={[styles.centerValue, { opacity: centerProgress, top: paperCy - size * 0.048 }]}> 
+      {/* Center value inscription */}
+      <View
+        style={[
+          styles.centerValue,
+          { opacity: centerProgress, top: paperCy - size * 0.048 },
+        ]}
+      >
         <Text style={styles.glucose}>{glucose}</Text>
         <Text style={styles.unit}>mg/dL</Text>
         <Text style={styles.wave}>~</Text>
@@ -687,30 +520,6 @@ export function BloomClock({
 }
 
 const styles = StyleSheet.create({
-  galleryCaption: {
-    position: "absolute",
-    width: 130,
-    borderRadius: 14,
-    paddingVertical: 8,
-    paddingHorizontal: 10,
-    backgroundColor: "rgba(255,251,244,0.78)",
-    borderWidth: 1,
-    borderColor: "rgba(224,214,200,0.6)",
-  },
-  captionTime: {
-    color: "#5795C7",
-    fontSize: 10,
-    fontWeight: "800",
-    letterSpacing: 0.4,
-  },
-  captionBody: {
-    marginTop: 3,
-    fontFamily: "Georgia",
-    color: "#241F1B",
-    fontSize: 11.5,
-    lineHeight: 15,
-    fontWeight: "300",
-  },
   centerValue: {
     position: "absolute",
     left: 0,

@@ -1,0 +1,11 @@
+{
+  "id": "SRC-2026-06-07-008",
+  "captured": "2026-06-07",
+  "packet_version": "1.0",
+  "title": "MOBILE_JOURNEY.md",
+  "file_path": "/root/tld-v2/MOBILE_JOURNEY.md",
+  "format": "markdown",
+  "extractor": "passthrough",
+  "extraction_status": "success",
+  "content_type": "text/markdown"
+}

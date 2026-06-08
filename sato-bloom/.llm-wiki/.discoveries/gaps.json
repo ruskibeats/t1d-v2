@@ -1,0 +1,812 @@
+{
+  "gaps": [
+    {
+      "topic": "[sources/SRC-2026-06-07-008",
+      "mentionedBy": [
+        "concepts/5-card-pipeline",
+        "concepts/confidence-breakdown",
+        "concepts/meal-forecast",
+        "concepts/pattern-genome",
+        "entities/cgm",
+        "entities/foot2floor",
+        "entities/stitch",
+        "entities/t1d-companion",
+        "entities/tom-batchelor"
+      ]
+    },
+    {
+      "topic": "[sources/SRC-2026-06-07-004",
+      "mentionedBy": [
+        "concepts/addaccents",
+        "concepts/addatmosphere",
+        "concepts/addbody",
+        "concepts/addground",
+        "concepts/categorytodomain-mapping",
+        "concepts/clamp-function",
+        "concepts/enforcesceneconstraints",
+        "concepts/maketoken-factory",
+        "concepts/seeded-random-function",
+        "entities/domaincolors",
+        "entities/featurestotokens",
+        "entities/renderscene",
+        "entities/scenebuilderts",
+        "entities/visualtoken"
+      ]
+    },
+    {
+      "topic": "[sources/SRC-2026-06-07-010",
+      "mentionedBy": [
+        "concepts/ai-first-operation",
+        "concepts/llm-meal-parsing",
+        "concepts/showcase-modes",
+        "entities/t1d-companion-v2"
+      ]
+    },
+    {
+      "topic": "[sources/SRC-2026-06-07-001",
+      "mentionedBy": [
+        "concepts/biometric-feature-normalization",
+        "concepts/seeded-pseudo-random-generation",
+        "concepts/statepigment",
+        "concepts/visualtoken",
+        "concepts/watercolorstateorb",
+        "entities/expo-haptics",
+        "entities/react-native",
+        "entities/sato",
+        "entities/shopifyreact-native-skia"
+      ]
+    },
+    {
+      "topic": "[sources/SRC-2026-06-07-007",
+      "mentionedBy": [
+        "concepts/core",
+        "concepts/health-dimension",
+        "concepts/petal",
+        "concepts/pigment",
+        "concepts/ubiquitous-language",
+        "entities/absorption-profile",
+        "entities/anchor-type",
+        "entities/banned-word",
+        "entities/bloom-card",
+        "entities/bloom-engine",
+        "entities/bloom",
+        "entities/carb-range",
+        "entities/card",
+        "entities/dosing-pattern",
+        "entities/food-candidate",
+        "entities/food-evidence",
+        "entities/forecast-result",
+        "entities/historical-meal-summary",
+        "entities/intent",
+        "entities/legend",
+        "entities/meal-totals",
+        "entities/palette",
+        "entities/parsed-food",
+        "entities/physiology-model",
+        "entities/profile-config",
+        "entities/profile",
+        "entities/response-band",
+        "entities/safety-scaffold",
+        "entities/showcase",
+        "entities/state-bloom",
+        "entities/uncertainty-band"
+      ]
+    },
+    {
+      "topic": "[sources/SRC-2026-06-07-006",
+      "mentionedBy": [
+        "concepts/cross-platform-development",
+        "concepts/expo-sdk",
+        "concepts/react-native-graphics-rendering",
+        "entities/expo",
+        "entities/sato-bloom",
+        "entities/zosmaaipi-llm-wiki"
+      ]
+    },
+    {
+      "topic": "[sources/SRC-2026-06-07-009",
+      "mentionedBy": [
+        "concepts/evidence-bundle",
+        "concepts/golden-matrix-regression-testing",
+        "concepts/physiology-inspired-compartment-model",
+        "concepts/prediction-schema",
+        "concepts/safety-veto-gate",
+        "concepts/text-first-ux",
+        "entities/dexcom",
+        "entities/nightscout",
+        "entities/openfoodfacts",
+        "entities/postgres",
+        "entities/pytest"
+      ]
+    },
+    {
+      "topic": "[sources/SRC-2026-06-07-003",
+      "mentionedBy": [
+        "concepts/feature-normalization",
+        "concepts/meal-macro-balance",
+        "concepts/sleep-score-impact",
+        "concepts/stress-volatility-modeling",
+        "entities/clamp",
+        "entities/eventcategory",
+        "entities/featuresfrombiometric",
+        "entities/normalizefeatures"
+      ]
+    },
+    {
+      "topic": "[sources/SRC-2026-06-07-005",
+      "mentionedBy": [
+        "concepts/featurestotokens",
+        "concepts/hashstring",
+        "concepts/seeded",
+        "entities/artifactfeatures",
+        "entities/palettes",
+        "entities/visualtokens"
+      ]
+    },
+    {
+      "topic": "[sources/SRC-2026-06-07-002",
+      "mentionedBy": [
+        "concepts/health-event-tracking",
+        "concepts/quantitative-wellness-metrics",
+        "concepts/scene-composition-layers",
+        "concepts/visual-token-system",
+        "entities/domain",
+        "entities/primitivekind",
+        "entities/scenelayer",
+        "entities/zband"
+      ]
+    },
+    {
+      "topic": "sato",
+      "mentionedBy": [
+        "sources/SRC-2026-06-07-001"
+      ]
+    },
+    {
+      "topic": "react-native",
+      "mentionedBy": [
+        "sources/SRC-2026-06-07-001",
+        "sources/SRC-2026-06-07-006"
+      ]
+    },
+    {
+      "topic": "shopifyreact-native-skia",
+      "mentionedBy": [
+        "sources/SRC-2026-06-07-001",
+        "sources/SRC-2026-06-07-006"
+      ]
+    },
+    {
+      "topic": "expo-haptics",
+      "mentionedBy": [
+        "sources/SRC-2026-06-07-001"
+      ]
+    },
+    {
+      "topic": "watercolorstateorb",
+      "mentionedBy": [
+        "sources/SRC-2026-06-07-001"
+      ]
+    },
+    {
+      "topic": "statepigment",
+      "mentionedBy": [
+        "sources/SRC-2026-06-07-001"
+      ]
+    },
+    {
+      "topic": "visualtoken",
+      "mentionedBy": [
+        "sources/SRC-2026-06-07-001",
+        "sources/SRC-2026-06-07-002",
+        "sources/SRC-2026-06-07-004"
+      ]
+    },
+    {
+      "topic": "seeded-pseudo-random-generation",
+      "mentionedBy": [
+        "sources/SRC-2026-06-07-001"
+      ]
+    },
+    {
+      "topic": "biometric-feature-normalization",
+      "mentionedBy": [
+        "sources/SRC-2026-06-07-001"
+      ]
+    },
+    {
+      "topic": "eventcategory",
+      "mentionedBy": [
+        "sources/SRC-2026-06-07-002",
+        "sources/SRC-2026-06-07-003"
+      ]
+    },
+    {
+      "topic": "domain",
+      "mentionedBy": [
+        "sources/SRC-2026-06-07-002"
+      ]
+    },
+    {
+      "topic": "zband",
+      "mentionedBy": [
+        "sources/SRC-2026-06-07-002"
+      ]
+    },
+    {
+      "topic": "primitivekind",
+      "mentionedBy": [
+        "sources/SRC-2026-06-07-002"
+      ]
+    },
+    {
+      "topic": "artifactfeatures",
+      "mentionedBy": [
+        "sources/SRC-2026-06-07-002",
+        "sources/SRC-2026-06-07-003",
+        "sources/SRC-2026-06-07-004",
+        "sources/SRC-2026-06-07-005"
+      ]
+    },
+    {
+      "topic": "visualtokens",
+      "mentionedBy": [
+        "sources/SRC-2026-06-07-002",
+        "sources/SRC-2026-06-07-005"
+      ]
+    },
+    {
+      "topic": "renderscene",
+      "mentionedBy": [
+        "sources/SRC-2026-06-07-002",
+        "sources/SRC-2026-06-07-004"
+      ]
+    },
+    {
+      "topic": "scenelayer",
+      "mentionedBy": [
+        "sources/SRC-2026-06-07-002"
+      ]
+    },
+    {
+      "topic": "health-event-tracking",
+      "mentionedBy": [
+        "sources/SRC-2026-06-07-002"
+      ]
+    },
+    {
+      "topic": "visual-token-system",
+      "mentionedBy": [
+        "sources/SRC-2026-06-07-002"
+      ]
+    },
+    {
+      "topic": "scene-composition-layers",
+      "mentionedBy": [
+        "sources/SRC-2026-06-07-002"
+      ]
+    },
+    {
+      "topic": "quantitative-wellness-metrics",
+      "mentionedBy": [
+        "sources/SRC-2026-06-07-002"
+      ]
+    },
+    {
+      "topic": "normalizefeatures",
+      "mentionedBy": [
+        "sources/SRC-2026-06-07-003"
+      ]
+    },
+    {
+      "topic": "featuresfrombiometric",
+      "mentionedBy": [
+        "sources/SRC-2026-06-07-003"
+      ]
+    },
+    {
+      "topic": "clamp",
+      "mentionedBy": [
+        "sources/SRC-2026-06-07-003"
+      ]
+    },
+    {
+      "topic": "feature-normalization",
+      "mentionedBy": [
+        "sources/SRC-2026-06-07-003"
+      ]
+    },
+    {
+      "topic": "meal-macro-balance",
+      "mentionedBy": [
+        "sources/SRC-2026-06-07-003"
+      ]
+    },
+    {
+      "topic": "sleep-score-impact",
+      "mentionedBy": [
+        "sources/SRC-2026-06-07-003"
+      ]
+    },
+    {
+      "topic": "stress-volatility-modeling",
+      "mentionedBy": [
+        "sources/SRC-2026-06-07-003"
+      ]
+    },
+    {
+      "topic": "scenebuilderts",
+      "mentionedBy": [
+        "sources/SRC-2026-06-07-004"
+      ]
+    },
+    {
+      "topic": "featurestotokens",
+      "mentionedBy": [
+        "sources/SRC-2026-06-07-004",
+        "sources/SRC-2026-06-07-005"
+      ]
+    },
+    {
+      "topic": "domaincolors",
+      "mentionedBy": [
+        "sources/SRC-2026-06-07-004"
+      ]
+    },
+    {
+      "topic": "categorytodomain-mapping",
+      "mentionedBy": [
+        "sources/SRC-2026-06-07-004"
+      ]
+    },
+    {
+      "topic": "seeded-random-function",
+      "mentionedBy": [
+        "sources/SRC-2026-06-07-004"
+      ]
+    },
+    {
+      "topic": "clamp-function",
+      "mentionedBy": [
+        "sources/SRC-2026-06-07-004"
+      ]
+    },
+    {
+      "topic": "maketoken-factory",
+      "mentionedBy": [
+        "sources/SRC-2026-06-07-004"
+      ]
+    },
+    {
+      "topic": "addatmosphere",
+      "mentionedBy": [
+        "sources/SRC-2026-06-07-004"
+      ]
+    },
+    {
+      "topic": "addbody",
+      "mentionedBy": [
+        "sources/SRC-2026-06-07-004"
+      ]
+    },
+    {
+      "topic": "addaccents",
+      "mentionedBy": [
+        "sources/SRC-2026-06-07-004"
+      ]
+    },
+    {
+      "topic": "addground",
+      "mentionedBy": [
+        "sources/SRC-2026-06-07-004"
+      ]
+    },
+    {
+      "topic": "enforcesceneconstraints",
+      "mentionedBy": [
+        "sources/SRC-2026-06-07-004"
+      ]
+    },
+    {
+      "topic": "palettes",
+      "mentionedBy": [
+        "sources/SRC-2026-06-07-005"
+      ]
+    },
+    {
+      "topic": "hashstring",
+      "mentionedBy": [
+        "sources/SRC-2026-06-07-005"
+      ]
+    },
+    {
+      "topic": "seeded",
+      "mentionedBy": [
+        "sources/SRC-2026-06-07-005"
+      ]
+    },
+    {
+      "topic": "sato-bloom",
+      "mentionedBy": [
+        "sources/SRC-2026-06-07-006"
+      ]
+    },
+    {
+      "topic": "expo",
+      "mentionedBy": [
+        "sources/SRC-2026-06-07-006"
+      ]
+    },
+    {
+      "topic": "zosmaaipi-llm-wiki",
+      "mentionedBy": [
+        "sources/SRC-2026-06-07-006"
+      ]
+    },
+    {
+      "topic": "cross-platform-development",
+      "mentionedBy": [
+        "sources/SRC-2026-06-07-006"
+      ]
+    },
+    {
+      "topic": "expo-sdk",
+      "mentionedBy": [
+        "sources/SRC-2026-06-07-006"
+      ]
+    },
+    {
+      "topic": "react-native-graphics-rendering",
+      "mentionedBy": [
+        "sources/SRC-2026-06-07-006"
+      ]
+    },
+    {
+      "topic": "state-bloom",
+      "mentionedBy": [
+        "sources/SRC-2026-06-07-007"
+      ]
+    },
+    {
+      "topic": "bloom",
+      "mentionedBy": [
+        "sources/SRC-2026-06-07-007"
+      ]
+    },
+    {
+      "topic": "bloom-card",
+      "mentionedBy": [
+        "sources/SRC-2026-06-07-007"
+      ]
+    },
+    {
+      "topic": "bloom-engine",
+      "mentionedBy": [
+        "sources/SRC-2026-06-07-007"
+      ]
+    },
+    {
+      "topic": "profile",
+      "mentionedBy": [
+        "sources/SRC-2026-06-07-007"
+      ]
+    },
+    {
+      "topic": "palette",
+      "mentionedBy": [
+        "sources/SRC-2026-06-07-007"
+      ]
+    },
+    {
+      "topic": "legend",
+      "mentionedBy": [
+        "sources/SRC-2026-06-07-007"
+      ]
+    },
+    {
+      "topic": "anchor-type",
+      "mentionedBy": [
+        "sources/SRC-2026-06-07-007"
+      ]
+    },
+    {
+      "topic": "profile-config",
+      "mentionedBy": [
+        "sources/SRC-2026-06-07-007"
+      ]
+    },
+    {
+      "topic": "parsed-food",
+      "mentionedBy": [
+        "sources/SRC-2026-06-07-007"
+      ]
+    },
+    {
+      "topic": "food-candidate",
+      "mentionedBy": [
+        "sources/SRC-2026-06-07-007"
+      ]
+    },
+    {
+      "topic": "food-evidence",
+      "mentionedBy": [
+        "sources/SRC-2026-06-07-007"
+      ]
+    },
+    {
+      "topic": "meal-totals",
+      "mentionedBy": [
+        "sources/SRC-2026-06-07-007"
+      ]
+    },
+    {
+      "topic": "carb-range",
+      "mentionedBy": [
+        "sources/SRC-2026-06-07-007"
+      ]
+    },
+    {
+      "topic": "forecast-result",
+      "mentionedBy": [
+        "sources/SRC-2026-06-07-007"
+      ]
+    },
+    {
+      "topic": "uncertainty-band",
+      "mentionedBy": [
+        "sources/SRC-2026-06-07-007"
+      ]
+    },
+    {
+      "topic": "absorption-profile",
+      "mentionedBy": [
+        "sources/SRC-2026-06-07-007"
+      ]
+    },
+    {
+      "topic": "physiology-model",
+      "mentionedBy": [
+        "sources/SRC-2026-06-07-007"
+      ]
+    },
+    {
+      "topic": "historical-meal-summary",
+      "mentionedBy": [
+        "sources/SRC-2026-06-07-007"
+      ]
+    },
+    {
+      "topic": "response-band",
+      "mentionedBy": [
+        "sources/SRC-2026-06-07-007"
+      ]
+    },
+    {
+      "topic": "safety-scaffold",
+      "mentionedBy": [
+        "sources/SRC-2026-06-07-007"
+      ]
+    },
+    {
+      "topic": "banned-word",
+      "mentionedBy": [
+        "sources/SRC-2026-06-07-007"
+      ]
+    },
+    {
+      "topic": "dosing-pattern",
+      "mentionedBy": [
+        "sources/SRC-2026-06-07-007"
+      ]
+    },
+    {
+      "topic": "card",
+      "mentionedBy": [
+        "sources/SRC-2026-06-07-007"
+      ]
+    },
+    {
+      "topic": "showcase",
+      "mentionedBy": [
+        "sources/SRC-2026-06-07-007"
+      ]
+    },
+    {
+      "topic": "intent",
+      "mentionedBy": [
+        "sources/SRC-2026-06-07-007"
+      ]
+    },
+    {
+      "topic": "health-dimension",
+      "mentionedBy": [
+        "sources/SRC-2026-06-07-007"
+      ]
+    },
+    {
+      "topic": "pigment",
+      "mentionedBy": [
+        "sources/SRC-2026-06-07-007"
+      ]
+    },
+    {
+      "topic": "core",
+      "mentionedBy": [
+        "sources/SRC-2026-06-07-007"
+      ]
+    },
+    {
+      "topic": "petal",
+      "mentionedBy": [
+        "sources/SRC-2026-06-07-007"
+      ]
+    },
+    {
+      "topic": "evidence-bundle",
+      "mentionedBy": [
+        "sources/SRC-2026-06-07-007",
+        "sources/SRC-2026-06-07-009"
+      ]
+    },
+    {
+      "topic": "ubiquitous-language",
+      "mentionedBy": [
+        "sources/SRC-2026-06-07-007"
+      ]
+    },
+    {
+      "topic": "tom-batchelor",
+      "mentionedBy": [
+        "sources/SRC-2026-06-07-008"
+      ]
+    },
+    {
+      "topic": "foot2floor",
+      "mentionedBy": [
+        "sources/SRC-2026-06-07-008"
+      ]
+    },
+    {
+      "topic": "stitch",
+      "mentionedBy": [
+        "sources/SRC-2026-06-07-008"
+      ]
+    },
+    {
+      "topic": "t1d-companion",
+      "mentionedBy": [
+        "sources/SRC-2026-06-07-008"
+      ]
+    },
+    {
+      "topic": "cgm",
+      "mentionedBy": [
+        "sources/SRC-2026-06-07-008"
+      ]
+    },
+    {
+      "topic": "5-card-pipeline",
+      "mentionedBy": [
+        "sources/SRC-2026-06-07-008"
+      ]
+    },
+    {
+      "topic": "meal-forecast",
+      "mentionedBy": [
+        "sources/SRC-2026-06-07-008"
+      ]
+    },
+    {
+      "topic": "pattern-genome",
+      "mentionedBy": [
+        "sources/SRC-2026-06-07-008"
+      ]
+    },
+    {
+      "topic": "confidence-breakdown",
+      "mentionedBy": [
+        "sources/SRC-2026-06-07-008"
+      ]
+    },
+    {
+      "topic": "t1d-companion-v2",
+      "mentionedBy": [
+        "sources/SRC-2026-06-07-009",
+        "sources/SRC-2026-06-07-010"
+      ]
+    },
+    {
+      "topic": "postgres",
+      "mentionedBy": [
+        "sources/SRC-2026-06-07-009"
+      ]
+    },
+    {
+      "topic": "openfoodfacts",
+      "mentionedBy": [
+        "sources/SRC-2026-06-07-009"
+      ]
+    },
+    {
+      "topic": "nightscout",
+      "mentionedBy": [
+        "sources/SRC-2026-06-07-009"
+      ]
+    },
+    {
+      "topic": "dexcom",
+      "mentionedBy": [
+        "sources/SRC-2026-06-07-009"
+      ]
+    },
+    {
+      "topic": "pytest",
+      "mentionedBy": [
+        "sources/SRC-2026-06-07-009"
+      ]
+    },
+    {
+      "topic": "physiology-inspired-compartment-model",
+      "mentionedBy": [
+        "sources/SRC-2026-06-07-009"
+      ]
+    },
+    {
+      "topic": "safety-veto-gate",
+      "mentionedBy": [
+        "sources/SRC-2026-06-07-009"
+      ]
+    },
+    {
+      "topic": "prediction-schema",
+      "mentionedBy": [
+        "sources/SRC-2026-06-07-009"
+      ]
+    },
+    {
+      "topic": "golden-matrix-regression-testing",
+      "mentionedBy": [
+        "sources/SRC-2026-06-07-009"
+      ]
+    },
+    {
+      "topic": "text-first-ux",
+      "mentionedBy": [
+        "sources/SRC-2026-06-07-009"
+      ]
+    },
+    {
+      "topic": "llm-meal-parsing",
+      "mentionedBy": [
+        "sources/SRC-2026-06-07-010"
+      ]
+    },
+    {
+      "topic": "showcase-modes",
+      "mentionedBy": [
+        "sources/SRC-2026-06-07-010"
+      ]
+    },
+    {
+      "topic": "ai-first-operation",
+      "mentionedBy": [
+        "sources/SRC-2026-06-07-010"
+      ]
+    },
+    {
+      "topic": "entity-name",
+      "mentionedBy": [
+        "sources/SRC-2026-06-07-011",
+        "sources/SRC-2026-06-07-012"
+      ]
+    },
+    {
+      "topic": "concept-name",
+      "mentionedBy": [
+        "sources/SRC-2026-06-07-011",
+        "sources/SRC-2026-06-07-012"
+      ]
+    }
+  ],
+  "generated": "2026-06-07T17:26:31.662Z"
+}

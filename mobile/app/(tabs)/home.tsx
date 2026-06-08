@@ -6,7 +6,7 @@ import { SafetyNotice } from '@/components/cards/DomainPrimitives';
 import { colors, spacing } from '@/theme/theme';
 import { useLegendProfile } from '@/state/useLegendProfile';
 import { tomLegend } from '@/data/tomLegend';
-import { StitchCard, StitchHeader, IconBubble, PrimaryPillButton, styles as stitchStyles } from '@/components/stitch/StitchNative';
+import { StitchCard, StitchHeader, IconBubble, styles as stitchStyles } from '@/components/stitch/StitchNative';
 import { demoEnvelope } from '@/data/demoEnvelope';
 
 const entries = [

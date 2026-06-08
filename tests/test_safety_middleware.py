@@ -11,6 +11,7 @@ from src.pipeline.safety_middleware import (
     EvidenceValidator,
     UncertaintyValidator,
     ConsistencyValidator,
+    ProvenanceValidator,
     ValidatorResult,
 )
 from app.schemas.safety import SafetyReview
@@ -178,7 +179,8 @@ class TestSafetyMiddlewareIntegration:
     def test_safe_output_passes_all_validators(self):
         text = "Glucose may rise about 50 mg/dL and peak at 90 minutes."
         output = {
-            "forecast": {"peak_mg_dl": 180, "baseline_mg_dl": 110, "peak_time_minutes": 90},
+            "forecast": {"peak_mg_dl": 180, "baseline_mg_dl": 110, "peak_time_minutes": 90,
+                       "evidence_basis": {"data_source": "real_cgm"}},
             "evidence_bundle": {
                 "confidence_overall": "medium",
                 "total_carbs_g_range": (40, 60),
@@ -192,7 +194,7 @@ class TestSafetyMiddlewareIntegration:
         }
         passed, results = self.middleware.validate_output(text, output)
         assert passed is True
-        assert len(results) == 5
+        assert len(results) == 6
 
     def test_unsafe_text_blocked(self):
         text = "Take 3 units of insulin before eating."
@@ -232,3 +234,69 @@ class TestSafetyMiddlewareIntegration:
         ]
         fallback = self.middleware.build_safe_fallback(text, results)
         assert "adjusted" in fallback.lower()
+
+    def test_six_validators_run(self):
+        """Integration test: all six validators are called."""
+        text = "Glucose may rise about 50 mg/dL."
+        output = {
+            "forecast": {"peak_mg_dl": 180, "baseline_mg_dl": 110, "peak_time_minutes": 90,
+                       "evidence_basis": {"data_source": "real_cgm"}},
+            "evidence_bundle": {"confidence_overall": "high", "total_carbs_g_range": (40, 60), "totals": {"carbs_g": 50}},
+            "food_evidence": [type("E", (), {"confidence": "high"})()],
+            "historical_context": {"similar_meals_count": 0},
+        }
+        passed, results = self.middleware.validate_output(text, output)
+        assert len(results) == 6, f"Expected 6 validators, got {len(results)}"
+        validator_names = {r.name for r in results}
+        assert "ProvenanceValidator" in validator_names
+
+
+class TestProvenanceValidator:
+    """Test ProvenanceValidator (Issue #46)."""
+
+    def test_forecast_with_evidence_basis_passes(self):
+        output = {
+            "forecast": {
+                "peak_mg_dl": 180,
+                "baseline_mg_dl": 110,
+                "peak_time_minutes": 90,
+                "evidence_basis": {"data_source": "real_cgm"},
+            },
+        }
+        result = ProvenanceValidator().validate(output)
+        assert result.passed is True
+
+    def test_forecast_with_invalid_data_source_fails(self):
+        output = {
+            "forecast": {
+                "peak_mg_dl": 180,
+                "baseline_mg_dl": 110,
+                "peak_time_minutes": 90,
+                "evidence_basis": {"data_source": "unknown_source"},
+            },
+        }
+        result = ProvenanceValidator().validate(output)
+        assert result.passed is False
+        assert any("invalid" in i.lower() for i in result.issues)
+
+    def test_forecast_without_evidence_basis_flags_warning(self):
+        output = {
+            "forecast": {"peak_mg_dl": 180},
+        }
+        result = ProvenanceValidator().validate(output)
+        assert result.passed is False
+        assert any("evidence_basis" in i.lower() for i in result.issues)
+
+    def test_traits_with_valid_data_source_pass(self):
+        output = {
+            "traits": [
+                {"trait_id": "breakfast_spike", "data_source": "real_cgm"},
+                {"trait_id": "fat_delay", "data_source": "food_proxy"},
+            ],
+        }
+        result = ProvenanceValidator().validate(output)
+        assert result.passed is True
+
+    def test_empty_output_passes(self):
+        result = ProvenanceValidator().validate({})
+        assert result.passed is True

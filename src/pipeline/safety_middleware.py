@@ -205,17 +205,54 @@ class ConsistencyValidator:
         )
 
 
+# ── 6. ProvenanceValidator (Issue #46) ──
+
+class ProvenanceValidator:
+    """Ensures required provenance fields are present on all outputs."""
+
+    VALID_DATA_SOURCES = {"real_cgm", "food_proxy", "synthetic_legend", "nightscout", "graph_engine"}
+
+    def validate(self, output: dict[str, Any]) -> ValidatorResult:
+        issues = []
+
+        # Check forecast has evidence_basis
+        forecast = output.get("forecast", {})
+        if forecast and forecast.get("peak_mg_dl"):
+            evidence_basis = forecast.get("evidence_basis")
+            if evidence_basis is None:
+                issues.append("Forecast missing evidence_basis field (required for provenance)")
+            elif isinstance(evidence_basis, dict):
+                data_source = evidence_basis.get("data_source")
+                if data_source and data_source not in self.VALID_DATA_SOURCES:
+                    issues.append(f"Invalid evidence_basis.data_source: {data_source}")
+
+        # Check traits have data_source when present
+        traits = output.get("traits", [])
+        for trait in traits:
+            trait_data_source = trait.get("data_source")
+            if trait_data_source and trait_data_source not in self.VALID_DATA_SOURCES:
+                issues.append(f"Trait '{trait.get('trait_id', '?')}' has invalid data_source: {trait_data_source}")
+
+        return ValidatorResult(
+            name="ProvenanceValidator",
+            passed=len(issues) == 0,
+            issues=issues,
+            risk_level="low" if issues else "none",
+        )
+
+
 # ── SafetyMiddleware — the gate ──
 
 class SafetyMiddleware:
     """Centralized pipeline gate. No user-facing output passes without validation.
 
-    Composes five validators:
+    Composes six validators:
       1. TextSafetyChecker — wraps SafetyScaffold
       2. SchemaValidator — Pydantic contract validation
       3. EvidenceValidator — evidence links present
       4.UncertaintyValidator — confidence/ranges populated
       5. ConsistencyValidator — internal consistency
+      6. ProvenanceValidator — data_source, evidence_basis on all outputs (Issue #46)
     """
 
     def __init__(
@@ -228,6 +265,7 @@ class SafetyMiddleware:
         self.evidence_validator = EvidenceValidator()
         self.uncertainty_validator = UncertaintyValidator()
         self.consistency_validator = ConsistencyValidator()
+        self.provenance_validator = ProvenanceValidator()
         self._strict = strict
 
     def validate_input(self, text: str) -> tuple[bool, str | None]:
@@ -246,7 +284,7 @@ class SafetyMiddleware:
         output: dict[str, Any],
         context: dict | None = None,
     ) -> tuple[bool, list[ValidatorResult]]:
-        """Run all five validators on pipeline output.
+        """Run all six validators on pipeline output.
 
         Returns (all_passed, list_of_results).
         """
@@ -271,6 +309,10 @@ class SafetyMiddleware:
         # 5. Consistency validation
         consistency_result = self.consistency_validator.validate(output)
         results.append(consistency_result)
+
+        # 6. Provenance validation (Issue #46)
+        provenance_result = self.provenance_validator.validate(output)
+        results.append(provenance_result)
 
         all_passed = all(r.passed for r in results)
         return all_passed, results

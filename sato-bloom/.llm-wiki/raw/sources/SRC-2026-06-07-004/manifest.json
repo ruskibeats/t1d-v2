@@ -1,0 +1,10 @@
+{
+  "id": "SRC-2026-06-07-004",
+  "captured": "2026-06-07",
+  "packet_version": "1.0",
+  "title": "sceneBuilder.ts",
+  "file_path": "/root/tld-v2/sato-bloom/src/renderers/sceneBuilder.ts",
+  "format": "file",
+  "extractor": "passthrough",
+  "extraction_status": "success"
+}

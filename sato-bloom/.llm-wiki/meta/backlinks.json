@@ -1,0 +1,676 @@
+{
+  "[sources/SRC-2026-06-07-001": [
+    "concepts/biometric-feature-normalization",
+    "concepts/seeded-pseudo-random-generation",
+    "concepts/statepigment",
+    "concepts/visualtoken",
+    "concepts/watercolorstateorb",
+    "entities/expo-haptics",
+    "entities/react-native",
+    "entities/sato",
+    "entities/shopifyreact-native-skia"
+  ],
+  "[sources/SRC-2026-06-07-002": [
+    "concepts/health-event-tracking",
+    "concepts/quantitative-wellness-metrics",
+    "concepts/scene-composition-layers",
+    "concepts/visual-token-system",
+    "entities/domain",
+    "entities/primitivekind",
+    "entities/scenelayer",
+    "entities/zband"
+  ],
+  "[sources/SRC-2026-06-07-003": [
+    "concepts/feature-normalization",
+    "concepts/meal-macro-balance",
+    "concepts/sleep-score-impact",
+    "concepts/stress-volatility-modeling",
+    "entities/clamp",
+    "entities/eventcategory",
+    "entities/featuresfrombiometric",
+    "entities/normalizefeatures"
+  ],
+  "[sources/SRC-2026-06-07-004": [
+    "concepts/addaccents",
+    "concepts/addatmosphere",
+    "concepts/addbody",
+    "concepts/addground",
+    "concepts/categorytodomain-mapping",
+    "concepts/clamp-function",
+    "concepts/enforcesceneconstraints",
+    "concepts/maketoken-factory",
+    "concepts/seeded-random-function",
+    "entities/domaincolors",
+    "entities/featurestotokens",
+    "entities/renderscene",
+    "entities/scenebuilderts",
+    "entities/visualtoken"
+  ],
+  "[sources/SRC-2026-06-07-005": [
+    "concepts/featurestotokens",
+    "concepts/hashstring",
+    "concepts/seeded",
+    "entities/artifactfeatures",
+    "entities/palettes",
+    "entities/visualtokens"
+  ],
+  "[sources/SRC-2026-06-07-006": [
+    "concepts/cross-platform-development",
+    "concepts/expo-sdk",
+    "concepts/react-native-graphics-rendering",
+    "entities/expo",
+    "entities/sato-bloom",
+    "entities/zosmaaipi-llm-wiki"
+  ],
+  "[sources/SRC-2026-06-07-007": [
+    "concepts/core",
+    "concepts/health-dimension",
+    "concepts/petal",
+    "concepts/pigment",
+    "concepts/ubiquitous-language",
+    "entities/absorption-profile",
+    "entities/anchor-type",
+    "entities/banned-word",
+    "entities/bloom-card",
+    "entities/bloom-engine",
+    "entities/bloom",
+    "entities/carb-range",
+    "entities/card",
+    "entities/dosing-pattern",
+    "entities/evidence-bundle",
+    "entities/food-candidate",
+    "entities/food-evidence",
+    "entities/forecast-result",
+    "entities/historical-meal-summary",
+    "entities/intent",
+    "entities/legend",
+    "entities/meal-totals",
+    "entities/palette",
+    "entities/parsed-food",
+    "entities/physiology-model",
+    "entities/profile-config",
+    "entities/profile",
+    "entities/response-band",
+    "entities/safety-scaffold",
+    "entities/showcase",
+    "entities/state-bloom",
+    "entities/uncertainty-band"
+  ],
+  "[sources/SRC-2026-06-07-008": [
+    "concepts/5-card-pipeline",
+    "concepts/confidence-breakdown",
+    "concepts/meal-forecast",
+    "concepts/pattern-genome",
+    "entities/cgm",
+    "entities/foot2floor",
+    "entities/stitch",
+    "entities/t1d-companion",
+    "entities/tom-batchelor"
+  ],
+  "[sources/SRC-2026-06-07-009": [
+    "concepts/evidence-bundle",
+    "concepts/golden-matrix-regression-testing",
+    "concepts/physiology-inspired-compartment-model",
+    "concepts/prediction-schema",
+    "concepts/safety-veto-gate",
+    "concepts/text-first-ux",
+    "entities/dexcom",
+    "entities/nightscout",
+    "entities/openfoodfacts",
+    "entities/postgres",
+    "entities/pytest"
+  ],
+  "[sources/SRC-2026-06-07-010": [
+    "concepts/ai-first-operation",
+    "concepts/llm-meal-parsing",
+    "concepts/showcase-modes",
+    "entities/t1d-companion-v2"
+  ],
+  "concepts/5-card-pipeline": [
+    "[sources/SRC-2026-06-07-008"
+  ],
+  "concepts/addaccents": [
+    "[sources/SRC-2026-06-07-004"
+  ],
+  "concepts/addatmosphere": [
+    "[sources/SRC-2026-06-07-004"
+  ],
+  "concepts/addbody": [
+    "[sources/SRC-2026-06-07-004"
+  ],
+  "concepts/addground": [
+    "[sources/SRC-2026-06-07-004"
+  ],
+  "concepts/ai-first-operation": [
+    "[sources/SRC-2026-06-07-010"
+  ],
+  "concepts/artifactfeatures": [],
+  "concepts/biometric-feature-normalization": [
+    "[sources/SRC-2026-06-07-001"
+  ],
+  "concepts/categorytodomain-mapping": [
+    "[sources/SRC-2026-06-07-004"
+  ],
+  "concepts/clamp-function": [
+    "[sources/SRC-2026-06-07-004"
+  ],
+  "concepts/concept-name": [],
+  "concepts/confidence-breakdown": [
+    "[sources/SRC-2026-06-07-008"
+  ],
+  "concepts/core": [
+    "[sources/SRC-2026-06-07-007"
+  ],
+  "concepts/cross-platform-development": [
+    "[sources/SRC-2026-06-07-006"
+  ],
+  "concepts/enforcesceneconstraints": [
+    "[sources/SRC-2026-06-07-004"
+  ],
+  "concepts/entity-name": [],
+  "concepts/eventcategory": [],
+  "concepts/evidence-bundle": [
+    "[sources/SRC-2026-06-07-009"
+  ],
+  "concepts/expo-sdk": [
+    "[sources/SRC-2026-06-07-006"
+  ],
+  "concepts/feature-normalization": [
+    "[sources/SRC-2026-06-07-003"
+  ],
+  "concepts/featurestotokens": [
+    "[sources/SRC-2026-06-07-005"
+  ],
+  "concepts/golden-matrix-regression-testing": [
+    "[sources/SRC-2026-06-07-009"
+  ],
+  "concepts/hashstring": [
+    "[sources/SRC-2026-06-07-005"
+  ],
+  "concepts/health-dimension": [
+    "[sources/SRC-2026-06-07-007"
+  ],
+  "concepts/health-event-tracking": [
+    "[sources/SRC-2026-06-07-002"
+  ],
+  "concepts/llm-meal-parsing": [
+    "[sources/SRC-2026-06-07-010"
+  ],
+  "concepts/maketoken-factory": [
+    "[sources/SRC-2026-06-07-004"
+  ],
+  "concepts/meal-forecast": [
+    "[sources/SRC-2026-06-07-008"
+  ],
+  "concepts/meal-macro-balance": [
+    "[sources/SRC-2026-06-07-003"
+  ],
+  "concepts/pattern-genome": [
+    "[sources/SRC-2026-06-07-008"
+  ],
+  "concepts/petal": [
+    "[sources/SRC-2026-06-07-007"
+  ],
+  "concepts/physiology-inspired-compartment-model": [
+    "[sources/SRC-2026-06-07-009"
+  ],
+  "concepts/pigment": [
+    "[sources/SRC-2026-06-07-007"
+  ],
+  "concepts/prediction-schema": [
+    "[sources/SRC-2026-06-07-009"
+  ],
+  "concepts/quantitative-wellness-metrics": [
+    "[sources/SRC-2026-06-07-002"
+  ],
+  "concepts/react-native-graphics-rendering": [
+    "[sources/SRC-2026-06-07-006"
+  ],
+  "concepts/react-native": [],
+  "concepts/renderscene": [],
+  "concepts/safety-veto-gate": [
+    "[sources/SRC-2026-06-07-009"
+  ],
+  "concepts/scene-composition-layers": [
+    "[sources/SRC-2026-06-07-002"
+  ],
+  "concepts/seeded-pseudo-random-generation": [
+    "[sources/SRC-2026-06-07-001"
+  ],
+  "concepts/seeded-random-function": [
+    "[sources/SRC-2026-06-07-004"
+  ],
+  "concepts/seeded": [
+    "[sources/SRC-2026-06-07-005"
+  ],
+  "concepts/shopifyreact-native-skia": [],
+  "concepts/showcase-modes": [
+    "[sources/SRC-2026-06-07-010"
+  ],
+  "concepts/sleep-score-impact": [
+    "[sources/SRC-2026-06-07-003"
+  ],
+  "concepts/statepigment": [
+    "[sources/SRC-2026-06-07-001"
+  ],
+  "concepts/stress-volatility-modeling": [
+    "[sources/SRC-2026-06-07-003"
+  ],
+  "concepts/t1d-companion-v2": [],
+  "concepts/text-first-ux": [
+    "[sources/SRC-2026-06-07-009"
+  ],
+  "concepts/ubiquitous-language": [
+    "[sources/SRC-2026-06-07-007"
+  ],
+  "concepts/visual-token-system": [
+    "[sources/SRC-2026-06-07-002"
+  ],
+  "concepts/visualtoken": [
+    "[sources/SRC-2026-06-07-001"
+  ],
+  "concepts/visualtokens": [],
+  "concepts/watercolorstateorb": [
+    "[sources/SRC-2026-06-07-001"
+  ],
+  "entities/absorption-profile": [
+    "[sources/SRC-2026-06-07-007"
+  ],
+  "entities/anchor-type": [
+    "[sources/SRC-2026-06-07-007"
+  ],
+  "entities/artifactfeatures": [
+    "[sources/SRC-2026-06-07-005"
+  ],
+  "entities/banned-word": [
+    "[sources/SRC-2026-06-07-007"
+  ],
+  "entities/bloom-card": [
+    "[sources/SRC-2026-06-07-007"
+  ],
+  "entities/bloom-engine": [
+    "[sources/SRC-2026-06-07-007"
+  ],
+  "entities/bloom": [
+    "[sources/SRC-2026-06-07-007"
+  ],
+  "entities/carb-range": [
+    "[sources/SRC-2026-06-07-007"
+  ],
+  "entities/card": [
+    "[sources/SRC-2026-06-07-007"
+  ],
+  "entities/cgm": [
+    "[sources/SRC-2026-06-07-008"
+  ],
+  "entities/clamp": [
+    "[sources/SRC-2026-06-07-003"
+  ],
+  "entities/dexcom": [
+    "[sources/SRC-2026-06-07-009"
+  ],
+  "entities/domain": [
+    "[sources/SRC-2026-06-07-002"
+  ],
+  "entities/domaincolors": [
+    "[sources/SRC-2026-06-07-004"
+  ],
+  "entities/dosing-pattern": [
+    "[sources/SRC-2026-06-07-007"
+  ],
+  "entities/eventcategory": [
+    "[sources/SRC-2026-06-07-003"
+  ],
+  "entities/evidence-bundle": [],
+  "entities/expo-haptics": [
+    "[sources/SRC-2026-06-07-001"
+  ],
+  "entities/expo": [
+    "[sources/SRC-2026-06-07-006"
+  ],
+  "entities/featuresfrombiometric": [
+    "[sources/SRC-2026-06-07-003"
+  ],
+  "entities/featurestotokens": [
+    "[sources/SRC-2026-06-07-004"
+  ],
+  "entities/food-candidate": [
+    "[sources/SRC-2026-06-07-007"
+  ],
+  "entities/food-evidence": [
+    "[sources/SRC-2026-06-07-007"
+  ],
+  "entities/foot2floor": [
+    "[sources/SRC-2026-06-07-008"
+  ],
+  "entities/forecast-result": [
+    "[sources/SRC-2026-06-07-007"
+  ],
+  "entities/historical-meal-summary": [
+    "[sources/SRC-2026-06-07-007"
+  ],
+  "entities/intent": [
+    "[sources/SRC-2026-06-07-007"
+  ],
+  "entities/legend": [
+    "[sources/SRC-2026-06-07-007"
+  ],
+  "entities/meal-totals": [
+    "[sources/SRC-2026-06-07-007"
+  ],
+  "entities/nightscout": [
+    "[sources/SRC-2026-06-07-009"
+  ],
+  "entities/normalizefeatures": [
+    "[sources/SRC-2026-06-07-003"
+  ],
+  "entities/openfoodfacts": [
+    "[sources/SRC-2026-06-07-009"
+  ],
+  "entities/palette": [
+    "[sources/SRC-2026-06-07-007"
+  ],
+  "entities/palettes": [
+    "[sources/SRC-2026-06-07-005"
+  ],
+  "entities/parsed-food": [
+    "[sources/SRC-2026-06-07-007"
+  ],
+  "entities/physiology-model": [
+    "[sources/SRC-2026-06-07-007"
+  ],
+  "entities/postgres": [
+    "[sources/SRC-2026-06-07-009"
+  ],
+  "entities/primitivekind": [
+    "[sources/SRC-2026-06-07-002"
+  ],
+  "entities/profile-config": [
+    "[sources/SRC-2026-06-07-007"
+  ],
+  "entities/profile": [
+    "[sources/SRC-2026-06-07-007"
+  ],
+  "entities/pytest": [
+    "[sources/SRC-2026-06-07-009"
+  ],
+  "entities/react-native": [
+    "[sources/SRC-2026-06-07-001"
+  ],
+  "entities/renderscene": [
+    "[sources/SRC-2026-06-07-004"
+  ],
+  "entities/response-band": [
+    "[sources/SRC-2026-06-07-007"
+  ],
+  "entities/safety-scaffold": [
+    "[sources/SRC-2026-06-07-007"
+  ],
+  "entities/sato-bloom": [
+    "[sources/SRC-2026-06-07-006"
+  ],
+  "entities/sato": [
+    "[sources/SRC-2026-06-07-001"
+  ],
+  "entities/scenebuilderts": [
+    "[sources/SRC-2026-06-07-004"
+  ],
+  "entities/scenelayer": [
+    "[sources/SRC-2026-06-07-002"
+  ],
+  "entities/shopifyreact-native-skia": [
+    "[sources/SRC-2026-06-07-001"
+  ],
+  "entities/showcase": [
+    "[sources/SRC-2026-06-07-007"
+  ],
+  "entities/state-bloom": [
+    "[sources/SRC-2026-06-07-007"
+  ],
+  "entities/stitch": [
+    "[sources/SRC-2026-06-07-008"
+  ],
+  "entities/t1d-companion-v2": [
+    "[sources/SRC-2026-06-07-010"
+  ],
+  "entities/t1d-companion": [
+    "[sources/SRC-2026-06-07-008"
+  ],
+  "entities/tom-batchelor": [
+    "[sources/SRC-2026-06-07-008"
+  ],
+  "entities/uncertainty-band": [
+    "[sources/SRC-2026-06-07-007"
+  ],
+  "entities/visualtoken": [
+    "[sources/SRC-2026-06-07-004"
+  ],
+  "entities/visualtokens": [
+    "[sources/SRC-2026-06-07-005"
+  ],
+  "entities/zband": [
+    "[sources/SRC-2026-06-07-002"
+  ],
+  "entities/zosmaaipi-llm-wiki": [
+    "[sources/SRC-2026-06-07-006"
+  ],
+  "sources/SRC-2026-06-07-001": [
+    "concepts/biometric-feature-normalization",
+    "concepts/react-native",
+    "concepts/seeded-pseudo-random-generation",
+    "concepts/shopifyreact-native-skia",
+    "concepts/statepigment",
+    "concepts/visualtoken",
+    "concepts/watercolorstateorb",
+    "entities/expo-haptics",
+    "entities/react-native",
+    "entities/sato",
+    "entities/shopifyreact-native-skia",
+    "sources/SRC-2026-06-07-001"
+  ],
+  "sources/SRC-2026-06-07-002": [
+    "concepts/artifactfeatures",
+    "concepts/eventcategory",
+    "concepts/health-event-tracking",
+    "concepts/quantitative-wellness-metrics",
+    "concepts/renderscene",
+    "concepts/scene-composition-layers",
+    "concepts/visual-token-system",
+    "concepts/visualtokens",
+    "entities/domain",
+    "entities/primitivekind",
+    "entities/scenelayer",
+    "entities/zband",
+    "sources/SRC-2026-06-07-002"
+  ],
+  "sources/SRC-2026-06-07-003": [
+    "concepts/artifactfeatures",
+    "concepts/eventcategory",
+    "concepts/feature-normalization",
+    "concepts/meal-macro-balance",
+    "concepts/sleep-score-impact",
+    "concepts/stress-volatility-modeling",
+    "entities/clamp",
+    "entities/eventcategory",
+    "entities/featuresfrombiometric",
+    "entities/normalizefeatures",
+    "sources/SRC-2026-06-07-003"
+  ],
+  "sources/SRC-2026-06-07-004": [
+    "concepts/addaccents",
+    "concepts/addatmosphere",
+    "concepts/addbody",
+    "concepts/addground",
+    "concepts/artifactfeatures",
+    "concepts/categorytodomain-mapping",
+    "concepts/clamp-function",
+    "concepts/enforcesceneconstraints",
+    "concepts/maketoken-factory",
+    "concepts/renderscene",
+    "concepts/seeded-random-function",
+    "entities/domaincolors",
+    "entities/featurestotokens",
+    "entities/renderscene",
+    "entities/scenebuilderts",
+    "entities/visualtoken",
+    "sources/SRC-2026-06-07-004"
+  ],
+  "sources/SRC-2026-06-07-005": [
+    "concepts/artifactfeatures",
+    "concepts/featurestotokens",
+    "concepts/hashstring",
+    "concepts/seeded",
+    "concepts/visualtokens",
+    "entities/artifactfeatures",
+    "entities/palettes",
+    "entities/visualtokens",
+    "sources/SRC-2026-06-07-005"
+  ],
+  "sources/SRC-2026-06-07-006": [
+    "concepts/cross-platform-development",
+    "concepts/expo-sdk",
+    "concepts/react-native-graphics-rendering",
+    "concepts/react-native",
+    "concepts/shopifyreact-native-skia",
+    "entities/expo",
+    "entities/sato-bloom",
+    "entities/zosmaaipi-llm-wiki",
+    "sources/SRC-2026-06-07-006"
+  ],
+  "sources/SRC-2026-06-07-007": [
+    "concepts/core",
+    "concepts/health-dimension",
+    "concepts/petal",
+    "concepts/pigment",
+    "concepts/ubiquitous-language",
+    "entities/absorption-profile",
+    "entities/anchor-type",
+    "entities/banned-word",
+    "entities/bloom-card",
+    "entities/bloom-engine",
+    "entities/bloom",
+    "entities/carb-range",
+    "entities/card",
+    "entities/dosing-pattern",
+    "entities/evidence-bundle",
+    "entities/food-candidate",
+    "entities/food-evidence",
+    "entities/forecast-result",
+    "entities/historical-meal-summary",
+    "entities/intent",
+    "entities/legend",
+    "entities/meal-totals",
+    "entities/palette",
+    "entities/parsed-food",
+    "entities/physiology-model",
+    "entities/profile-config",
+    "entities/profile",
+    "entities/response-band",
+    "entities/safety-scaffold",
+    "entities/showcase",
+    "entities/state-bloom",
+    "entities/uncertainty-band",
+    "sources/SRC-2026-06-07-007"
+  ],
+  "sources/SRC-2026-06-07-008": [
+    "concepts/5-card-pipeline",
+    "concepts/confidence-breakdown",
+    "concepts/meal-forecast",
+    "concepts/pattern-genome",
+    "entities/cgm",
+    "entities/foot2floor",
+    "entities/stitch",
+    "entities/t1d-companion",
+    "entities/tom-batchelor",
+    "sources/SRC-2026-06-07-008"
+  ],
+  "sources/SRC-2026-06-07-009": [
+    "concepts/evidence-bundle",
+    "concepts/golden-matrix-regression-testing",
+    "concepts/physiology-inspired-compartment-model",
+    "concepts/prediction-schema",
+    "concepts/safety-veto-gate",
+    "concepts/t1d-companion-v2",
+    "concepts/text-first-ux",
+    "entities/dexcom",
+    "entities/nightscout",
+    "entities/openfoodfacts",
+    "entities/postgres",
+    "entities/pytest",
+    "sources/SRC-2026-06-07-009"
+  ],
+  "sources/SRC-2026-06-07-010": [
+    "concepts/ai-first-operation",
+    "concepts/llm-meal-parsing",
+    "concepts/showcase-modes",
+    "concepts/t1d-companion-v2",
+    "entities/t1d-companion-v2",
+    "sources/SRC-2026-06-07-010"
+  ],
+  "sources/SRC-2026-06-07-011": [
+    "concepts/concept-name",
+    "concepts/entity-name",
+    "sources/SRC-2026-06-07-011"
+  ],
+  "sources/SRC-2026-06-07-012": [
+    "concepts/concept-name",
+    "concepts/entity-name",
+    "sources/SRC-2026-06-07-012"
+  ],
+  "sources/obs-2026-06-07-bloom-card-height-reduced-and-state-label-removed": [],
+  "sources/obs-2026-06-07-bloom-card-text-removed-and-canvas-refit": [],
+  "sources/obs-2026-06-07-bloom-card-unified-to-single-background-color": [],
+  "sources/obs-2026-06-07-bloom-opens-haptic-swipe-dismiss-feature-sheet": [],
+  "sources/obs-2026-06-07-bottom-navigation-raised-for-safe-area-height": [],
+  "sources/obs-2026-06-07-glucose-rhythm-image-card-added-above-insight": [],
+  "sources/obs-2026-06-07-good-morning-welcome-text-added-under-logo": [],
+  "sources/obs-2026-06-07-insight-card-shortened-and-moved-closer-to-nav": [],
+  "sources/obs-2026-06-07-insight-card-typography-matched-orb-title": [],
+  "sources/obs-2026-06-07-lint-auto-fix-reduces-orphans-but-increases-gaps": [],
+  "sources/obs-2026-06-07-ollama-nomic-embed-text-installed-and-configured-for-wiki-em": [],
+  "sources/obs-2026-06-07-portrait-feature-cards-grouped-into-bottom-sheet": [],
+  "sources/obs-2026-06-07-portrait-momentum-image-card-added-above-glucose-card": [],
+  "sources/obs-2026-06-07-portrait-top-header-matched-reference-with-calm-rhythm-headl": [],
+  "sources/obs-2026-06-07-profile-segment-removed-from-top-bar": [],
+  "sources/obs-2026-06-07-removed-shadows-and-borders-from-all-cards-for-flat-design": [],
+  "sources/obs-2026-06-07-sato-bloom-default-skia-font-fix": [],
+  "sources/obs-2026-06-07-sato-bloom-font-free-skia-label-fix": [],
+  "sources/obs-2026-06-07-sato-bloom-hidden-clock-face-grammar": [],
+  "sources/obs-2026-06-07-sato-bloom-skia-error-dependency-mismatch": [],
+  "sources/obs-2026-06-07-sato-bloom-skia-native-text-constraint": [],
+  "sources/obs-2026-06-07-sato-bloom-ui-checkpoint-pushed": [],
+  "sources/obs-2026-06-07-sato-bloom-versus-halo-terminology": [],
+  "sources/obs-2026-06-07-sato-bottom-nav-moved-flush-to-screen-bottom": [],
+  "sources/obs-2026-06-07-sato-bottom-nav-raised-5px": [],
+  "sources/obs-2026-06-07-sato-bottom-nav-shortened-and-insight-serif-typography": [],
+  "sources/obs-2026-06-07-sato-bottom-sheet-restored-as-contextual-ui-pattern": [],
+  "sources/obs-2026-06-07-sato-bottom-sheet-restored-as-paper-style-contextual-layer": [],
+  "sources/obs-2026-06-07-sato-header-logo-mark-cropped-with-text-lockup": [],
+  "sources/obs-2026-06-07-sato-insight-for-you-bottom-section-added": [],
+  "sources/obs-2026-06-07-sato-paper-page-ux-pass-implemented": [],
+  "sources/obs-2026-06-07-sato-phone-mock-frame-removed": [],
+  "sources/obs-2026-06-07-sato-premium-bloom-first-ux-polish": [],
+  "sources/obs-2026-06-07-sato-premium-bottom-navigation-implemented": [],
+  "sources/obs-2026-06-07-sato-uploaded-logo-added-to-portrait-header": [],
+  "sources/obs-2026-06-07-sato-v1-hidden-clock-bloom-grammar-implemented": [],
+  "sources/obs-2026-06-07-sato-wiki-initialized-with-mobile-app-and-companion-ecosyste": [],
+  "sources/obs-2026-06-08-sato-bloom-artifact-first-interaction-pass": [],
+  "sources/obs-2026-06-08-sato-bloom-continuous-portrait-direction-restored": [],
+  "sources/obs-2026-06-08-sato-bloom-corrected-from-nebula-to-brush-strokes": [],
+  "sources/obs-2026-06-08-sato-bloom-enriched-pigment-and-washi-seal-medallion": [],
+  "sources/obs-2026-06-08-sato-bloom-investor-ready-typography-pass": [],
+  "sources/obs-2026-06-08-sato-bloom-metabolic-portrait-engine-principle": [],
+  "sources/obs-2026-06-08-sato-bloom-paper-texture-and-pigment-granulation-added": [],
+  "sources/obs-2026-06-08-sato-bloom-stable-vessel-architecture-added": [],
+  "sources/obs-2026-06-08-sato-bloom-watercolor-reference-and-themed-fonts-applied": [],
+  "sources/obs-2026-06-08-sato-inherited-moment-stroke-algorithm-implemented": [],
+  "sources/obs-2026-06-08-sato-inherited-stroke-algorithm-reverted": [],
+  "sources/obs-2026-06-08-sato-inherited-watercolor-stroke-algorithm-added": [],
+  "sources/obs-2026-06-08-sato-internal-metabolic-pigment-system-added": [],
+  "sources/obs-2026-06-08-sato-nutrient-pigment-portrait-engine-v1-added": [],
+  "sources/obs-2026-06-08-sato-portrait-anti-clock-deposit-distortion-added": [],
+  "sources/obs-2026-06-08-sato-portrait-screen-with-watercolor-bloom-built": [],
+  "sources/obs-2026-06-08-sato-portrait-v1-1-story-weighted-pigment-patch-applied": [],
+  "sources/obs-2026-06-08-sato-stain-painting-living-bloom-engine-complete": [],
+  "sources/sato-watercolor-visualization-system": []
+}

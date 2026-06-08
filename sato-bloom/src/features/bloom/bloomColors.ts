@@ -56,6 +56,14 @@ export function interpolateHex(a: string, b: string, t: number): string {
     .padStart(2, "0")}${rb.toString(16).padStart(2, "0")}`;
 }
 
+export function rgba(hex: string, alpha: number) {
+  const h = hex.replace("#", "");
+  const r = parseInt(h.substring(0, 2), 16);
+  const g = parseInt(h.substring(2, 4), 16);
+  const b = parseInt(h.substring(4, 6), 16);
+  return `rgba(${r},${g},${b},${alpha})`;
+}
+
 export function colorForBloomValue(value: number): string {
   if (value < 0.25) {
     return interpolateHex(bloomPalette.blueGrey, bloomPalette.mutedTeal, value / 0.25);

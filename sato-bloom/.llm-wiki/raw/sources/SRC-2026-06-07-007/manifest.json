@@ -1,0 +1,11 @@
+{
+  "id": "SRC-2026-06-07-007",
+  "captured": "2026-06-07",
+  "packet_version": "1.0",
+  "title": "UBIQUITOUS_LANGUAGE.md",
+  "file_path": "/root/tld-v2/UBIQUITOUS_LANGUAGE.md",
+  "format": "markdown",
+  "extractor": "passthrough",
+  "extraction_status": "success",
+  "content_type": "text/markdown"
+}

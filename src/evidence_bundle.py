@@ -101,6 +101,8 @@ def make_evidence_bundle(
     confidence_why: str = "Nutrition estimate and forecast are simulation-derived.",
     historical_context: dict[str, Any] | None = None,
     clarification_answer: str | None = None,
+    data_source: str = "synthetic_legend",  # Issue #46 provenance
+    glucose_outcomes_count: int = 0,  # Issue #46 provenance
 ) -> dict[str, Any]:
     """Transform model outputs into the LLM evidence bundle contract.
 
@@ -122,6 +124,18 @@ def make_evidence_bundle(
         "current_cgm": {
             "mg_dl": cgm.get("mg_dl", forecast.baseline_mg_dl),
             "trend": cgm.get("trend", "unknown"),
+        },
+        # Provenance fields (Issue #46)
+        "evidence_basis": {
+            "data_source": data_source,
+            "evidence_refs": [],
+            "glucose_outcomes_count": glucose_outcomes_count,
+        },
+        "confidence_components": {
+            "identity": 0.5,
+            "portion": 0.5,
+            "nutrition": 0.5,
+            "timing": 0.5,
         },
         "forecast": _forecast_bundle(forecast),
         "historical_context": historical_context or _default_historical_context(forecast),

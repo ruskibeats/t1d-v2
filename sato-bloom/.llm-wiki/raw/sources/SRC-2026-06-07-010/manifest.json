@@ -1,0 +1,11 @@
+{
+  "id": "SRC-2026-06-07-010",
+  "captured": "2026-06-07",
+  "packet_version": "1.0",
+  "title": "PRD-next-level-showcase-runner.md",
+  "file_path": "/root/tld-v2/.github/PRD-next-level-showcase-runner.md",
+  "format": "markdown",
+  "extractor": "passthrough",
+  "extraction_status": "success",
+  "content_type": "text/markdown"
+}

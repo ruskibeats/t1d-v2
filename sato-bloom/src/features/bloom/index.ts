@@ -1,10 +1,13 @@
-export { MetabolicPortraitEngine } from "./MetabolicPortraitEngine";
 export { BloomClock } from "./BloomClock";
-export { PetalDetailCard } from "./PetalDetailCard";
+export { BrushStroke } from "./BrushStroke";
+export { CenterMedallion } from "./CenterMedallion";
+export { GalleryCaption } from "./GalleryCaption";
+export { PaperGrain } from "./PaperGrain";
+export { DawnWash } from "./DawnWash";
 export { todayBloomWindows } from "./bloomSampleData";
 export { placeholderIdentityBloom } from "./identityBloom";
 export { todayMemoryMarks } from "./memoryMarks";
-export { bloomPalette, colorForBloomValue, interpolateHex } from "./bloomColors";
+export { bloomPalette, colorForBloomValue, interpolateHex, rgba } from "./bloomColors";
 export { SATO_PIGMENTS, pigmentForKey } from "./pigmentSystem";
 export type { MetabolicPigmentKey } from "./pigmentSystem";
 export type { BloomMemoryMark, BloomState, BloomWindow, IdentityBloom } from "./bloomTypes";

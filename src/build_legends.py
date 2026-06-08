@@ -290,6 +290,58 @@ def build_legends(*, include_real: bool = False) -> list[dict[str, Any]]:
     return legends
 
 
+# ── CGM sync ──
+
+async def _sync_cgm_for_tom() -> None:
+    """Sync CGM data from Nightscout for Tom's real legend.
+
+    Issue #40: Nightscout API client + literal CGM/treatment import into health_metrics.
+    Issue #35: Import Nightscout CGM and synthetic gap-fill to 90 days.
+    """
+    from app.services.nightscout_client import (
+        NightscoutClient,
+        entries_to_cgm_rows,
+    )
+    from app.services.cgm_entries import upsert_cgm_entries_batch, ensure_cgm_entries_table
+    from sqlalchemy import text as sql
+
+    settings = get_settings()
+    db_manager.init_db(settings.database_url)
+
+    # Tom's Nightscout config
+    base_url = "http://192.168.0.92:4000/api/v1"
+    client = NightscoutClient(base_url, timeout=30)
+
+    async with db_manager.get_session() as session:
+        await ensure_cgm_entries_table(session)
+
+        # Find Tom's user_id
+        result = await session.execute(
+            sql("SELECT id FROM tbl_users WHERE email LIKE 'legend.foot_to_floor.%'")
+        )
+        user = result.fetchone()
+        if not user:
+            print("  Tom user not found in DB - run with --include-real --write-to-db first")
+            return
+        user_id = user[0]
+
+        # Fetch and upsert CGM entries
+        print(f"  Syncing CGM from {base_url}...")
+        try:
+            entries = client.fetch_entries(days=90)
+            rows = entries_to_cgm_rows(entries)
+            if rows:
+                cgm_ids = await upsert_cgm_entries_batch(session, user_id, rows)
+                await session.commit()
+                real_count = len([r for r in rows if "nightscout_id" in r and r["nightscout_id"]])
+                print(f"    Imported {len(cgm_ids)} CGM entries ({real_count} with nightscout_id)")
+            else:
+                print("    No CGM entries returned")
+        except Exception as e:
+            print(f"    Error syncing CGM: {e}")
+            # Continue - not fatal for legend building
+
+
 # ── DB writer ──
 
 async def _write_legends_to_db(legends: list[dict[str, Any]]) -> None:
@@ -365,6 +417,9 @@ def main() -> None:
     if args.write_to_db:
         print("Writing to Postgres...")
         asyncio.run(_write_legends_to_db(legends))
+        if args.sync_cgm:
+            print("Syncing CGM...")
+            asyncio.run(_sync_cgm_for_tom())
         print("Done.")
 
 

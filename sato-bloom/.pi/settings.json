@@ -1,0 +1,1 @@
+{"llm-wiki": {"embeddingProvider": "openai-compatible", "embeddingModel": "nomic-embed-text", "embeddingBaseUrl": "http://192.168.0.245:11434/v1", "embeddingApiKey": "ollama"}}

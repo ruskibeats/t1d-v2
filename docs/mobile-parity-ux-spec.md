@@ -373,3 +373,73 @@ These gaps must be addressed before a production mobile build:
 - [x] Existing terminal cards mapped to mobile UI components.
 - [x] Mobile gaps flagged.
 - [x] No implementation changes required by this spec.
+
+## 12. Professional-Grade Mobile UX Patterns
+
+### 12.1 Onboarding & First-Run Experience
+- **Welcome flow**: Welcome → Profile selection → Data source explanation → Permission requests (notifications, health data)
+- **Progressive onboarding**: Feature spotlights after 2/5/10 sessions using tutorial tooltips
+- **Profile setup wizard**: Anchor type selection with plain-language descriptions and example CGM patterns
+- **Permission request UX**: Explicit educational copy about why each permission is needed (medical disclaimer required)
+
+### 12.2 Loading States
+- **Skeleton screens**: Shimmer placeholders for forecast cards, chart areas, and meal list items
+- **Progressive content reveal**: Show parsed foods immediately while evidence loads
+- **Chart loading**: Animated line draw for glucose forecasts
+- **Empty content spinners**: For async operations like LLM parsing or graph queries
+
+### 12.3 Empty State Designs
+- **No meals logged**: Illustration + CTA to start meal logging with examples
+- **No CGM data**: Connection guide for health app integration
+- **No pattern data**: Encouragement to log more meals with educational context
+- **No notifications granted**: Gentle reminder in settings with permission flow
+
+### 12.4 Error State Handling
+- **LLM unavailable**: Show cached deterministic parser with banner "AI parser offline — using fallback logic"
+- **Database unavailable**: Work offline mode with local storage indicator
+- **Network error**: Retry with exponential backoff + manual retry button
+- **Low confidence parse**: Prominent clarification request before forecast
+- **Safety block triggered**: Blocked phrase display + alternative suggestion + support escalation link
+
+### 12.5 Security & Privacy UX
+- **Biometric unlock**: Face ID / Touch ID / Android Biometrics for app access
+- **PIN entry fallback**: 4-6 digit PIN for devices without biometrics
+- **Auto-lock settings**: Configurable 1/5/15 minute timeout
+- **Secure screenshot prevention**: Flag sensitive screens (forecasts, reports)
+- **Export encryption**: End-to-end encryption option for care-team reports
+- **Privacy dashboard**: Visual data source indicators (synthetic vs real vs mixed)
+
+### 12.6 Performance & Scalability
+- **Pagination for history**: 50-item pages with infinite scroll
+- **Virtual scroll**: For long meal lists and pattern traits
+- **Chart optimization**: Pre-rendered SVG with progressive detail levels
+- **Image lazy loading**: For future food photo feature (if implemented)
+- **Background prefetch**: Pre-load next-day debrief data overnight
+
+### 12.7 Accessibility Requirements (WCAG AAA for Medical)
+- **Screen reader support**: All charts have spoken summaries and non-color-only indicators
+- **Dynamic type scaling**: Support for iOS Large Text and Android Font Scaling up to 200%
+- **Color contrast**: Minimum 7:1 for text, 4.5:1 for UI controls
+- **Voice Control compatibility**: All actions reachable via voice commands
+- **Haptic feedback**: Subtle haptics for key interactions (meal saved, forecast ready)
+
+### 12.8 Internationalization (i18n)
+- **RTL support**: Full right-to-left layout for Arabic, Hebrew
+- **Unit toggle**: mg/dL ↔ mmol/L switching in settings
+- **Date/time pickers**: Localized to device settings
+- **Food database adaptation**: Regional food archetypes and naming conventions
+- **Cultural meal patterns**: Timezone-aware meal type defaults
+
+### 12.9 Notification UX
+- **Permission flow**: Educational why before system permission request
+- **Notification grouping**: Daily debrief grouped by day, alerts separate
+- **Action buttons**: Quick actions on notifications (log meal, view forecast)
+- **Do Not Disturb**: Respect system settings, optional quiet hours
+- **Custom timing**: User-configurable reminder windows
+
+### 12.10 Analytics & Observability
+- **Interaction tracking**: Card views, swipe patterns, time-on-screen
+- **Feature adoption**: Which cards are most/least viewed
+- **Error patterns**: LLM failures, DB connection issues
+- **Performance metrics**: Render times, chart load times
+- **Opt-out controls**: Clear analytics disable in settings

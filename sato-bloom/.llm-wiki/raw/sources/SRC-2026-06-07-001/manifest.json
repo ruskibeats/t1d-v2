@@ -1,0 +1,10 @@
+{
+  "id": "SRC-2026-06-07-001",
+  "captured": "2026-06-07",
+  "packet_version": "1.0",
+  "title": "App.tsx",
+  "file_path": "/root/tld-v2/sato-bloom/App.tsx",
+  "format": "file",
+  "extractor": "passthrough",
+  "extraction_status": "success"
+}

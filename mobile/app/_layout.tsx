@@ -16,6 +16,10 @@ export default function RootLayout() {
             <Stack.Screen name="forecast/[runId]" options={{ title: 'Forecast' }} />
             <Stack.Screen name="settings/index" options={{ title: 'Settings', presentation: 'modal' }} />
             <Stack.Screen name="settings/data-sources" options={{ title: 'Data sources' }} />
+            <Stack.Screen name="sato" options={{ headerShown: false }} />
+            <Stack.Screen name="sato-luxe" options={{ headerShown: false }} />
+            <Stack.Screen name="sato-tabs" options={{ headerShown: false }} />
+            <Stack.Screen name="sato-journal" options={{ headerShown: false }} />
           </Stack>
         </PaperProvider>
       </QueryClientProvider>

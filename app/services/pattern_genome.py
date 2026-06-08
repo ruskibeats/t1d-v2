@@ -50,6 +50,10 @@ class TraitInsight:
     icon: str = "\U0001f9ec"
     data_source: str = ""    # "real_cgm" | "food_proxy" | "synthetic_legend"
 
+    # Provenance fields (Issue #46)
+    evidence_basis: str | None = None  # Plain text evidence description
+    confidence_components: dict[str, float] | None = None  # {identity, portion, nutrition, timing}
+
 
 @dataclass
 class PatternGenome:

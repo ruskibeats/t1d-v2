@@ -674,3 +674,56 @@ def _make_cgm_readings() -> list[dict]:
                 "value": 110 + (day % 3) * 10,
             })
     return readings
+
+
+# ── Issue #46: Provenance fields (data_source, evidence_basis, confidence_components) ──
+
+class TestProvenanceFields:
+    """Tests for Issue #46: data_source, evidence_basis, confidence_components on outputs."""
+
+    def test_trait_insight_has_provenance_fields(self):
+        """TraitInsight has evidence_basis and confidence_components fields."""
+        trait = TraitInsight(
+            trait_id="test",
+            label="Test",
+            description="test",
+            evidence_count=5,
+            confidence="medium",
+            confidence_score=0.5,
+            detail="test detail",
+        )
+        # Fields should exist (even if None)
+        assert hasattr(trait, "evidence_basis")
+        assert hasattr(trait, "confidence_components")
+
+    def test_trait_with_glucose_has_data_source(self):
+        """Traits based on CGM data should have real_cgm data_source."""
+        rows = _make_food_history("breakfast", 10, carbs=40, fat=5, sugars=20)
+        cgm = []
+        for i in range(10):
+            # breakfast at T12, post-meal CGM at T12:30 and T13:00
+            cgm.append({"timestamp": f"2025-01-{i+1:02d}T12:30:00+00:00", "value": 200})
+            cgm.append({"timestamp": f"2025-01-{i+1:02d}T13:00:00+00:00", "value": 185})
+            cgm.append({"timestamp": f"2025-01-{i+1:02d}T14:00:00+00:00", "value": 140})
+
+        trait = _analyze_breakfast_spike(rows, "", cgm)
+
+        assert trait.data_source == "real_cgm"
+        assert trait.evidence_basis is None or trait.evidence_count > 0
+
+    def test_trait_with_food_proxy_has_data_source(self):
+        """Traits based on food proxy should have food_proxy data_source."""
+        rows = _make_food_history("breakfast", 10, carbs=40, fat=5, sugars=20)
+        trait = _analyze_breakfast_spike(rows, "", None)
+
+        assert trait.data_source == "food_proxy"
+        assert trait.evidence_count > 0
+
+    def test_confidence_components_field_exists(self):
+        """Confidence components field exists on TraitInsight."""
+        rows = _make_food_history("breakfast", 10, carbs=40, fat=5, sugars=20)
+        cgm = [{"timestamp": "2025-01-01T07:30:00+00:00", "value": 200}]
+        trait = _analyze_breakfast_spike(rows, "", cgm)
+
+        # Field should exist (may be None or have values)
+        assert hasattr(trait, "confidence_components")

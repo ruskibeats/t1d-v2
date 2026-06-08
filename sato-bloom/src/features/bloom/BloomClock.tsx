@@ -14,9 +14,9 @@ import { BloomWindow } from "./bloomTypes";
 import { bloomPalette, colorForBloomValue, rgba } from "./bloomColors";
 import { PaperGrain } from "./PaperGrain";
 import { DawnWash } from "./DawnWash";
-import { CenterMedallion } from "./CenterMedallion";
-import { GalleryCaption } from "./GalleryCaption";
+import { BlossomSeal } from "./BlossomSeal";
 import { BrushStroke } from "./BrushStroke";
+import { GalleryCaption } from "./GalleryCaption";
 
 // ── deterministic noise ──────────────────────────────────────────────
 
@@ -112,6 +112,9 @@ export function BloomClock({
 
   const breathe = Math.sin((motionMs / 18000) * Math.PI * 2);
   const drift = Math.sin((motionMs / 22000) * Math.PI * 2);
+  const bloomScale = 1 + Math.sin((motionMs / 4000) * Math.PI * 2) * 0.012;
+  const bloomRotate = Math.sin((motionMs / 5500) * Math.PI * 2) * 0.006;
+  const bloomDriftY = Math.sin((motionMs / 7000) * Math.PI * 2) * size * 0.008;
   const centerProgress = easeOutCubic((motionMs - 520) / 460);
 
   // ── lived windows ──────────────────────────────────────────────
@@ -296,8 +299,18 @@ export function BloomClock({
           {/* Layer 0 — radial dawn wash */}
           <DawnWash cx={cx} cy={cy} size={size} breathe={breathe} />
 
-          {/* Paper grain */}
+          {/* Paper grain — static background */}
           <PaperGrain size={size} />
+
+          {/* Bloom layers — gently breathe, pulse, and wobble */}
+          <Group
+            transform={[
+              { translateY: bloomDriftY },
+              { scale: bloomScale },
+              { rotate: bloomRotate },
+            ]}
+            origin={{ x: cx, y: cy }}
+          >
 
           {/* Halo washes */}
           <Group>
@@ -520,12 +533,13 @@ export function BloomClock({
           ) : null}
 
           {/* Center medallion */}
-          <CenterMedallion
+          <BlossomSeal
             paperCx={paperCx}
             paperCy={paperCy}
             size={size}
             centerProgress={centerProgress}
           />
+          </Group>
         </Canvas>
       </GestureDetector>
 

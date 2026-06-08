@@ -1,5 +1,6 @@
 export { BloomClock } from "./BloomClock";
 export { BrushStroke } from "./BrushStroke";
+export { BlossomSeal } from "./BlossomSeal";
 export { CenterMedallion } from "./CenterMedallion";
 export { GalleryCaption } from "./GalleryCaption";
 export { PaperGrain } from "./PaperGrain";

@@ -4,26 +4,20 @@ import {
   Text,
   StyleSheet,
   SafeAreaView,
-  ScrollView,
-  Dimensions,
   Pressable,
 } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
-import { BloomClock } from "../features/bloom/BloomClock";
-import { todayBloomWindows } from "../features/bloom/bloomSampleData";
 import { bloomPalette } from "../features/bloom/bloomColors";
-import { ScreenName, NavIcon } from "../navigation/types";
-
-const { width: SCREEN_WIDTH } = Dimensions.get("window");
+import { ScreenName } from "../navigation/types";
 
 type NavItemProps = {
-  icon: NavIcon;
+  icon: "portrait" | "foods" | "insights" | "profile" | "discover" | "sato";
   label: string;
   active?: boolean;
   onPress?: () => void;
 };
 
-export default function PortraitScreen({ onNavigate }: { onNavigate?: (screen: ScreenName) => void }) {
+export default function InsightsScreen2({ onNavigate }: { onNavigate?: (screen: ScreenName) => void }) {
   const handleNavPress = (screen: ScreenName) => {
     onNavigate?.(screen);
   };
@@ -31,52 +25,27 @@ export default function PortraitScreen({ onNavigate }: { onNavigate?: (screen: S
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaView style={styles.safe}>
-        <ScrollView
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={styles.scrollContent}
-        >
-          {/* Header */}
-          <View style={styles.header}>
-            <Text style={styles.logoText}>Sato</Text>
-            <View style={styles.bellWrap}>
-              <BellLineIcon color={bloomPalette.ink} />
-              <View style={styles.notificationDot} />
-            </View>
+        {/* Header */}
+        <View style={styles.header}>
+          <Text style={styles.logoText}>Sato</Text>
+          <View style={styles.bellWrap}>
+            <BellLineIcon color={bloomPalette.ink} />
+            <View style={styles.notificationDot} />
           </View>
+        </View>
 
-          <Text style={styles.greeting}>Good morning, Tom</Text>
+        {/* Empty content area for Profile development */}
+        <View style={styles.content}>
+          {/* Placeholder for profile content */}
+        </View>
 
-          <Text style={styles.headline}>
-            Your bloom feels more{"\n"}
-            <Text style={styles.headlineAccent}>reactive</Text> today.
-          </Text>
-
-          <View style={styles.bloomWrap}>
-            <BloomClock
-              windows={todayBloomWindows}
-              size={Math.min(390, SCREEN_WIDTH - 20)}
-              glucose={110}
-              currentHour={19}
-            />
-          </View>
-
-          <View style={styles.editorialCaption}>
-            <Text style={styles.caption}>
-              Today left a stronger{"\n"}impression after lunch.
-            </Text>
-            <View style={styles.rule} />
-            <Text style={styles.philosophy}>
-              The portrait remembers.{"\n"}The numbers explain.
-            </Text>
-          </View>
-        </ScrollView>
-
+        {/* Bottom navigation */}
         <View style={styles.bottomNav}>
-          <NavItem icon="portrait" label="Portrait" active />
+          <NavItem icon="portrait" label="Portrait" onPress={() => handleNavPress("Portrait")} />
           <NavItem icon="foods" label="Foods" onPress={() => handleNavPress("Foods")} />
           <NavItem icon="discover" label="Discover" onPress={() => handleNavPress("Insights")} />
           <NavItem icon="sato" label="Sato" />
-          <NavItem icon="profile" label="Profile" onPress={() => handleNavPress("Profile")} />
+          <NavItem icon="profile" label="Profile" active />
         </View>
       </SafeAreaView>
     </GestureHandlerRootView>
@@ -90,8 +59,9 @@ function NavItem({ icon, label, active, onPress }: NavItemProps) {
       <View style={styles.navIconWrap}>
         {icon === "portrait" ? <BlossomIcon color={color} size={25} /> : null}
         {icon === "foods" ? <UtensilsLineIcon color={color} /> : null}
-        {icon === "discover" ? <MessageLineIcon color={color} /> : null}
+        {icon === "insights" ? <MessageLineIcon color={color} /> : null}
         {icon === "profile" ? <UserLineIcon color={color} /> : null}
+        {icon === "discover" ? <MessageLineIcon color={color} /> : null}
         {icon === "sato" ? <BlossomIcon color={color} size={22} filled /> : null}
       </View>
       <Text style={[styles.navLabel, active && styles.navLabelActive]}>{label}</Text>
@@ -175,15 +145,13 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: bloomPalette.paper,
   },
-  scrollContent: {
-    paddingHorizontal: 26,
-    paddingTop: 18,
-    paddingBottom: 146,
-  },
   header: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
+    paddingHorizontal: 26,
+    paddingTop: 18,
+    paddingBottom: 12,
   },
   logoText: {
     fontFamily: "Georgia",
@@ -208,57 +176,9 @@ const styles = StyleSheet.create({
     top: 4,
     right: 4,
   },
-  greeting: {
-    marginTop: 31,
-    color: "#80786F",
-    fontSize: 17,
-    fontWeight: "600",
-  },
-  headline: {
-    fontFamily: "Georgia",
-    marginTop: 18,
-    color: bloomPalette.ink,
-    fontSize: 24,
-    lineHeight: 31,
-    letterSpacing: -0.85,
-    fontWeight: "300",
-  },
-  headlineAccent: {
-    color: "#5795C7",
-  },
-  bloomWrap: {
-    marginTop: 16,
-    alignItems: "center",
-  },
-  editorialCaption: {
-    marginTop: 20,
-    marginHorizontal: 32,
-    alignItems: "center",
-    opacity: 0.88,
-  },
-  caption: {
-    fontFamily: "Georgia",
-    textAlign: "center",
-    color: bloomPalette.ink,
-    fontSize: 18,
-    lineHeight: 24,
-    letterSpacing: -0.2,
-    fontWeight: "300",
-  },
-  rule: {
-    marginTop: 16,
-    width: 56,
-    height: 1,
-    backgroundColor: "rgba(140,129,117,0.28)",
-  },
-  philosophy: {
-    marginTop: 16,
-    textAlign: "center",
-    color: "#8C8175",
-    fontSize: 13,
-    lineHeight: 18,
-    fontWeight: "700",
-    letterSpacing: 0.4,
+  content: {
+    flex: 1,
+    paddingHorizontal: 26,
   },
   bottomNav: {
     position: "absolute",

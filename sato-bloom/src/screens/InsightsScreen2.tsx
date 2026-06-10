@@ -500,7 +500,10 @@ function ScreenShell({
 function AppHeader() {
   return (
     <View style={styles.header}>
-      <Text style={styles.logoText}>Sato</Text>
+      <View style={styles.logoMarkWrap}>
+        <BlossomIcon color="#D97748" size={28} />
+        <Text style={styles.logoText}>Sato</Text>
+      </View>
       <View style={styles.bellWrap}>
         <BellLineIcon color={bloomPalette.ink} />
         <View style={styles.notificationDot} />
@@ -809,6 +812,11 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
+  },
+  logoMarkWrap: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
   },
   logoText: {
     fontFamily: "Georgia",

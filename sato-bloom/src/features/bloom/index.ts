@@ -3,6 +3,7 @@ export { BrushStroke } from "./BrushStroke";
 export { BlossomSeal } from "./BlossomSeal";
 export { CenterMedallion } from "./CenterMedallion";
 export { GalleryCaption } from "./GalleryCaption";
+export { GlucoseReadout } from "./GlucoseReadout";
 export { PaperGrain } from "./PaperGrain";
 export { DawnWash } from "./DawnWash";
 export { todayBloomWindows } from "./bloomSampleData";

@@ -6,17 +6,28 @@ import {
   SafeAreaView,
   ScrollView,
   Dimensions,
-  Image,
+  Pressable,
 } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { BloomClock } from "../features/bloom/BloomClock";
 import { todayBloomWindows } from "../features/bloom/bloomSampleData";
 import { bloomPalette } from "../features/bloom/bloomColors";
+import { ScreenName } from "../navigation/types";
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
-const SATO_LOGO_MARK = require("../../assets/sato_logo_mark.png");
 
-export default function PortraitScreen() {
+type NavItemProps = {
+  icon: "portrait" | "foods" | "insights" | "profile";
+  label: string;
+  active?: boolean;
+  onPress?: () => void;
+};
+
+export default function PortraitScreen({ onNavigate }: { onNavigate?: (screen: ScreenName) => void }) {
+  const handleNavPress = (screen: ScreenName) => {
+    onNavigate?.(screen);
+  };
+
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaView style={styles.safe}>
@@ -26,13 +37,7 @@ export default function PortraitScreen() {
         >
           {/* Header */}
           <View style={styles.header}>
-            <View style={styles.brandRow}>
-              <Image source={SATO_LOGO_MARK} style={styles.logoMarkImage} resizeMode="contain" />
-              <View>
-                <Text style={styles.logoText}>Sato</Text>
-                <Text style={styles.tagline}>KNOW YOUR RHYTHM</Text>
-              </View>
-            </View>
+            <Text style={styles.logoText}>Sato</Text>
             <View style={styles.bellWrap}>
               <BellLineIcon color={bloomPalette.ink} />
               <View style={styles.notificationDot} />
@@ -68,27 +73,19 @@ export default function PortraitScreen() {
 
         <View style={styles.bottomNav}>
           <NavItem icon="portrait" label="Portrait" active />
-          <NavItem icon="foods" label="Foods" />
-          <NavItem icon="insights" label="Insights" />
-          <NavItem icon="profile" label="Profile" />
+          <NavItem icon="foods" label="Foods" onPress={() => handleNavPress("Foods")} />
+          <NavItem icon="insights" label="Insights" onPress={() => handleNavPress("Insights")} />
+          <NavItem icon="profile" label="Profile" onPress={() => handleNavPress("Profile")} />
         </View>
       </SafeAreaView>
     </GestureHandlerRootView>
   );
 }
 
-function NavItem({
-  icon,
-  label,
-  active,
-}: {
-  icon: "portrait" | "foods" | "insights" | "profile";
-  label: string;
-  active?: boolean;
-}) {
+function NavItem({ icon, label, active, onPress }: NavItemProps) {
   const color = active ? "#D97748" : "#80786F";
   return (
-    <View style={styles.navItem}>
+    <Pressable onPress={onPress} style={styles.navItem}>
       <View style={styles.navIconWrap}>
         {icon === "portrait" ? <BlossomIcon color={color} size={25} /> : null}
         {icon === "foods" ? <UtensilsLineIcon color={color} /> : null}
@@ -97,7 +94,7 @@ function NavItem({
       </View>
       <Text style={[styles.navLabel, active && styles.navLabelActive]}>{label}</Text>
       {active && <View style={styles.navDot} />}
-    </View>
+    </Pressable>
   );
 }
 
@@ -186,15 +183,6 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
   },
-  brandRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 10,
-  },
-  logoMarkImage: {
-    width: 44,
-    height: 44,
-  },
   logoText: {
     fontFamily: "Georgia",
     fontSize: 36,
@@ -202,13 +190,6 @@ const styles = StyleSheet.create({
     color: bloomPalette.ink,
     fontWeight: "300",
     letterSpacing: -0.8,
-  },
-  tagline: {
-    fontSize: 8.5,
-    letterSpacing: 3.2,
-    color: "#9B9188",
-    fontWeight: "700",
-    marginTop: 3,
   },
   bellWrap: {
     width: 40,

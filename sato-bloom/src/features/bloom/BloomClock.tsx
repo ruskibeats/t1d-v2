@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { View, Text, StyleSheet } from "react-native";
+import { View, StyleSheet } from "react-native";
 import {
   Canvas,
   Circle,
@@ -17,6 +17,7 @@ import { DawnWash } from "./DawnWash";
 import { BlossomSeal } from "./BlossomSeal";
 import { BrushStroke } from "./BrushStroke";
 import { GalleryCaption } from "./GalleryCaption";
+import { GlucoseReadout } from "./GlucoseReadout";
 
 // ── deterministic noise ──────────────────────────────────────────────
 
@@ -548,16 +549,14 @@ export function BloomClock({
         <GalleryCaption window={selectedWindow} anchor={selectedAnchor} />
       ) : null}
 
-      {/* Center value inscription */}
+      {/* Inner Shade — premium numeric readout embedded in pigment */}
       <View
         style={[
           styles.centerValue,
-          { opacity: centerProgress, top: paperCy - size * 0.048 },
+          { opacity: centerProgress, top: paperCy - size * 0.08 },
         ]}
       >
-        <Text style={styles.glucose}>{glucose}</Text>
-        <Text style={styles.unit}>mg/dL</Text>
-        <Text style={styles.wave}>~</Text>
+        <GlucoseReadout value={glucose} />
       </View>
     </View>
   );
@@ -569,22 +568,5 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     alignItems: "center",
-  },
-  glucose: {
-    fontFamily: "Georgia",
-    fontSize: 26,
-    color: "#5A5249",
-    fontWeight: "300",
-    letterSpacing: -0.4,
-  },
-  unit: {
-    marginTop: -1,
-    fontSize: 11,
-    color: "#8C8175",
-  },
-  wave: {
-    marginTop: 1,
-    fontSize: 15,
-    color: "#A89F95",
   },
 });

@@ -1,7 +1,7 @@
 # Progress
 
 ## Status
-In Progress
+Complete — All issues #58-#82 closed on GitHub
 
 ## Tasks
 - [x] Issue #58: Sato shared theme contract — complete, validated, pushed
@@ -23,7 +23,9 @@ In Progress
 - [x] Issue #82: TDD workflow guardrails — process only, documented in issues/025
 - [x] All issues #58-#82 CLOSED on GitHub
 - [x] sparky-bloom pushed (975436cb), t1d-v2 parent pushed (4fdb7b6)
-- [ ] Issues #76, #79-#81: Still open (HITL decisions needed)
+- [x] All issues #58-#82 CLOSED on GitHub
+- [x] sparky-bloom submodule pushed
+- [x] t1d-v2 parent pushed
 
 ## Issue #69 Files
 - sparky-bloom/server/routes/t1dMealReviewRoutes.ts — safety validation already present (validateSafetyJson, checkDosingLanguage, validateNoDosingContent)

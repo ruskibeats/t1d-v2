@@ -102,7 +102,14 @@ In Progress
 - Committed to parent repo d0eb5d8
 
 ## Final Status (2026-06-12 ~22:00)
-All GitHub issues #58-#82 are CLOSED or actively in-flight via T1D-Commander Ralph loop.
+All GitHub issues #58-#82 are CLOSED.
+
+### #73 Direct Implementation (this session)
+- Created bloomWindowCgmService.ts with computeBloomWindowsFromCGM()
+- 3 TDD tests: glucose stats from CGM, deterministic output, sparse-data confidence
+- Typecheck clean (0 new errors), ESLint clean
+- Committed to sparky-bloom submodule (e6f51807) and parent repo (85da0b7)
+- GitHub issue #73 already closed
 
 ### Completed Issues
 - #58: Sato shared theme contract

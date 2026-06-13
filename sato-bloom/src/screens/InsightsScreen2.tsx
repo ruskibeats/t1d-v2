@@ -6,86 +6,74 @@ import {
   StyleSheet,
   Text,
   View,
-  Dimensions,
+  Image,
 } from "react-native";
-import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { useFonts } from "expo-font";
 import {
-  Canvas,
-  Circle,
-  Group,
-  Oval,
-  Rect,
-  vec,
-  BlurMask,
-} from "@shopify/react-native-skia";
-import { BloomClock, todayBloomWindows } from "../features/bloom";
+  Bell,
+  ChevronRight,
+  UtensilsCrossed,
+  Sparkles,
+  User,
+  Flower2,
+} from "lucide-react-native";
+import {
+  CormorantGaramond_400Regular,
+  CormorantGaramond_500Medium,
+  CormorantGaramond_600SemiBold,
+  CormorantGaramond_700Bold,
+} from "@expo-google-fonts/cormorant-garamond";
 import { ScreenName } from "../navigation/types";
-
-const { width: SCREEN_WIDTH } = Dimensions.get("window");
-
-type InsightCategory = "food" | "activity" | "sleep" | "stress" | "routine";
 
 type Discovery = {
   id: string;
   title: string;
   signal: "Strong Pattern" | "Emerging Signal";
   seen: string;
-  category: InsightCategory;
-  color: string;
-  secondaryColor: string;
-  seed: string;
+  category: "food" | "activity" | "sleep" | "stress" | "routine";
+  iconColor: string;
 };
 
 const discoveries: Discovery[] = [
   {
     id: "pizza-evening",
-    title: "Pizza leaves a stronger\nevening trace",
+    title: "Pizza leaves a stronger evening trace",
     signal: "Strong Pattern",
     seen: "Seen 18 times",
     category: "food",
-    color: "#D9571F",
-    secondaryColor: "#2F6E7E",
-    seed: "pizza-evening-trace",
+    iconColor: "#F2D8CB",
   },
   {
     id: "walks-afternoon",
-    title: "Walks soften your\nafternoons",
+    title: "Walks soften your afternoons",
     signal: "Strong Pattern",
     seen: "Seen 14 times",
     category: "activity",
-    color: "#5795C7",
-    secondaryColor: "#A7B978",
-    seed: "walks-afternoon-soften",
+    iconColor: "#D7E7EE",
   },
   {
     id: "mornings-steady",
-    title: "Your mornings are\nbecoming steadier",
+    title: "Your mornings are settling",
     signal: "Strong Pattern",
     seen: "Seen 21 times",
     category: "routine",
-    color: "#8FA15F",
-    secondaryColor: "#D7B36A",
-    seed: "steady-mornings",
+    iconColor: "#D7E7EE",
   },
   {
     id: "bjj-echo",
-    title: "Jiu-jitsu leaves an\novernight echo",
+    title: "Jiu-jitsu leaves an overnight echo",
     signal: "Emerging Signal",
     seen: "Seen 6 times",
     category: "stress",
-    color: "#7A61A8",
-    secondaryColor: "#D6C3E8",
-    seed: "bjj-overnight-echo",
+    iconColor: "#E8DDF3",
   },
   {
     id: "sleep-breakfast",
-    title: "Short sleep changes\nyour breakfast rhythm",
+    title: "Short sleep changes breakfast rhythm",
     signal: "Emerging Signal",
     seen: "Seen 9 times",
     category: "sleep",
-    color: "#C69B55",
-    secondaryColor: "#B9C8D8",
-    seed: "short-sleep-breakfast",
+    iconColor: "#E8DDF3",
   },
 ];
 
@@ -94,197 +82,115 @@ export default function InsightsScreen({
 }: {
   onNavigate?: (screen: ScreenName) => void;
 }) {
+  const [fontsLoaded] = useFonts({
+    CormorantGaramond_400Regular,
+    CormorantGaramond_500Medium,
+    CormorantGaramond_600SemiBold,
+    CormorantGaramond_700Bold,
+  });
+
+  if (!fontsLoaded) {
+    return null;
+  }
+
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
-      <SafeAreaView style={styles.safe}>
-        <ScrollView
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={styles.scroll}
-        >
-          <AppHeader />
+    <SafeAreaView style={styles.safe}>
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scroll}>
+        <AppHeader />
 
-          <View style={styles.titleBlock}>
-            <Text style={styles.pageTitle}>Insights</Text>
-            <Text style={styles.pageSubtitle}>
-              Your blooms reveal what's been{"\n"}shaping your rhythm.
-            </Text>
-          </View>
+        <View style={styles.heroSection}>
+          <Text style={styles.pageTitle}>Discover</Text>
+          <Text style={styles.pageSubtitle}>Patterns Sato has quietly noticed in your life.</Text>
+        </View>
 
-          <View style={styles.tabs}>
-            {["Bloom", "Trends", "Patterns", "Day in detail"].map((tab, i) => (
-              <View key={tab} style={[styles.tab, i === 0 && styles.tabActive]}>
-                <Text style={[styles.tabText, i === 0 && styles.tabTextActive]}>
-                  {tab}
-                </Text>
-              </View>
-            ))}
-          </View>
+        <FeaturedCard />
 
-          <View style={styles.heroCard}>
-            <Text style={styles.heroCardEyebrow}>Today's bloom</Text>
-            <Text style={styles.heroCardSubtext}>Based on your day so far</Text>
+        <View style={styles.sectionHeader}>
+          <Text style={styles.sectionTitle}>Recently uncovered</Text>
+          <Text style={styles.seeAll}>See all</Text>
+        </View>
 
-            <View style={styles.heroPortraitBloomWrap} pointerEvents="none">
-              <BloomClock
-                windows={todayBloomWindows}
-                size={SCREEN_WIDTH - 64}
-                glucose={110}
-                currentHour={19}
-              />
-            </View>
+        <View style={styles.list}>
+          {discoveries.map((item) => (
+            <DiscoveryCard key={item.id} discovery={item} />
+          ))}
+        </View>
+      </ScrollView>
 
-            <View style={styles.heroPortraitMessageWrap}>
-              <Text style={styles.heroPortraitCaption}>
-                Today left a stronger{"\n"}impression after lunch.
-              </Text>
+      <BottomNav onNavigate={onNavigate} />
+    </SafeAreaView>
+  );
+}
 
-              <View style={styles.heroPortraitRule} />
+function FeaturedCard() {
+  return (
+    <View style={styles.featuredCard}>
+      <View style={styles.flowerGraphic}>
+        <View style={styles.flowerBlurCircle} />
+      </View>
 
-              <Text style={styles.heroPortraitPhilosophy}>
-                The portrait remembers.{"\n"}The numbers explain.
-              </Text>
-            </View>
-          </View>
+      <View style={styles.featuredBadge}>
+        <Text style={styles.featuredBadgeText}>Strong Pattern</Text>
+      </View>
 
-          <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Recently uncovered</Text>
-            <Text style={styles.seeAll}>See all</Text>
-          </View>
+      <Text style={styles.featuredTitle}>The evening left a stronger trace.</Text>
 
-          <View style={styles.list}>
-            {discoveries.map((item) => (
-              <DiscoveryCard key={item.id} discovery={item} />
-            ))}
-          </View>
-        </ScrollView>
+      <Text style={styles.featuredDescription}>
+        Over the last 30 days, your glucose rhythm wandered more often between{"\n"}
+        <Text style={styles.featuredHighlight}>7pm and 11pm</Text>.
+      </Text>
 
-        <BottomNav onNavigate={onNavigate} />
-      </SafeAreaView>
-    </GestureHandlerRootView>
+      <Pressable style={styles.exploreButton}>
+        <Text style={styles.exploreButtonText}>Explore this revelation</Text>
+        <ChevronRight size={16} color="#FFFFFF" />
+      </Pressable>
+
+      <View style={styles.featuredIconPlaceholder} />
+    </View>
   );
 }
 
 function DiscoveryCard({ discovery }: { discovery: Discovery }) {
+  const bgColor = discovery.iconColor;
+  const signalColor = discovery.signal === "Strong Pattern" ? "#C65A32" : "#B97B3F";
+
   return (
     <Pressable style={styles.discoveryCard}>
-      <View style={styles.miniBloom}>
-        <InsightBloom
-          size={76}
-          category={discovery.category}
-          seed={discovery.seed}
-          primary={discovery.color}
-          secondary={discovery.secondaryColor}
-          strength={discovery.signal === "Strong Pattern" ? 0.88 : 0.54}
-        />
-      </View>
+      {discovery.id === "pizza-evening" ? (
+        <FlowerIcon />
+      ) : (
+        <View style={[styles.iconContainer, { backgroundColor: bgColor }]}>
+          <Text style={styles.iconPlaceholder}>🌿</Text>
+        </View>
+      )}
 
       <View style={styles.discoveryCopy}>
         <Text style={styles.discoveryTitle}>{discovery.title}</Text>
-        <View style={styles.metaRow}>
-          <Text
-            style={[
-              styles.discoverySignal,
-              discovery.signal === "Emerging Signal" && styles.emergingSignal,
-            ]}
-          >
+        <Text style={styles.discoveryMeta}>
+          <Text style={[styles.discoverySignal, { color: signalColor }]}>
             {discovery.signal}
           </Text>
-          <Text style={styles.metaDot}>•</Text>
+          {"  •  "}
           <Text style={styles.discoverySeen}>{discovery.seen}</Text>
-        </View>
+        </Text>
       </View>
 
-      <Text style={styles.arrow}>›</Text>
+      <Pressable style={styles.cardArrowButton}>
+        <ChevronRight size={16} color="#181614" />
+      </Pressable>
     </Pressable>
   );
 }
 
-function InsightBloom({
-  size,
-  category,
-  seed,
-  primary,
-  secondary,
-  strength,
-  atmospheric = false,
-}: {
-  size: number;
-  category: InsightCategory;
-  seed: string;
-  primary: string;
-  secondary: string;
-  strength: number;
-  atmospheric?: boolean;
-}) {
-  const petals = React.useMemo(() => {
-    const count = atmospheric ? 42 : 16;
-    return Array.from({ length: count }).map((_, i) => {
-      const n = noise(`${seed}-${i}`);
-      const angleBase = category === "routine" ? (i / count) * Math.PI * 2 : n * Math.PI * 2;
-      const angle = angleBase + noise(`${seed}-angle-${i}`, -0.55, 0.55);
-      const distance = size * (atmospheric ? 0.08 : 0.05) + noise(`${seed}-dist-${i}`, 0, size * 0.08);
-      const rx = size * noise(`${seed}-rx-${i}`, 0.12, atmospheric ? 0.26 : 0.18);
-      const ry = size * noise(`${seed}-ry-${i}`, 0.055, atmospheric ? 0.16 : 0.11);
-      const opacity = atmospheric
-        ? noise(`${seed}-op-${i}`, 0.05, 0.13)
-        : noise(`${seed}-op-${i}`, 0.12, 0.22);
-
-      return {
-        x: Math.cos(angle) * distance,
-        y: Math.sin(angle) * distance,
-        rx,
-        ry,
-        rotate: `${angle + Math.PI / 2}rad`,
-        color: i % 3 === 0 ? primary : i % 3 === 1 ? secondary : "#A7B978",
-        opacity,
-      };
-    });
-  }, [category, seed, size, primary, secondary, atmospheric]);
-
-  const cx = size * (0.5 + noise(`${seed}-cx`, -0.06, 0.06));
-  const cy = size * (0.52 + noise(`${seed}-cy`, -0.05, 0.06));
-
+function FlowerIcon() {
   return (
-    <Canvas style={{ width: size, height: size }}>
-      <Circle
-        cx={cx}
-        cy={cy}
-        r={size * (atmospheric ? 0.43 : 0.36)}
-        color={rgba("#F0E8DC", atmospheric ? 0.35 : 0.2)}
+    <View style={styles.flowerIconContainer}>
+      <Image
+        source={require("../../assets/flower.png")}
+        style={styles.flowerImage}
+        resizeMode="contain"
       />
-
-      <Group blendMode="multiply">
-        {petals.map((p, i) => (
-          <Group
-            key={`${seed}-${i}`}
-            origin={vec(cx + p.x, cy + p.y)}
-            transform={[{ rotate: Number(p.rotate.replace("rad", "")) }]}
-          >
-            <Oval
-              x={cx + p.x - p.rx}
-              y={cy + p.y - p.ry}
-              width={p.rx * 2}
-              height={p.ry * 2}
-              color={rgba(p.color, p.opacity)}
-            >
-              {atmospheric && <BlurMask blur={2.5} style="normal" />}
-            </Oval>
-          </Group>
-        ))}
-      </Group>
-
-      <Circle cx={cx} cy={cy} r={size * 0.075 * strength} color={rgba(primary, 0.48)} />
-      <Circle cx={cx + size * 0.015} cy={cy + size * 0.01} r={size * 0.05} color={rgba("#211F1B", 0.15)} />
-      <Circle cx={cx - size * 0.02} cy={cy - size * 0.015} r={size * 0.035} color={rgba(primary, 0.28)} />
-
-      {atmospheric ? (
-        <>
-          <Circle cx={size * 0.82} cy={size * 0.32} r={size * 0.035} color={rgba(primary, 0.55)} />
-          <Circle cx={size * 0.22} cy={size * 0.68} r={size * 0.028} color={rgba(secondary, 0.55)} />
-          <Circle cx={size * 0.73} cy={size * 0.72} r={size * 0.018} color={rgba("#D7B36A", 0.45)} />
-        </>
-      ) : null}
-    </Canvas>
+    </View>
   );
 }
 
@@ -292,39 +198,25 @@ function AppHeader() {
   return (
     <View style={styles.header}>
       <View style={styles.logoWrap}>
-        <View style={styles.logoMark}>
-          {[0, 1, 2, 3].map((i) => (
-            <View
-              key={i}
-              style={[
-                styles.logoPetal,
-                { transform: [{ rotate: `${i * 90 + 45}deg` }] },
-              ]}
-            />
-          ))}
-        </View>
+        <View style={styles.logoMark} />
         <Text style={styles.logoText}>Sato</Text>
       </View>
 
-      <View style={styles.bell}>
-        <Text style={styles.bellText}>♩</Text>
+      <Pressable style={styles.bell}>
+        <Bell size={24} color="#181614" />
         <View style={styles.notificationDot} />
-      </View>
+      </Pressable>
     </View>
   );
 }
 
-function BottomNav({
-  onNavigate,
-}: {
-  onNavigate?: (screen: ScreenName) => void;
-}) {
-  const items: { label: string; screen?: ScreenName }[] = [
-    { label: "Portrait", screen: "Portrait" },
-    { label: "Foods", screen: "Foods" },
-    { label: "Discover", screen: "Insights" },
-    { label: "Sato" },
-    { label: "Profile", screen: "Profile" },
+function BottomNav({ onNavigate }: { onNavigate?: (screen: ScreenName) => void }) {
+  const items: { label: string; icon: React.ReactNode; screen?: ScreenName }[] = [
+    { label: "Portrait", icon: <Flower2 size={22} color="#857D74" />, screen: "Portrait" },
+    { label: "Foods", icon: <UtensilsCrossed size={20} color="#857D74" />, screen: "Foods" },
+    { label: "Discover", icon: <Sparkles size={24} color="#D97947" />, screen: "Insights" },
+    { label: "Sato", icon: null },
+    { label: "Profile", icon: <User size={20} color="#857D74" />, screen: "Profile" },
   ];
 
   return (
@@ -337,7 +229,9 @@ function BottomNav({
             style={styles.navItem}
             onPress={() => item.screen && onNavigate?.(item.screen)}
           >
-            <View style={[styles.navIcon, active && styles.navIconActive]} />
+            <View style={[styles.navIconWrapper, active && styles.navIconActive]}>
+              {item.icon}
+            </View>
             <Text style={[styles.navLabel, active && styles.navLabelActive]}>
               {item.label}
             </Text>
@@ -349,40 +243,18 @@ function BottomNav({
   );
 }
 
-function hashString(input: string) {
-  let h = 2166136261;
-  for (let i = 0; i < input.length; i++) {
-    h ^= input.charCodeAt(i);
-    h += (h << 1) + (h << 4) + (h << 7) + (h << 8) + (h << 24);
-  }
-  return Math.abs(h >>> 0);
-}
-
-function noise(key: string, min = 0, max = 1) {
-  const n = (hashString(key) % 10000) / 10000;
-  return min + (max - min) * n;
-}
-
-function rgba(hex: string, alpha: number) {
-  const clean = hex.replace("#", "");
-  const r = parseInt(clean.slice(0, 2), 16);
-  const g = parseInt(clean.slice(2, 4), 16);
-  const b = parseInt(clean.slice(4, 6), 16);
-  return `rgba(${r},${g},${b},${alpha})`;
-}
-
 const styles = StyleSheet.create({
   safe: {
     flex: 1,
-    backgroundColor: "#F8F1E6",
+    backgroundColor: "#F6F2EA",
   },
   scroll: {
-    paddingHorizontal: 22,
-    paddingBottom: 132,
+    paddingHorizontal: 24,
+    paddingBottom: 120,
   },
   header: {
-    marginTop: 8,
-    height: 72,
+    marginTop: 16,
+    height: 64,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
@@ -394,394 +266,261 @@ const styles = StyleSheet.create({
   logoMark: {
     width: 32,
     height: 32,
-    marginRight: 13,
-  },
-  logoPetal: {
-    position: "absolute",
-    left: 10,
-    top: 3,
-    width: 12,
-    height: 24,
-    borderRadius: 999,
-    backgroundColor: "#D9571F",
-    opacity: 0.72,
+    marginRight: 8,
+    borderRadius: 16,
+    backgroundColor: "#D97947",
   },
   logoText: {
-    fontFamily: "Georgia",
-    fontSize: 46,
-    color: "#211F1B",
-    letterSpacing: -1.5,
+    fontSize: 24,
+    fontFamily: "CormorantGaramond_600SemiBold",
+    letterSpacing: -0.5,
+    color: "#181614",
   },
   bell: {
-    width: 36,
-    height: 36,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  bellText: {
-    fontSize: 30,
-    color: "#211F1B",
+    position: "relative",
+    padding: 8,
   },
   notificationDot: {
     position: "absolute",
-    right: 0,
-    top: 2,
-    width: 9,
-    height: 9,
-    borderRadius: 99,
-    backgroundColor: "#D9571F",
+    top: 8,
+    right: 8,
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: "#D97947",
+    borderWidth: 2,
+    borderColor: "#F6F2EA",
   },
-  titleBlock: {
-    marginTop: 10,
+  navIconWrapper: {
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  navIconActive: {},
+  heroSection: {
+    paddingHorizontal: 8,
+    marginTop: 16,
+    marginBottom: 40,
   },
   pageTitle: {
-    fontFamily: "Georgia",
-    fontSize: 58,
-    lineHeight: 66,
-    color: "#211F1B",
-    letterSpacing: -2.1,
+    fontSize: 56,
+    lineHeight: 56,
+    fontFamily: "CormorantGaramond_600SemiBold",
+    letterSpacing: -1,
+    color: "#181614",
   },
   pageSubtitle: {
     marginTop: 8,
-    fontSize: 21,
-    lineHeight: 30,
-    color: "#80786F",
-    fontWeight: "700",
-  },
-  tabs: {
-    marginTop: 28,
-    height: 56,
-    borderRadius: 999,
-    backgroundColor: "#EFE7DC",
-    flexDirection: "row",
-    padding: 4,
-  },
-  tab: {
-    flex: 1,
-    borderRadius: 999,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  tabActive: {
-    backgroundColor: "#FFFDF8",
-  },
-  tabText: {
-    fontSize: 16,
-    color: "#6E655B",
-    fontWeight: "700",
-  },
-  tabTextActive: {
-    color: "#D9571F",
-  },
-  heroCard: {
-    marginTop: 20,
-    minHeight: 520,
-    borderRadius: 34,
-    backgroundColor: "#FFFDF8",
-    borderWidth: 1,
-    borderColor: "rgba(33,31,27,0.07)",
-    overflow: "hidden",
-    position: "relative",
-    paddingHorizontal: 28,
-    paddingTop: 28,
-    paddingBottom: 28,
-    shadowColor: "#211F1B",
-    shadowOpacity: 0.045,
-    shadowRadius: 22,
-    shadowOffset: { width: 0, height: 12 },
-  },
-  heroHeader: {
-    zIndex: 10,
-    flexDirection: "row",
-    justifyContent: "space-between",
-  },
-  heroTitle: {
-    fontFamily: "Georgia",
-    fontSize: 27,
-    lineHeight: 33,
-    color: "#211F1B",
-    letterSpacing: -0.4,
-  },
-  heroSubtitle: {
-    marginTop: 6,
-    fontSize: 17,
-    lineHeight: 23,
-    color: "#80786F",
-    fontWeight: "700",
-  },
-  infoCircle: {
-    width: 34,
-    height: 34,
-    borderRadius: 17,
-    borderWidth: 1.5,
-    borderColor: "#211F1B",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  infoText: {
-    fontSize: 20,
-    color: "#211F1B",
-    fontFamily: "Georgia",
-  },
-  heroArtWrap: {
-    position: "absolute",
-    top: 88,
-    left: "50%",
-    marginLeft: -180,
-    width: 360,
-    height: 360,
-    opacity: 0.94,
-  },
-  glucoseWrap: {
-    position: "absolute",
-    top: 312,
-    left: 0,
-    right: 0,
-    alignItems: "center",
-    zIndex: 8,
-  },
-  glucoseNumber: {
-    fontFamily: "Georgia",
-    fontSize: 62,
-    lineHeight: 68,
-    color: "#211F1B",
-    letterSpacing: -1.8,
-  },
-  glucoseUnit: {
-    marginTop: -4,
-    fontSize: 21,
-    color: "#D9571F",
-    fontWeight: "800",
-  },
-  glucoseState: {
-    marginTop: 6,
-    fontSize: 18,
-    color: "#80786F",
-    fontWeight: "700",
-  },
-  heroMessage: {
-    position: "absolute",
-    left: 22,
-    right: 22,
-    bottom: 22,
-    minHeight: 78,
-    borderRadius: 24,
-    backgroundColor: "rgba(239,231,220,0.74)",
-    paddingHorizontal: 20,
-    paddingVertical: 16,
-    zIndex: 10,
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
-  messageText: {
-    fontSize: 18,
-    lineHeight: 25,
-    color: "#211F1B",
-  },
-  messageSubtext: {
-    marginTop: 4,
-    fontSize: 16,
-    lineHeight: 22,
-    color: "#6E655B",
-    fontWeight: "600",
-  },
-  leafBadge: {
-    width: 58,
-    height: 58,
-    borderRadius: 29,
-    backgroundColor: "#E8DCCB",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  leafText: {
-    fontSize: 28,
-    color: "#80786F",
-  },
-  heroCardEyebrow: {
-    fontFamily: "Georgia",
-    color: "#211F1B",
-    fontSize: 27,
-    lineHeight: 32,
-    letterSpacing: -0.65,
-    fontWeight: "300",
-    marginLeft: 8,
-  },
-
- heroCardSubtext: {
-    marginTop: 6,
-    marginLeft: 8,
-    color: "#625B53",
-    fontSize: 16,
-    lineHeight: 22,
-    fontWeight: "600",
-  },
-
- heroPortraitBloomWrap: {
-    marginTop: 14,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-
- heroPortraitMessageWrap: {
-    marginTop: 12,
-    marginHorizontal: 18,
-    alignItems: "center",
-    opacity: 0.88,
-  },
-
- heroPortraitCaption: {
-    fontFamily: "Georgia",
-    textAlign: "center",
-    color: "#211F1B",
     fontSize: 18,
     lineHeight: 24,
-    letterSpacing: -0.2,
-    fontWeight: "300",
+    fontFamily: "CormorantGaramond_400Regular",
+    color: "#857D74",
   },
-
- heroPortraitRule: {
-    marginTop: 16,
-    width: 56,
-    height: 1,
-    backgroundColor: "rgba(140,129,117,0.28)",
+  featuredCard: {
+    backgroundColor: "#F9F6F1",
+    borderRadius: 32,
+    padding: 24,
+    position: "relative",
+    overflow: "hidden",
+    borderWidth: 1,
+    borderColor: "#E3DDD1",
+    shadowColor: "#211F1B",
+    shadowOpacity: 0.04,
+    shadowRadius: 16,
+    shadowOffset: { width: 0, height: 4 },
   },
-
- heroPortraitPhilosophy: {
-    marginTop: 16,
-    textAlign: "center",
-    color: "#8C8175",
-    fontSize: 13,
-    lineHeight: 18,
-    fontWeight: "700",
-    letterSpacing: 0.4,
+  flowerGraphic: {
+    position: "absolute",
+    top: -48,
+    right: -48,
+    width: 192,
+    height: 192,
+    opacity: 0.15,
   },
-
-sectionHeader: {
-    marginTop: 34,
-    marginBottom: 18,
+  flowerBlurCircle: {
+    width: "100%",
+    height: "100%",
+    borderRadius: 96,
+    backgroundColor: "#D7E7EE",
+  },
+  featuredBadge: {
+    alignSelf: "flex-start",
+    backgroundColor: "#F2D8CB",
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+    borderRadius: 999,
+    marginBottom: 24,
+  },
+  featuredBadgeText: {
+    fontSize: 12,
+    fontWeight: "600",
+    color: "#C65A32",
+    textTransform: "uppercase",
+    letterSpacing: 0.5,
+  },
+  featuredTitle: {
+    fontFamily: "CormorantGaramond_600SemiBold",
+    fontSize: 28,
+    lineHeight: 32,
+    letterSpacing: -0.5,
+    color: "#181614",
+    marginBottom: 12,
+  },
+  featuredDescription: {
+    fontSize: 16,
+    lineHeight: 22,
+    color: "#857D74",
+    marginBottom: 32,
+  },
+  featuredHighlight: {
+    color: "#D97947",
+    fontWeight: "600",
+  },
+  exploreButton: {
     flexDirection: "row",
-    alignItems: "flex-end",
+    alignItems: "center",
+    backgroundColor: "#181614",
+    alignSelf: "flex-start",
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    borderRadius: 999,
+    gap: 8,
+  },
+  exploreButtonText: {
+    color: "#FFFFFF",
+    fontSize: 14,
+    fontWeight: "500",
+  },
+  featuredIconPlaceholder: {
+    position: "absolute",
+    bottom: 24,
+    right: 24,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: "#E8E3DA",
+    opacity: 0.2,
+  },
+  sectionHeader: {
+    flexDirection: "row",
+    alignItems: "center",
     justifyContent: "space-between",
+    marginTop: 48,
+    marginBottom: 24,
+    paddingHorizontal: 4,
   },
   sectionTitle: {
-    fontFamily: "Georgia",
-    fontSize: 34,
-    color: "#211F1B",
+    fontFamily: "CormorantGaramond_600SemiBold",
+    fontSize: 32,
     letterSpacing: -0.8,
+    color: "#181614",
   },
   seeAll: {
-    fontSize: 19,
-    color: "#D9571F",
-    fontWeight: "800",
-    marginBottom: 4,
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#D97947",
   },
   list: {
     gap: 12,
   },
   discoveryCard: {
-    minHeight: 112,
-    borderRadius: 28,
-    backgroundColor: "#FFFDF8",
-    borderWidth: 1,
-    borderColor: "rgba(33,31,27,0.055)",
-    paddingHorizontal: 20,
-    paddingVertical: 18,
+    backgroundColor: "#F9F6F1",
+    borderRadius: 24,
+    padding: 12,
     flexDirection: "row",
     alignItems: "center",
+    borderWidth: 1,
+    borderColor: "#ECE6DB",
   },
-  miniBloom: {
-    width: 78,
-    height: 78,
-    marginRight: 18,
+  iconContainer: {
+    width: 64,
+    height: 64,
+    borderRadius: 18,
     alignItems: "center",
     justifyContent: "center",
+    marginRight: 16,
+  },
+  flowerIconContainer: {
+    width: 64,
+    height: 64,
+    borderRadius: 18,
+    alignItems: "center",
+    justifyContent: "center",
+    marginRight: 16,
+    overflow: "hidden",
+  },
+  flowerImage: {
+    width: 48,
+    height: 48,
+  },
+  iconPlaceholder: {
+    fontSize: 24,
   },
   discoveryCopy: {
     flex: 1,
   },
   discoveryTitle: {
-    fontFamily: "Georgia",
-    fontSize: 24,
-    lineHeight: 30,
-    color: "#211F1B",
-    letterSpacing: -0.35,
+    fontFamily: "CormorantGaramond_500Medium",
+    fontSize: 18,
+    fontWeight: "500",
+    lineHeight: 22,
+    color: "#181614",
   },
-  metaRow: {
-    marginTop: 8,
-    flexDirection: "row",
-    alignItems: "center",
+  discoveryMeta: {
+    marginTop: 2,
+    fontSize: 12,
+    textTransform: "uppercase",
+    letterSpacing: 0.5,
   },
   discoverySignal: {
-    fontSize: 16,
-    color: "#D9571F",
-    fontWeight: "800",
-  },
-  emergingSignal: {
-    color: "#6B4FA0",
-  },
-  metaDot: {
-    marginHorizontal: 8,
-    color: "#B9B0A5",
-    fontSize: 16,
-  },
-  discoverySeen: {
-    fontSize: 16,
-    color: "#80786F",
     fontWeight: "700",
   },
-  arrow: {
-    fontSize: 38,
-    color: "#A49B91",
-    marginLeft: 10,
-    marginTop: -4,
+  discoverySeen: {
+    color: "#857D74",
+  },
+  cardArrowButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: "#EDE7DD",
+    alignItems: "center",
+    justifyContent: "center",
+    marginRight: 4,
   },
   bottomNav: {
     position: "absolute",
     left: 20,
     right: 20,
     bottom: 18,
-    height: 78,
+    height: 70,
     borderRadius: 999,
-    backgroundColor: "rgba(255,253,248,0.96)",
+    backgroundColor: "rgba(246, 242, 234, 0.95)",
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-around",
     shadowColor: "#211F1B",
-    shadowOpacity: 0.08,
-    shadowRadius: 18,
-    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.06,
+    shadowRadius: 12,
+    shadowOffset: { width: 0, height: 4 },
   },
   navItem: {
     flex: 1,
     alignItems: "center",
-  },
-  navIcon: {
-    width: 25,
-    height: 25,
-    borderRadius: 8,
-    borderWidth: 2,
-    borderColor: "#80786F",
-    transform: [{ rotate: "45deg" }],
-    opacity: 0.8,
-  },
-  navIconActive: {
-    borderColor: "#D9571F",
+    justifyContent: "center",
   },
   navLabel: {
-    marginTop: 7,
-    fontSize: 14,
-    color: "#80786F",
-    fontWeight: "700",
+    marginTop: 4,
+    fontSize: 12,
+    fontWeight: "500",
+    color: "#857D74",
   },
   navLabelActive: {
-    color: "#D9571F",
+    color: "#181614",
   },
   navDot: {
-    marginTop: 5,
-    width: 6,
-    height: 6,
-    borderRadius: 999,
-    backgroundColor: "#D9571F",
+    marginTop: 4,
+    width: 4,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: "#D97947",
   },
 });

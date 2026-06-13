@@ -80,6 +80,17 @@ Complete — All issues #58-#82 closed on GitHub
 - Validation: 7/7 tests pass, typecheck clean (pre-existing supertest declaration warning only)
 - PRD user stories addressed: 11, 12, 17, 33, 35, 36, 42
 
+## Issue #71 Implementation (2026-06-12 ~22:10)
+- Mounted t1dForecastEnvelopeRoutes in SparkyFitnessServer.ts at /api/t1d/forecast-envelopes
+- Fixed swagger test failures: removed BloomWindow/T1DForecastEnvelope from manual config (caused duplicate component keys), replaced $ref with inline schemas in JSDoc
+- Fixed JSDoc path alignment: changed /api/t1d/forecast-envelopes to /t1d/forecast-envelopes (servers.url is /api)
+- Replaced BloomWindow $ref in t1dRoutes.ts with inline schema to prevent swaggerJsdoc auto-generation issues
+- All 92 test files pass (1004 tests), swagger test green
+- Typecheck: pre-existing errors only (t1dVectorSearch.test.ts, t1dNightscoutSchema.ts) — none from #71 changes
+- Committed to sparky-bloom (3a287a72) and parent repo (b12ff35)
+- Provenance metadata: sourceType (simulation/model/manual/imported_cgm/nightscout), sourceId, confidence, notes
+- RLS: enforced via INNER JOIN on t1d_profiles.sparky_user_id at repository level
+
 ## Issue #70 Verification (2026-06-12)
 - Verified forecast envelope create/get fully implemented from prior work
 - 16/16 tests pass (including cross-user access protection tests)

@@ -136,6 +136,12 @@
 
 ## Sources
 
+- [[sources/bloom-not-a-chart-weather-layer-ask-bloom]] — "Bloom reframed: predicted-response portrait, not chart" *(created: 2026-06-09)*
+- [[sources/dev-prod-split-sparky-bloom]] — "Sparky-Bloom dev/prod workspace architecture" *(created: 2026-06-09)*
+- [[sources/docker-three-environment-pattern]] — "Three-environment Docker pattern for sparky-bloom" *(created: 2026-06-09)*
+- [[sources/insightsscreen2-hero-bloom-replaced-with-bloomclock]] — "InsightsScreen2 hero bloom replaced with BloomClock from PortraitScreen" *(created: 2026-06-10)*
+- [[sources/memory-tool-dual-storage-architecture]] — "Memory tool uses Markdown+SQLite dual storage" *(created: 2026-06-09)*
+- [[sources/mobile-integration-review-and-tracking-issues]] — "Mobile integration review findings and tracking issue implementation" *(created: 2026-06-12)*
 - [[sources/obs-2026-06-07-bloom-card-height-reduced-and-state-label-removed]] — "Observation: Bloom card height reduced and state label removed" *(created: 2026-06-07)*
 - [[sources/obs-2026-06-07-bloom-card-text-removed-and-canvas-refit]] — "Observation: Bloom card text removed and canvas refit" *(created: 2026-06-07)*
 - [[sources/obs-2026-06-07-bloom-card-unified-to-single-background-color]] — "Observation: Bloom card unified to single background color" *(created: 2026-06-07)*
@@ -192,19 +198,57 @@
 - [[sources/obs-2026-06-08-sato-portrait-screen-with-watercolor-bloom-built]] — "Observation: Sato Portrait screen with watercolor bloom built" *(created: 2026-06-08)*
 - [[sources/obs-2026-06-08-sato-portrait-v1-1-story-weighted-pigment-patch-applied]] — "Observation: Sato portrait v1.1 story-weighted pigment patch applied" *(created: 2026-06-08)*
 - [[sources/obs-2026-06-08-sato-stain-painting-living-bloom-engine-complete]] — "Observation: Sato stain-painting living bloom engine complete" *(created: 2026-06-08)*
+- [[sources/obs-2026-06-09-bloom-impact-under-every-meal-entry]] — "Observation: Bloom Impact under every meal entry" *(created: 2026-06-09)*
+- [[sources/obs-2026-06-09-bloom-paints-predicted-response-not-logged-inputs]] — "Observation: Bloom paints predicted response, not logged inputs" *(created: 2026-06-09)*
+- [[sources/obs-2026-06-09-bloom-reframed-as-metabolic-self-portrait-not-chart]] — "Observation: Bloom reframed as metabolic self-portrait, not chart" *(created: 2026-06-09)*
+- [[sources/obs-2026-06-09-dev-stage-prod-environment-architecture-decided]] — "Observation: Dev/Stage/Prod environment architecture decided" *(created: 2026-06-09)*
+- [[sources/obs-2026-06-09-discover-home-screen-implemented-in-insightsscreen]] — "Observation: Discover home screen implemented in InsightsScreen" *(created: 2026-06-09)*
+- [[sources/obs-2026-06-09-discoveries-library-page-added-to-insightsscreen]] — "Observation: Discoveries library page added to InsightsScreen" *(created: 2026-06-09)*
+- [[sources/obs-2026-06-09-failure-memory-consolidated-to-3-authoritative-entries]] — "Observation: Failure memory consolidated to 3 authoritative entries" *(created: 2026-06-09)*
+- [[sources/obs-2026-06-09-failure-memory-consolidation-completed]] — "Observation: Failure memory consolidation completed" *(created: 2026-06-09)*
+- [[sources/obs-2026-06-09-glucosereadout-inner-shade-component-integrated-into-bloomcl]] — "Observation: GlucoseReadout Inner Shade component integrated into BloomClock" *(created: 2026-06-09)*
+- [[sources/obs-2026-06-09-insightsscreen-created-with-navigation-infrastructure]] — "Observation: InsightsScreen created with navigation infrastructure" *(created: 2026-06-09)*
+- [[sources/obs-2026-06-09-insightsscreen-created-with-navigation-support]] — "Observation: InsightsScreen created with navigation support" *(created: 2026-06-09)*
+- [[sources/obs-2026-06-09-memory-consolidated-from-161-to-11-active-entries]] — "Observation: Memory consolidated from 161 to ~11 active entries" *(created: 2026-06-09)*
+- [[sources/obs-2026-06-09-memory-consolidated-from-56-to-10-entries]] — "Observation: Memory consolidated from 56 to 10 entries" *(created: 2026-06-09)*
+- [[sources/obs-2026-06-09-memory-consolidation-across-all-targets]] — "Observation: Memory consolidation across all targets" *(created: 2026-06-09)*
+- [[sources/obs-2026-06-09-memory-consolidation-completed]] — "Observation: Memory consolidation completed" *(created: 2026-06-09)*
+- [[sources/obs-2026-06-09-memory-consolidation-completed-tool-limitation-documented]] — "Observation: Memory consolidation completed — tool limitation documented" *(created: 2026-06-09)*
+- [[sources/obs-2026-06-09-memory-store-consolidation-completed]] — "Observation: Memory store consolidation completed" *(created: 2026-06-09)*
+- [[sources/obs-2026-06-09-prod-reference-folder-created-for-upstream-sparkyfitness]] — "Observation: prod/ reference folder created for upstream SparkyFitness" *(created: 2026-06-09)*
+- [[sources/obs-2026-06-09-prod-stack-verified-running-end-to-end]] — "Observation: Prod stack verified running end-to-end" *(created: 2026-06-09)*
+- [[sources/obs-2026-06-09-project-memory-consolidated-from-8-to-5-entries]] — "Observation: Project memory consolidated from 8 to 5 entries" *(created: 2026-06-09)*
+- [[sources/obs-2026-06-09-sparky-bloom-monorepo-initialized]] — "Observation: sparky-bloom monorepo initialized" *(created: 2026-06-09)*
+- [[sources/obs-2026-06-09-sparky-bloom-workspace-created-for-codebase-integration]] — "Observation: Sparky-Bloom workspace created for codebase integration" *(created: 2026-06-09)*
+- [[sources/obs-2026-06-09-three-environment-docker-architecture-finalized]] — "Observation: Three-environment Docker architecture finalized" *(created: 2026-06-09)*
+- [[sources/obs-2026-06-09-unified-discoveries-feed-and-revelation-page-implemented]] — "Observation: Unified Discoveries feed and Revelation page implemented" *(created: 2026-06-09)*
+- [[sources/obs-2026-06-09-weather-layer-concept-for-bloom]] — "Observation: Weather Layer concept for Bloom" *(created: 2026-06-09)*
+- [[sources/obs-2026-06-10-bloom-grammar-implemented-in-insightsscreen2]] — "Observation: Bloom Grammar implemented in InsightsScreen2" *(created: 2026-06-10)*
+- [[sources/obs-2026-06-10-failure-memory-consolidated]] — "Observation: Failure memory consolidated" *(created: 2026-06-10)*
+- [[sources/obs-2026-06-10-failure-memory-consolidated-to-four-entries]] — "Observation: Failure memory consolidated to four entries" *(created: 2026-06-10)*
+- [[sources/obs-2026-06-10-insightsscreen2-art-engine-redesign-implemented]] — "Observation: InsightsScreen2 art-engine redesign implemented" *(created: 2026-06-10)*
+- [[sources/obs-2026-06-10-sato-bloom-expo-docs-correction-to-sdk-54]] — "Observation: Sato Bloom Expo docs correction to SDK 54" *(created: 2026-06-10)*
+- [[sources/obs-2026-06-11-discover-screen-design-implemented-from-figma-spec]] — "Observation: Discover screen design implemented from Figma spec" *(created: 2026-06-11)*
+- [[sources/obs-2026-06-11-flower-image-added-to-pizza-discovery-card]] — "Observation: Flower image added to pizza discovery card" *(created: 2026-06-11)*
+- [[sources/obs-2026-06-12-026-and-027-tracking-issues-implemented]] — "Observation: #026 and #027 tracking issues implemented" *(created: 2026-06-12)*
+- [[sources/obs-2026-06-12-59-sato-theme-api-mobile-integration-review-completed]] — "Observation: #59 Sato Theme API mobile integration review completed" *(created: 2026-06-12)*
+- [[sources/obs-2026-06-12-69-t1d-meal-review-safety-mobile-review-completed]] — "Observation: #69 T1D meal review safety mobile review completed" *(created: 2026-06-12)*
+- [[sources/obs-2026-06-12-sato-bloom-context-report-written]] — "Observation: Sato Bloom context report written" *(created: 2026-06-12)*
+- [[sources/obs-2026-06-12-t1d-bot2-sato-theme-scout-completed]] — "Observation: T1D Bot2 Sato theme scout completed" *(created: 2026-06-12)*
 - [[sources/sato-watercolor-visualization-system]] — "Sato watercolor visualization system" *(created: 2026-06-07)*
-- [[sources/SRC-2026-06-07-001]] — SRC-2026-06-07-001 *(created: 2026-06-08)*
-- [[sources/SRC-2026-06-07-002]] — SRC-2026-06-07-002 *(created: 2026-06-08)*
-- [[sources/SRC-2026-06-07-003]] — SRC-2026-06-07-003 *(created: 2026-06-08)*
-- [[sources/SRC-2026-06-07-004]] — SRC-2026-06-07-004 *(created: 2026-06-08)*
-- [[sources/SRC-2026-06-07-005]] — SRC-2026-06-07-005 *(created: 2026-06-08)*
-- [[sources/SRC-2026-06-07-006]] — SRC-2026-06-07-006 *(created: 2026-06-08)*
-- [[sources/SRC-2026-06-07-007]] — SRC-2026-06-07-007 *(created: 2026-06-08)*
-- [[sources/SRC-2026-06-07-008]] — SRC-2026-06-07-008 *(created: 2026-06-08)*
-- [[sources/SRC-2026-06-07-009]] — SRC-2026-06-07-009 *(created: 2026-06-08)*
-- [[sources/SRC-2026-06-07-010]] — SRC-2026-06-07-010 *(created: 2026-06-08)*
-- [[sources/SRC-2026-06-07-011]] — SRC-2026-06-07-011 *(created: 2026-06-08)*
-- [[sources/SRC-2026-06-07-012]] — SRC-2026-06-07-012 *(created: 2026-06-08)*
+- [[sources/sparky-bloom-architecture-synthesis]] — "Sparky-Bloom four-layer architecture synthesized" *(created: 2026-06-09)*
+- [[sources/SRC-2026-06-07-001]] — SRC-2026-06-07-001 *(created: 2026-06-12)*
+- [[sources/SRC-2026-06-07-002]] — SRC-2026-06-07-002 *(created: 2026-06-12)*
+- [[sources/SRC-2026-06-07-003]] — SRC-2026-06-07-003 *(created: 2026-06-12)*
+- [[sources/SRC-2026-06-07-004]] — SRC-2026-06-07-004 *(created: 2026-06-12)*
+- [[sources/SRC-2026-06-07-005]] — SRC-2026-06-07-005 *(created: 2026-06-12)*
+- [[sources/SRC-2026-06-07-006]] — SRC-2026-06-07-006 *(created: 2026-06-12)*
+- [[sources/SRC-2026-06-07-007]] — SRC-2026-06-07-007 *(created: 2026-06-12)*
+- [[sources/SRC-2026-06-07-008]] — SRC-2026-06-07-008 *(created: 2026-06-12)*
+- [[sources/SRC-2026-06-07-009]] — SRC-2026-06-07-009 *(created: 2026-06-12)*
+- [[sources/SRC-2026-06-07-010]] — SRC-2026-06-07-010 *(created: 2026-06-12)*
+- [[sources/SRC-2026-06-07-011]] — SRC-2026-06-07-011 *(created: 2026-06-12)*
+- [[sources/SRC-2026-06-07-012]] — SRC-2026-06-07-012 *(created: 2026-06-12)*
 
 ---
-*Last updated: 2026-06-08T21:10:55.017Z* | *Total pages: 195*
+*Last updated: 2026-06-12T21:02:16.710Z* | *Total pages: 239*

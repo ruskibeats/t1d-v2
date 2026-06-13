@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "last_updated": "2026-06-08T21:10:55.017Z",
+  "last_updated": "2026-06-12T21:02:16.710Z",
   "pages": {
     "[sources/SRC-2026-06-07-001": {
       "type": "concept",
@@ -1120,7 +1120,7 @@
     "sources/SRC-2026-06-07-001": {
       "type": "source",
       "title": "SRC-2026-06-07-001",
-      "created": "2026-06-08",
+      "created": "2026-06-12",
       "updated": "2026-06-07",
       "format": "file",
       "source_id": "SRC-2026-06-07-001",
@@ -1131,7 +1131,7 @@
     "sources/SRC-2026-06-07-002": {
       "type": "source",
       "title": "SRC-2026-06-07-002",
-      "created": "2026-06-08",
+      "created": "2026-06-12",
       "updated": "2026-06-07",
       "format": "file",
       "source_id": "SRC-2026-06-07-002",
@@ -1142,7 +1142,7 @@
     "sources/SRC-2026-06-07-003": {
       "type": "source",
       "title": "SRC-2026-06-07-003",
-      "created": "2026-06-08",
+      "created": "2026-06-12",
       "updated": "2026-06-07",
       "format": "file",
       "source_id": "SRC-2026-06-07-003",
@@ -1153,7 +1153,7 @@
     "sources/SRC-2026-06-07-004": {
       "type": "source",
       "title": "SRC-2026-06-07-004",
-      "created": "2026-06-08",
+      "created": "2026-06-12",
       "updated": "2026-06-07",
       "format": "file",
       "source_id": "SRC-2026-06-07-004",
@@ -1164,7 +1164,7 @@
     "sources/SRC-2026-06-07-005": {
       "type": "source",
       "title": "SRC-2026-06-07-005",
-      "created": "2026-06-08",
+      "created": "2026-06-12",
       "updated": "2026-06-07",
       "format": "file",
       "source_id": "SRC-2026-06-07-005",
@@ -1175,7 +1175,7 @@
     "sources/SRC-2026-06-07-006": {
       "type": "source",
       "title": "SRC-2026-06-07-006",
-      "created": "2026-06-08",
+      "created": "2026-06-12",
       "updated": "2026-06-07",
       "format": "json",
       "source_id": "SRC-2026-06-07-006",
@@ -1186,7 +1186,7 @@
     "sources/SRC-2026-06-07-007": {
       "type": "source",
       "title": "SRC-2026-06-07-007",
-      "created": "2026-06-08",
+      "created": "2026-06-12",
       "updated": "2026-06-07",
       "format": "markdown",
       "source_id": "SRC-2026-06-07-007",
@@ -1197,7 +1197,7 @@
     "sources/SRC-2026-06-07-008": {
       "type": "source",
       "title": "SRC-2026-06-07-008",
-      "created": "2026-06-08",
+      "created": "2026-06-12",
       "updated": "2026-06-07",
       "format": "markdown",
       "source_id": "SRC-2026-06-07-008",
@@ -1208,7 +1208,7 @@
     "sources/SRC-2026-06-07-009": {
       "type": "source",
       "title": "SRC-2026-06-07-009",
-      "created": "2026-06-08",
+      "created": "2026-06-12",
       "updated": "2026-06-07",
       "format": "markdown",
       "source_id": "SRC-2026-06-07-009",
@@ -1219,7 +1219,7 @@
     "sources/SRC-2026-06-07-010": {
       "type": "source",
       "title": "SRC-2026-06-07-010",
-      "created": "2026-06-08",
+      "created": "2026-06-12",
       "updated": "2026-06-07",
       "format": "markdown",
       "source_id": "SRC-2026-06-07-010",
@@ -1230,8 +1230,8 @@
     "sources/SRC-2026-06-07-011": {
       "type": "source",
       "title": "SRC-2026-06-07-011",
-      "created": "2026-06-08",
-      "updated": "2026-06-08",
+      "created": "2026-06-12",
+      "updated": "2026-06-12",
       "format": "markdown",
       "source_id": "SRC-2026-06-07-011",
       "raw_path": "raw/sources/SRC-2026-06-07-011/extracted.md",
@@ -1241,13 +1241,67 @@
     "sources/SRC-2026-06-07-012": {
       "type": "source",
       "title": "SRC-2026-06-07-012",
-      "created": "2026-06-08",
-      "updated": "2026-06-08",
+      "created": "2026-06-12",
+      "updated": "2026-06-12",
       "format": "markdown",
       "source_id": "SRC-2026-06-07-012",
       "raw_path": "raw/sources/SRC-2026-06-07-012/extracted.md",
       "captured": "2026-06-07",
       "status": "skeleton"
+    },
+    "sources/bloom-not-a-chart-weather-layer-ask-bloom": {
+      "type": "source",
+      "title": "\"Bloom reframed: predicted-response portrait, not chart\"",
+      "created": "2026-06-09",
+      "updated": "2026-06-09",
+      "slug": "bloom-not-a-chart-weather-layer-ask-bloom",
+      "status": "insight",
+      "category": "product"
+    },
+    "sources/dev-prod-split-sparky-bloom": {
+      "type": "source",
+      "title": "\"Sparky-Bloom dev/prod workspace architecture\"",
+      "created": "2026-06-09",
+      "updated": "2026-06-09",
+      "slug": "dev-prod-split-sparky-bloom",
+      "status": "insight",
+      "category": "architecture"
+    },
+    "sources/docker-three-environment-pattern": {
+      "type": "source",
+      "title": "\"Three-environment Docker pattern for sparky-bloom\"",
+      "created": "2026-06-09",
+      "updated": "2026-06-09",
+      "slug": "docker-three-environment-pattern",
+      "status": "insight",
+      "category": "devops"
+    },
+    "sources/insightsscreen2-hero-bloom-replaced-with-bloomclock": {
+      "type": "source",
+      "title": "\"InsightsScreen2 hero bloom replaced with BloomClock from PortraitScreen\"",
+      "created": "2026-06-10",
+      "updated": "2026-06-10",
+      "slug": "insightsscreen2-hero-bloom-replaced-with-bloomclock",
+      "status": "insight",
+      "category": "design"
+    },
+    "sources/memory-tool-dual-storage-architecture": {
+      "type": "source",
+      "title": "\"Memory tool uses Markdown+SQLite dual storage\"",
+      "created": "2026-06-09",
+      "updated": "2026-06-09",
+      "slug": "memory-tool-dual-storage-architecture",
+      "status": "insight",
+      "category": "tool-quirk"
+    },
+    "sources/mobile-integration-review-and-tracking-issues": {
+      "type": "source",
+      "title": "\"Mobile integration review findings and tracking issue implementation\"",
+      "created": "2026-06-12",
+      "updated": "2026-06-12",
+      "slug": "mobile-integration-review-and-tracking-issues",
+      "status": "insight",
+      "category": "architecture"
     },
     "sources/obs-2026-06-07-bloom-card-height-reduced-and-state-label-removed": {
       "type": "source",
@@ -2173,12 +2227,592 @@
       ],
       "source_context": "\"Complete rewrite of MetabolicPortraitEngine implementing all 10 locked design decisions\""
     },
+    "sources/obs-2026-06-09-bloom-impact-under-every-meal-entry": {
+      "type": "source",
+      "title": "\"Observation: Bloom Impact under every meal entry\"",
+      "created": "2026-06-09",
+      "updated": "2026-06-09",
+      "slug": "obs-2026-06-09-bloom-impact-under-every-meal-entry",
+      "status": "observation",
+      "relevance": "high",
+      "observed_at": "2026-06-09T12:31:46.527Z",
+      "tags": [
+        "diary",
+        "bloom-impact",
+        "UX"
+      ],
+      "source_context": "\"Product direction refinement for sparky-bloom\""
+    },
+    "sources/obs-2026-06-09-bloom-paints-predicted-response-not-logged-inputs": {
+      "type": "source",
+      "title": "\"Observation: Bloom paints predicted response, not logged inputs\"",
+      "created": "2026-06-09",
+      "updated": "2026-06-09",
+      "slug": "obs-2026-06-09-bloom-paints-predicted-response-not-logged-inputs",
+      "status": "observation",
+      "relevance": "critical",
+      "observed_at": "2026-06-09T12:31:36.236Z",
+      "tags": [
+        "bloom",
+        "prediction",
+        "architecture"
+      ],
+      "source_context": "\"Product direction refinement for sparky-bloom\""
+    },
+    "sources/obs-2026-06-09-bloom-reframed-as-metabolic-self-portrait-not-chart": {
+      "type": "source",
+      "title": "\"Observation: Bloom reframed as metabolic self-portrait, not chart\"",
+      "created": "2026-06-09",
+      "updated": "2026-06-09",
+      "slug": "obs-2026-06-09-bloom-reframed-as-metabolic-self-portrait-not-chart",
+      "status": "observation",
+      "relevance": "critical",
+      "observed_at": "2026-06-09T12:31:31.650Z",
+      "tags": [
+        "bloom",
+        "vision",
+        "product"
+      ],
+      "source_context": "\"Reviewing the PRD for sparky-bloom\""
+    },
+    "sources/obs-2026-06-09-dev-stage-prod-environment-architecture-decided": {
+      "type": "source",
+      "title": "\"Observation: Dev/Stage/Prod environment architecture decided\"",
+      "created": "2026-06-09",
+      "updated": "2026-06-09",
+      "slug": "obs-2026-06-09-dev-stage-prod-environment-architecture-decided",
+      "status": "observation",
+      "relevance": "critical",
+      "observed_at": "2026-06-09T16:25:52.559Z",
+      "tags": [
+        "architecture",
+        "docker",
+        "environments",
+        "dev-stage-prod"
+      ]
+    },
+    "sources/obs-2026-06-09-discover-home-screen-implemented-in-insightsscreen": {
+      "type": "source",
+      "title": "\"Observation: Discover home screen implemented in InsightsScreen\"",
+      "created": "2026-06-09",
+      "updated": "2026-06-09",
+      "slug": "obs-2026-06-09-discover-home-screen-implemented-in-insightsscreen",
+      "status": "observation",
+      "relevance": "medium",
+      "observed_at": "2026-06-09T22:35:55.367Z",
+      "tags": [
+        "sato-bloom",
+        "discover",
+        "react-native",
+        "insights-screen"
+      ],
+      "source_context": "\"Building initial Sato Discover Home screen\""
+    },
+    "sources/obs-2026-06-09-discoveries-library-page-added-to-insightsscreen": {
+      "type": "source",
+      "title": "\"Observation: Discoveries library page added to InsightsScreen\"",
+      "created": "2026-06-09",
+      "updated": "2026-06-09",
+      "slug": "obs-2026-06-09-discoveries-library-page-added-to-insightsscreen",
+      "status": "observation",
+      "relevance": "medium",
+      "observed_at": "2026-06-09T22:54:44.506Z",
+      "tags": [
+        "sato-bloom",
+        "discoveries",
+        "insights-screen",
+        "react-native"
+      ],
+      "source_context": "\"Building Discoveries page from Discover Home See all\""
+    },
+    "sources/obs-2026-06-09-failure-memory-consolidated-to-3-authoritative-entries": {
+      "type": "source",
+      "title": "\"Observation: Failure memory consolidated to 3 authoritative entries\"",
+      "created": "2026-06-09",
+      "updated": "2026-06-09",
+      "slug": "obs-2026-06-09-failure-memory-consolidated-to-3-authoritative-entries",
+      "status": "observation",
+      "relevance": "medium",
+      "observed_at": "2026-06-09T12:52:55.621Z",
+      "tags": [
+        "memory",
+        "consolidation",
+        "tool-quirk"
+      ]
+    },
+    "sources/obs-2026-06-09-failure-memory-consolidation-completed": {
+      "type": "source",
+      "title": "\"Observation: Failure memory consolidation completed\"",
+      "created": "2026-06-09",
+      "updated": "2026-06-09",
+      "slug": "obs-2026-06-09-failure-memory-consolidation-completed",
+      "status": "observation",
+      "relevance": "medium",
+      "observed_at": "2026-06-09T12:56:29.486Z",
+      "tags": [
+        "memory",
+        "consolidation",
+        "housekeeping"
+      ],
+      "source_context": "\"Consolidating failure memory entries to free space\""
+    },
+    "sources/obs-2026-06-09-glucosereadout-inner-shade-component-integrated-into-bloomcl": {
+      "type": "source",
+      "title": "\"Observation: GlucoseReadout Inner Shade component integrated into BloomClock\"",
+      "created": "2026-06-09",
+      "updated": "2026-06-09",
+      "slug": "obs-2026-06-09-glucosereadout-inner-shade-component-integrated-into-bloomcl",
+      "status": "observation",
+      "relevance": "medium",
+      "observed_at": "2026-06-09T22:19:10.972Z"
+    },
+    "sources/obs-2026-06-09-insightsscreen-created-with-navigation-infrastructure": {
+      "type": "source",
+      "title": "\"Observation: InsightsScreen created with navigation infrastructure\"",
+      "created": "2026-06-09",
+      "updated": "2026-06-09",
+      "slug": "obs-2026-06-09-insightsscreen-created-with-navigation-infrastructure",
+      "status": "observation",
+      "relevance": "medium",
+      "observed_at": "2026-06-09T20:25:58.690Z",
+      "tags": [
+        "mobile",
+        "ui",
+        "bloom"
+      ]
+    },
+    "sources/obs-2026-06-09-insightsscreen-created-with-navigation-support": {
+      "type": "source",
+      "title": "\"Observation: InsightsScreen created with navigation support\"",
+      "created": "2026-06-09",
+      "updated": "2026-06-09",
+      "slug": "obs-2026-06-09-insightsscreen-created-with-navigation-support",
+      "status": "observation",
+      "relevance": "medium",
+      "observed_at": "2026-06-09T20:41:55.631Z"
+    },
+    "sources/obs-2026-06-09-memory-consolidated-from-161-to-11-active-entries": {
+      "type": "source",
+      "title": "\"Observation: Memory consolidated from 161 to ~11 active entries\"",
+      "created": "2026-06-09",
+      "updated": "2026-06-09",
+      "slug": "obs-2026-06-09-memory-consolidated-from-161-to-11-active-entries",
+      "status": "observation",
+      "relevance": "high",
+      "observed_at": "2026-06-09T13:17:21.380Z",
+      "tags": [
+        "memory",
+        "consolidation",
+        "tool-quirk"
+      ],
+      "source_context": "\"Memory consolidation across all targets (memory, user, failure)\""
+    },
+    "sources/obs-2026-06-09-memory-consolidated-from-56-to-10-entries": {
+      "type": "source",
+      "title": "\"Observation: Memory consolidated from 56 to 10 entries\"",
+      "created": "2026-06-09",
+      "updated": "2026-06-09",
+      "slug": "obs-2026-06-09-memory-consolidated-from-56-to-10-entries",
+      "status": "observation",
+      "relevance": "high",
+      "observed_at": "2026-06-09T13:31:00.477Z",
+      "tags": [
+        "memory",
+        "consolidation",
+        "pi-hermes"
+      ],
+      "source_context": "\"Memory consolidation task - reducing from 56+ to 10 entries\""
+    },
+    "sources/obs-2026-06-09-memory-consolidation-across-all-targets": {
+      "type": "source",
+      "title": "\"Observation: Memory consolidation across all targets\"",
+      "created": "2026-06-09",
+      "updated": "2026-06-09",
+      "slug": "obs-2026-06-09-memory-consolidation-across-all-targets",
+      "status": "observation",
+      "relevance": "high",
+      "observed_at": "2026-06-09T12:56:44.087Z",
+      "tags": [
+        "memory",
+        "consolidation",
+        "tool-limitation"
+      ]
+    },
+    "sources/obs-2026-06-09-memory-consolidation-completed-tool-limitation-documented": {
+      "type": "source",
+      "title": "\"Observation: Memory consolidation completed — tool limitation documented\"",
+      "created": "2026-06-09",
+      "updated": "2026-06-09",
+      "slug": "obs-2026-06-09-memory-consolidation-completed-tool-limitation-documented",
+      "status": "observation",
+      "relevance": "high",
+      "observed_at": "2026-06-09T13:00:12.125Z",
+      "tags": [
+        "memory",
+        "consolidation",
+        "tool-quirk"
+      ],
+      "source_context": "\"Memory consolidation task\""
+    },
+    "sources/obs-2026-06-09-memory-consolidation-completed": {
+      "type": "source",
+      "title": "\"Observation: Memory consolidation completed\"",
+      "created": "2026-06-09",
+      "updated": "2026-06-09",
+      "slug": "obs-2026-06-09-memory-consolidation-completed",
+      "status": "observation",
+      "relevance": "medium",
+      "observed_at": "2026-06-09T12:55:59.980Z",
+      "tags": [
+        "memory",
+        "consolidation",
+        "maintenance"
+      ],
+      "source_context": "\"Memory capacity management\""
+    },
+    "sources/obs-2026-06-09-memory-store-consolidation-completed": {
+      "type": "source",
+      "title": "\"Observation: Memory store consolidation completed\"",
+      "created": "2026-06-09",
+      "updated": "2026-06-09",
+      "slug": "obs-2026-06-09-memory-store-consolidation-completed",
+      "status": "observation",
+      "relevance": "high",
+      "observed_at": "2026-06-09T12:52:45.461Z",
+      "tags": [
+        "memory",
+        "consolidation",
+        "maintenance"
+      ],
+      "source_context": "\"Manual memory consolidation at user request\""
+    },
+    "sources/obs-2026-06-09-prod-reference-folder-created-for-upstream-sparkyfitness": {
+      "type": "source",
+      "title": "\"Observation: prod/ reference folder created for upstream SparkyFitness\"",
+      "created": "2026-06-09",
+      "updated": "2026-06-09",
+      "slug": "obs-2026-06-09-prod-reference-folder-created-for-upstream-sparkyfitness",
+      "status": "observation",
+      "relevance": "high",
+      "observed_at": "2026-06-09T12:59:39.836Z",
+      "tags": [
+        "prod",
+        "workspace",
+        "upstream",
+        "reference"
+      ],
+      "source_context": "\"Setting up sparky-bloom workspace structure\""
+    },
+    "sources/obs-2026-06-09-prod-stack-verified-running-end-to-end": {
+      "type": "source",
+      "title": "\"Observation: Prod stack verified running end-to-end\"",
+      "created": "2026-06-09",
+      "updated": "2026-06-09",
+      "slug": "obs-2026-06-09-prod-stack-verified-running-end-to-end",
+      "status": "observation",
+      "relevance": "high",
+      "observed_at": "2026-06-09T15:37:41.576Z",
+      "tags": [
+        "prod",
+        "milestone",
+        "deployment"
+      ],
+      "source_context": "\"Starting prod stack from docker compose\""
+    },
+    "sources/obs-2026-06-09-project-memory-consolidated-from-8-to-5-entries": {
+      "type": "source",
+      "title": "\"Observation: Project memory consolidated from 8 to 5 entries\"",
+      "created": "2026-06-09",
+      "updated": "2026-06-09",
+      "slug": "obs-2026-06-09-project-memory-consolidated-from-8-to-5-entries",
+      "status": "observation",
+      "relevance": "medium",
+      "observed_at": "2026-06-09T16:41:12.014Z"
+    },
+    "sources/obs-2026-06-09-sparky-bloom-monorepo-initialized": {
+      "type": "source",
+      "title": "\"Observation: sparky-bloom monorepo initialized\"",
+      "created": "2026-06-09",
+      "updated": "2026-06-09",
+      "slug": "obs-2026-06-09-sparky-bloom-monorepo-initialized",
+      "status": "observation",
+      "relevance": "high",
+      "observed_at": "2026-06-09T12:23:37.963Z",
+      "tags": [
+        "sparky-bloom",
+        "workspace",
+        "architecture"
+      ],
+      "source_context": "\"Workspace initialization from four source repos into sparky-bloom monorepo\""
+    },
+    "sources/obs-2026-06-09-sparky-bloom-workspace-created-for-codebase-integration": {
+      "type": "source",
+      "title": "\"Observation: Sparky-Bloom workspace created for codebase integration\"",
+      "created": "2026-06-09",
+      "updated": "2026-06-09",
+      "slug": "obs-2026-06-09-sparky-bloom-workspace-created-for-codebase-integration",
+      "status": "observation",
+      "relevance": "high",
+      "observed_at": "2026-06-09T12:15:08.418Z",
+      "tags": [
+        "sparky-bloom",
+        "architecture",
+        "integration",
+        "planning"
+      ],
+      "source_context": "\"Reviewing conversation about merging codebases into sparky-bloom workspace\""
+    },
+    "sources/obs-2026-06-09-three-environment-docker-architecture-finalized": {
+      "type": "source",
+      "title": "\"Observation: Three-environment Docker architecture finalized\"",
+      "created": "2026-06-09",
+      "updated": "2026-06-09",
+      "slug": "obs-2026-06-09-three-environment-docker-architecture-finalized",
+      "status": "observation",
+      "relevance": "high",
+      "observed_at": "2026-06-09T18:19:41.042Z"
+    },
+    "sources/obs-2026-06-09-unified-discoveries-feed-and-revelation-page-implemented": {
+      "type": "source",
+      "title": "\"Observation: Unified Discoveries feed and Revelation page implemented\"",
+      "created": "2026-06-09",
+      "updated": "2026-06-09",
+      "slug": "obs-2026-06-09-unified-discoveries-feed-and-revelation-page-implemented",
+      "status": "observation",
+      "relevance": "medium",
+      "observed_at": "2026-06-09T23:23:05.605Z",
+      "tags": [
+        "sato-bloom",
+        "discoveries",
+        "revelation",
+        "insights-screen"
+      ],
+      "source_context": "\"Redesigning Discoveries See all flow\""
+    },
+    "sources/obs-2026-06-09-weather-layer-concept-for-bloom": {
+      "type": "source",
+      "title": "\"Observation: Weather Layer concept for Bloom\"",
+      "created": "2026-06-09",
+      "updated": "2026-06-09",
+      "slug": "obs-2026-06-09-weather-layer-concept-for-bloom",
+      "status": "observation",
+      "relevance": "high",
+      "observed_at": "2026-06-09T12:31:39.667Z",
+      "tags": [
+        "bloom",
+        "weather",
+        "AI",
+        "product"
+      ],
+      "source_context": "\"Product direction refinement for sparky-bloom\""
+    },
+    "sources/obs-2026-06-10-bloom-grammar-implemented-in-insightsscreen2": {
+      "type": "source",
+      "title": "\"Observation: Bloom Grammar implemented in InsightsScreen2\"",
+      "created": "2026-06-10",
+      "updated": "2026-06-10",
+      "slug": "obs-2026-06-10-bloom-grammar-implemented-in-insightsscreen2",
+      "status": "observation",
+      "relevance": "high",
+      "observed_at": "2026-06-10T10:11:44.266Z",
+      "tags": [
+        "skia",
+        "bloom-grammar",
+        "insights-screen"
+      ],
+      "source_context": "\"Implementing bloom grammar from user's design framework\""
+    },
+    "sources/obs-2026-06-10-failure-memory-consolidated-to-four-entries": {
+      "type": "source",
+      "title": "\"Observation: Failure memory consolidated to four entries\"",
+      "created": "2026-06-10",
+      "updated": "2026-06-10",
+      "slug": "obs-2026-06-10-failure-memory-consolidated-to-four-entries",
+      "status": "observation",
+      "relevance": "medium",
+      "observed_at": "2026-06-10T09:19:06.209Z",
+      "tags": [
+        "memory",
+        "consolidation",
+        "failure-memory"
+      ],
+      "source_context": "\"Memory capacity cleanup\""
+    },
+    "sources/obs-2026-06-10-failure-memory-consolidated": {
+      "type": "source",
+      "title": "\"Observation: Failure memory consolidated\"",
+      "created": "2026-06-10",
+      "updated": "2026-06-10",
+      "slug": "obs-2026-06-10-failure-memory-consolidated",
+      "status": "observation",
+      "relevance": "medium",
+      "observed_at": "2026-06-10T09:19:24.051Z",
+      "tags": [
+        "memory",
+        "consolidation",
+        "failure-memory"
+      ],
+      "source_context": "\"Memory capacity cleanup\""
+    },
+    "sources/obs-2026-06-10-insightsscreen2-art-engine-redesign-implemented": {
+      "type": "source",
+      "title": "\"Observation: InsightsScreen2 art-engine redesign implemented\"",
+      "created": "2026-06-10",
+      "updated": "2026-06-10",
+      "slug": "obs-2026-06-10-insightsscreen2-art-engine-redesign-implemented",
+      "status": "observation",
+      "relevance": "medium",
+      "observed_at": "2026-06-10T09:14:56.471Z",
+      "tags": [
+        "insights",
+        "ui",
+        "skia",
+        "art-engine"
+      ],
+      "source_context": "\"Rebuilding InsightsScreen2.tsx from insightsruss.png\""
+    },
+    "sources/obs-2026-06-10-sato-bloom-expo-docs-correction-to-sdk-54": {
+      "type": "source",
+      "title": "\"Observation: Sato Bloom Expo docs correction to SDK 54\"",
+      "created": "2026-06-10",
+      "updated": "2026-06-10",
+      "slug": "obs-2026-06-10-sato-bloom-expo-docs-correction-to-sdk-54",
+      "status": "observation",
+      "relevance": "high",
+      "observed_at": "2026-06-10T09:14:42.951Z",
+      "tags": [
+        "expo",
+        "docs",
+        "convention"
+      ],
+      "source_context": "\"Updating project instructions and rebuilding InsightsScreen2.tsx\""
+    },
+    "sources/obs-2026-06-11-discover-screen-design-implemented-from-figma-spec": {
+      "type": "source",
+      "title": "\"Observation: Discover screen design implemented from Figma spec\"",
+      "created": "2026-06-11",
+      "updated": "2026-06-11",
+      "slug": "obs-2026-06-11-discover-screen-design-implemented-from-figma-spec",
+      "status": "observation",
+      "relevance": "high",
+      "observed_at": "2026-06-11T12:20:57.672Z"
+    },
+    "sources/obs-2026-06-11-flower-image-added-to-pizza-discovery-card": {
+      "type": "source",
+      "title": "\"Observation: Flower image added to pizza discovery card\"",
+      "created": "2026-06-11",
+      "updated": "2026-06-11",
+      "slug": "obs-2026-06-11-flower-image-added-to-pizza-discovery-card",
+      "status": "observation",
+      "relevance": "medium",
+      "observed_at": "2026-06-11T15:35:50.922Z"
+    },
+    "sources/obs-2026-06-12-026-and-027-tracking-issues-implemented": {
+      "type": "source",
+      "title": "\"Observation: #026 and #027 tracking issues implemented\"",
+      "created": "2026-06-12",
+      "updated": "2026-06-12",
+      "slug": "obs-2026-06-12-026-and-027-tracking-issues-implemented",
+      "status": "observation",
+      "relevance": "high",
+      "observed_at": "2026-06-12T21:00:22.918Z",
+      "tags": [
+        "sato-bloom",
+        "#026",
+        "#027",
+        "variability",
+        "shared-contract",
+        "integration"
+      ],
+      "source_context": "\"Implementing tracking issues from mobile review findings\""
+    },
+    "sources/obs-2026-06-12-59-sato-theme-api-mobile-integration-review-completed": {
+      "type": "source",
+      "title": "\"Observation: #59 Sato Theme API mobile integration review completed\"",
+      "created": "2026-06-12",
+      "updated": "2026-06-12",
+      "slug": "obs-2026-06-12-59-sato-theme-api-mobile-integration-review-completed",
+      "status": "observation",
+      "relevance": "high",
+      "observed_at": "2026-06-12T20:45:16.389Z",
+      "tags": [
+        "sato-bloom",
+        "mobile-review",
+        "#59",
+        "variability",
+        "shared-contract"
+      ],
+      "source_context": "\"Mobile/Skia/Bloom review for Commander T1D-bot3 assignment\""
+    },
+    "sources/obs-2026-06-12-69-t1d-meal-review-safety-mobile-review-completed": {
+      "type": "source",
+      "title": "\"Observation: #69 T1D meal review safety mobile review completed\"",
+      "created": "2026-06-12",
+      "updated": "2026-06-12",
+      "slug": "obs-2026-06-12-69-t1d-meal-review-safety-mobile-review-completed",
+      "status": "observation",
+      "relevance": "medium",
+      "observed_at": "2026-06-12T20:49:51.608Z",
+      "tags": [
+        "sato-bloom",
+        "mobile-review",
+        "#69",
+        "safety",
+        "meal-review"
+      ],
+      "source_context": "\"Mobile/Skia/Bloom review for Commander T1D-bot3 assignment\""
+    },
+    "sources/obs-2026-06-12-sato-bloom-context-report-written": {
+      "type": "source",
+      "title": "\"Observation: Sato Bloom context report written\"",
+      "created": "2026-06-12",
+      "updated": "2026-06-12",
+      "slug": "obs-2026-06-12-sato-bloom-context-report-written",
+      "status": "observation",
+      "relevance": "medium",
+      "observed_at": "2026-06-12T20:43:51.266Z",
+      "tags": [
+        "t1d",
+        "sato-bloom",
+        "design-context",
+        "bloom",
+        "renderer"
+      ],
+      "source_context": "\"T1D-bot4 Sato-Bloom design-context scouting task\""
+    },
+    "sources/obs-2026-06-12-t1d-bot2-sato-theme-scout-completed": {
+      "type": "source",
+      "title": "\"Observation: T1D Bot2 Sato theme scout completed\"",
+      "created": "2026-06-12",
+      "updated": "2026-06-12",
+      "slug": "obs-2026-06-12-t1d-bot2-sato-theme-scout-completed",
+      "status": "observation",
+      "relevance": "medium",
+      "observed_at": "2026-06-12T19:38:13.606Z",
+      "tags": [
+        "t1d",
+        "sato",
+        "theme",
+        "scout",
+        "intercom"
+      ],
+      "source_context": "\"T1D-bot2 read-only design-context scout for issue #58\""
+    },
     "sources/sato-watercolor-visualization-system": {
       "type": "source",
       "title": "\"Sato watercolor visualization system\"",
       "created": "2026-06-07",
       "updated": "2026-06-07",
       "slug": "sato-watercolor-visualization-system",
+      "status": "insight",
+      "category": "architecture"
+    },
+    "sources/sparky-bloom-architecture-synthesis": {
+      "type": "source",
+      "title": "\"Sparky-Bloom four-layer architecture synthesized\"",
+      "created": "2026-06-09",
+      "updated": "2026-06-09",
+      "slug": "sparky-bloom-architecture-synthesis",
       "status": "insight",
       "category": "architecture"
     }

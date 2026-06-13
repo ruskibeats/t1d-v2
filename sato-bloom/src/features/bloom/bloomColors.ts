@@ -1,42 +1,33 @@
 // ── Sato Watercolor Palette ──────────────────────────────────────────
 // Rich but restrained. No emergency red, no medical blue, no neon.
 // Think: botanical print, Japanese paper postcard, museum watercolor.
+//
+// Core palette imported from @workspace/shared canonical contract.
+// Rendering-only helpers (interpolateHex, rgba, colorForBloomValue) stay local.
 
+import { SATO_PALETTE } from "@workspace/shared";
+
+/**
+ * Bloom palette — Sato watercolor colors for the BloomClock renderer.
+ *
+ * All canonical palette keys are sourced from the shared SATO_PALETTE.
+ * Legacy aliases and the extra `lavender` color are maintained here
+ * for backward compatibility with existing rendering code.
+ */
 export const bloomPalette = {
-  // ── watercolor stains ──
-  mutedTeal: "#6F9FA0",
-  blueGrey: "#8FB3C2",
-  mossGreen: "#9FAE86",
-  warmOchre: "#D7B36A",
-  apricot: "#E3A061",
-  softCoral: "#DB8A6F",
-  fadedClay: "#C47B61",
+  ...SATO_PALETTE,
 
-  // ── identity vessel neutrals ──
-  vesselWarm: "#D9C49D",
-  vesselNeutral: "#C9B49A",
-
-  // ── ink & labels ──
-  ink: "#211F1B",
-  inkWarm: "#5A5249",
-  captionBlue: "#5795C7",
-  muted: "#8C8175",
-  mutedLight: "#A89F95",
-
-  // ── paper ──
-  paper: "#FBF3E6",
-  paperDeep: "#F7EEDC",
-  paperCream: "#FFF9EF",
+  // ── extra color (not in canonical SATO_PALETTE) ──
+  lavender: "#A98BC5",
 
   // ── legacy aliases (deprecated, keep for compat) ──
-  lower: "#6F9FA0",
-  lowIndigo: "#8FB3C2",
-  calmBlue: "#8FB3C2",
-  balancedGreen: "#9FAE86",
-  softGold: "#D7B36A",
-  coral: "#DB8A6F",
-  warmRose: "#DB8A6F",
-  lavender: "#A98BC5",
+  lower: SATO_PALETTE.mutedTeal,
+  lowIndigo: SATO_PALETTE.blueGrey,
+  calmBlue: SATO_PALETTE.blueGrey,
+  balancedGreen: SATO_PALETTE.mossGreen,
+  softGold: SATO_PALETTE.warmOchre,
+  coral: SATO_PALETTE.softCoral,
+  warmRose: SATO_PALETTE.softCoral,
 };
 
 export function interpolateHex(a: string, b: string, t: number): string {
@@ -66,32 +57,36 @@ export function rgba(hex: string, alpha: number) {
 
 export function colorForBloomValue(value: number): string {
   if (value < 0.25) {
-    return interpolateHex(bloomPalette.blueGrey, bloomPalette.mutedTeal, value / 0.25);
+    return interpolateHex(
+      SATO_PALETTE.blueGrey,
+      SATO_PALETTE.mutedTeal,
+      value / 0.25
+    );
   }
   if (value < 0.5) {
     return interpolateHex(
-      bloomPalette.mutedTeal,
-      bloomPalette.mossGreen,
+      SATO_PALETTE.mutedTeal,
+      SATO_PALETTE.mossGreen,
       (value - 0.25) / 0.25
     );
   }
   if (value < 0.7) {
     return interpolateHex(
-      bloomPalette.mossGreen,
-      bloomPalette.warmOchre,
+      SATO_PALETTE.mossGreen,
+      SATO_PALETTE.warmOchre,
       (value - 0.5) / 0.2
     );
   }
   if (value < 0.85) {
     return interpolateHex(
-      bloomPalette.warmOchre,
-      bloomPalette.apricot,
+      SATO_PALETTE.warmOchre,
+      SATO_PALETTE.apricot,
       (value - 0.7) / 0.15
     );
   }
   return interpolateHex(
-    bloomPalette.apricot,
-    bloomPalette.softCoral,
+    SATO_PALETTE.apricot,
+    SATO_PALETTE.softCoral,
     Math.min(1, (value - 0.85) / 0.15)
   );
 }

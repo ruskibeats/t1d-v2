@@ -260,3 +260,150 @@
 ## [2026-06-08T21:10:55.014Z] observe
 - slug: "obs-2026-06-08-sato-bloom-core-halo-satellite-density-increased", title: "Sato bloom core/halo/satellite density increased", relevance: "high"
 
+## [2026-06-09T12:15:08.427Z] observe
+- slug: "obs-2026-06-09-sparky-bloom-workspace-created-for-codebase-integration", title: "Sparky-Bloom workspace created for codebase integration", relevance: "high"
+
+## [2026-06-09T12:19:20.843Z] retro
+- slug: "sparky-bloom-architecture-synthesis", title: "Sparky-Bloom four-layer architecture synthesized", category: "architecture"
+
+## [2026-06-09T12:23:37.964Z] observe
+- slug: "obs-2026-06-09-sparky-bloom-monorepo-initialized", title: "sparky-bloom monorepo initialized", relevance: "high"
+
+## [2026-06-09T12:31:31.651Z] observe
+- slug: "obs-2026-06-09-bloom-reframed-as-metabolic-self-portrait-not-chart", title: "Bloom reframed as metabolic self-portrait, not chart", relevance: "critical"
+
+## [2026-06-09T12:31:36.236Z] observe
+- slug: "obs-2026-06-09-bloom-paints-predicted-response-not-logged-inputs", title: "Bloom paints predicted response, not logged inputs", relevance: "critical"
+
+## [2026-06-09T12:31:39.667Z] observe
+- slug: "obs-2026-06-09-weather-layer-concept-for-bloom", title: "Weather Layer concept for Bloom", relevance: "high"
+
+## [2026-06-09T12:31:46.527Z] observe
+- slug: "obs-2026-06-09-bloom-impact-under-every-meal-entry", title: "Bloom Impact under every meal entry", relevance: "high"
+
+## [2026-06-09T12:33:17.545Z] retro
+- slug: "bloom-not-a-chart-weather-layer-ask-bloom", title: "Bloom reframed: predicted-response portrait, not chart", category: "product"
+
+## [2026-06-09T12:43:48.175Z] observe
+- slug: "obs-2026-06-09-memory-consolidation-completed", title: "Memory consolidation completed", relevance: "medium"
+
+## [2026-06-09T12:47:47.892Z] observe
+- slug: "obs-2026-06-09-memory-consolidation-completed", title: "Memory consolidation completed", relevance: "medium"
+
+## [2026-06-09T12:48:54.121Z] observe
+- slug: "obs-2026-06-09-failure-memory-consolidation-completed", title: "Failure memory consolidation completed", relevance: "medium"
+
+## [2026-06-09T12:50:32.352Z] observe
+- slug: "obs-2026-06-09-memory-consolidation-completed", title: "Memory consolidation completed", relevance: "high"
+
+## [2026-06-09T12:51:23.317Z] observe
+- slug: "obs-2026-06-09-memory-consolidation-completed", title: "Memory consolidation completed", relevance: "high"
+
+## [2026-06-09T12:52:45.462Z] observe
+- slug: "obs-2026-06-09-memory-store-consolidation-completed", title: "Memory store consolidation completed", relevance: "high"
+
+## [2026-06-09T12:52:51.692Z] retro
+- slug: "memory-tool-dual-storage-architecture", title: "Memory tool uses Markdown+SQLite dual storage", category: "tool-quirk"
+
+## [2026-06-09T12:52:55.621Z] observe
+- slug: "obs-2026-06-09-failure-memory-consolidated-to-3-authoritative-entries", title: "Failure memory consolidated to 3 authoritative entries", relevance: "medium"
+
+## [2026-06-09T12:55:59.981Z] observe
+- slug: "obs-2026-06-09-memory-consolidation-completed", title: "Memory consolidation completed", relevance: "medium"
+
+## [2026-06-09T12:56:29.487Z] observe
+- slug: "obs-2026-06-09-failure-memory-consolidation-completed", title: "Failure memory consolidation completed", relevance: "medium"
+
+## [2026-06-09T12:56:44.087Z] observe
+- slug: "obs-2026-06-09-memory-consolidation-across-all-targets", title: "Memory consolidation across all targets", relevance: "high"
+
+## [2026-06-09T12:59:39.836Z] observe
+- slug: "obs-2026-06-09-prod-reference-folder-created-for-upstream-sparkyfitness", title: "prod/ reference folder created for upstream SparkyFitness", relevance: "high"
+
+## [2026-06-09T13:00:12.125Z] observe
+- slug: "obs-2026-06-09-memory-consolidation-completed-tool-limitation-documented", title: "Memory consolidation completed — tool limitation documented", relevance: "high"
+
+## [2026-06-09T13:17:21.380Z] observe
+- slug: "obs-2026-06-09-memory-consolidated-from-161-to-11-active-entries", title: "Memory consolidated from 161 to ~11 active entries", relevance: "high"
+
+## [2026-06-09T13:31:00.477Z] observe
+- slug: "obs-2026-06-09-memory-consolidated-from-56-to-10-entries", title: "Memory consolidated from 56 to 10 entries", relevance: "high"
+
+## [2026-06-09T13:49:46.555Z] retro
+- slug: "dev-prod-split-sparky-bloom", title: "Sparky-Bloom dev/prod workspace architecture", category: "architecture"
+
+## [2026-06-09T15:37:41.576Z] observe
+- slug: "obs-2026-06-09-prod-stack-verified-running-end-to-end", title: "Prod stack verified running end-to-end", relevance: "high"
+
+## [2026-06-09T16:25:52.559Z] observe
+- slug: "obs-2026-06-09-dev-stage-prod-environment-architecture-decided", title: "Dev/Stage/Prod environment architecture decided", relevance: "critical"
+
+## [2026-06-09T16:41:12.014Z] observe
+- slug: "obs-2026-06-09-project-memory-consolidated-from-8-to-5-entries", title: "Project memory consolidated from 8 to 5 entries", relevance: "medium"
+
+## [2026-06-09T18:19:41.043Z] observe
+- slug: "obs-2026-06-09-three-environment-docker-architecture-finalized", title: "Three-environment Docker architecture finalized", relevance: "high"
+
+## [2026-06-09T18:20:06.608Z] retro
+- slug: "docker-three-environment-pattern", title: "Three-environment Docker pattern for sparky-bloom", category: "devops"
+
+## [2026-06-09T20:25:58.690Z] observe
+- slug: "obs-2026-06-09-insightsscreen-created-with-navigation-infrastructure", title: "InsightsScreen created with navigation infrastructure", relevance: "medium"
+
+## [2026-06-09T20:41:55.631Z] observe
+- slug: "obs-2026-06-09-insightsscreen-created-with-navigation-support", title: "InsightsScreen created with navigation support", relevance: "medium"
+
+## [2026-06-09T22:19:10.972Z] observe
+- slug: "obs-2026-06-09-glucosereadout-inner-shade-component-integrated-into-bloomcl", title: "GlucoseReadout Inner Shade component integrated into BloomClock", relevance: "medium"
+
+## [2026-06-09T22:35:55.367Z] observe
+- slug: "obs-2026-06-09-discover-home-screen-implemented-in-insightsscreen", title: "Discover home screen implemented in InsightsScreen", relevance: "medium"
+
+## [2026-06-09T22:54:44.506Z] observe
+- slug: "obs-2026-06-09-discoveries-library-page-added-to-insightsscreen", title: "Discoveries library page added to InsightsScreen", relevance: "medium"
+
+## [2026-06-09T23:23:05.605Z] observe
+- slug: "obs-2026-06-09-unified-discoveries-feed-and-revelation-page-implemented", title: "Unified Discoveries feed and Revelation page implemented", relevance: "medium"
+
+## [2026-06-10T09:14:42.951Z] observe
+- slug: "obs-2026-06-10-sato-bloom-expo-docs-correction-to-sdk-54", title: "Sato Bloom Expo docs correction to SDK 54", relevance: "high"
+
+## [2026-06-10T09:14:56.471Z] observe
+- slug: "obs-2026-06-10-insightsscreen2-art-engine-redesign-implemented", title: "InsightsScreen2 art-engine redesign implemented", relevance: "medium"
+
+## [2026-06-10T09:19:06.209Z] observe
+- slug: "obs-2026-06-10-failure-memory-consolidated-to-four-entries", title: "Failure memory consolidated to four entries", relevance: "medium"
+
+## [2026-06-10T09:19:24.051Z] observe
+- slug: "obs-2026-06-10-failure-memory-consolidated", title: "Failure memory consolidated", relevance: "medium"
+
+## [2026-06-10T10:11:44.267Z] observe
+- slug: "obs-2026-06-10-bloom-grammar-implemented-in-insightsscreen2", title: "Bloom Grammar implemented in InsightsScreen2", relevance: "high"
+
+## [2026-06-10T14:50:07.300Z] retro
+- slug: "insightsscreen2-hero-bloom-replaced-with-bloomclock", title: "InsightsScreen2 hero bloom replaced with BloomClock from PortraitScreen", category: "design"
+
+## [2026-06-11T12:20:57.672Z] observe
+- slug: "obs-2026-06-11-discover-screen-design-implemented-from-figma-spec", title: "Discover screen design implemented from Figma spec", relevance: "high"
+
+## [2026-06-11T15:35:50.922Z] observe
+- slug: "obs-2026-06-11-flower-image-added-to-pizza-discovery-card", title: "Flower image added to pizza discovery card", relevance: "medium"
+
+## [2026-06-12T19:38:13.606Z] observe
+- slug: "obs-2026-06-12-t1d-bot2-sato-theme-scout-completed", title: "T1D Bot2 Sato theme scout completed", relevance: "medium"
+
+## [2026-06-12T20:43:51.357Z] observe
+- slug: "obs-2026-06-12-sato-bloom-context-report-written", title: "Sato Bloom context report written", relevance: "medium"
+
+## [2026-06-12T20:45:16.389Z] observe
+- slug: "obs-2026-06-12-59-sato-theme-api-mobile-integration-review-completed", title: "#59 Sato Theme API mobile integration review completed", relevance: "high"
+
+## [2026-06-12T20:49:51.608Z] observe
+- slug: "obs-2026-06-12-69-t1d-meal-review-safety-mobile-review-completed", title: "#69 T1D meal review safety mobile review completed", relevance: "medium"
+
+## [2026-06-12T21:00:22.918Z] observe
+- slug: "obs-2026-06-12-026-and-027-tracking-issues-implemented", title: "#026 and #027 tracking issues implemented", relevance: "high"
+
+## [2026-06-12T21:02:16.703Z] retro
+- slug: "mobile-integration-review-and-tracking-issues", title: "Mobile integration review findings and tracking issue implementation", category: "architecture"
+

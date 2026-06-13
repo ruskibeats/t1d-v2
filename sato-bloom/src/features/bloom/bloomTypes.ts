@@ -1,4 +1,4 @@
-import { MetabolicPigmentKey } from "./pigmentSystem";
+import type { MetabolicPigmentKey } from "./pigmentSystem";
 
 export type BloomState = "balanced" | "reactive" | "calm";
 
@@ -19,7 +19,7 @@ export type BloomMemoryMark = {
   distance: number;
   intensity: number;
   color: string;
-  pigmentKey?: MetabolicPigmentKey;
+  pigmentKey: MetabolicPigmentKey;
   size: number;
   softness?: number;
 };
@@ -34,7 +34,7 @@ export type BloomWindow = {
   variability: number;
   intensity: number;
   state: BloomState;
-  pigmentKey?: MetabolicPigmentKey;
+  pigmentKey: MetabolicPigmentKey;
   glucoseAvg?: number;
   glucosePeak?: number;
   rateOfChange?: string;

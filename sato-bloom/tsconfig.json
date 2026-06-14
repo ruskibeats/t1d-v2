@@ -6,7 +6,9 @@
     "noEmit": true,
     "paths": {
       "@workspace/shared": ["../sparky-bloom/shared/src/index.ts"],
-      "@workspace/shared/*": ["../sparky-bloom/shared/src/*"]
+      "@workspace/shared/*": ["../sparky-bloom/shared/src/*"],
+      "@/*": ["./src/*"]
     }
-  }
+  },
+  "exclude": ["Dad_Resources ", "node_modules"]
 }

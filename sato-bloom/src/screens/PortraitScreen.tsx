@@ -12,16 +12,12 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { BloomClock } from "../features/bloom/BloomClock";
 import { todayBloomWindows } from "../features/bloom/bloomSampleData";
 import { bloomPalette } from "../features/bloom/bloomColors";
-import { ScreenName, NavIcon } from "../navigation/types";
+import { TabBar } from "../components/TabBar";
+
+type ScreenName = "Portrait" | "Discover" | "Foods" | "Profile" | "Sato";
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 
-type NavItemProps = {
-  icon: NavIcon;
-  label: string;
-  active?: boolean;
-  onPress?: () => void;
-};
 
 export default function PortraitScreen({ onNavigate }: { onNavigate?: (screen: ScreenName) => void }) {
   const handleNavPress = (screen: ScreenName) => {
@@ -39,7 +35,6 @@ export default function PortraitScreen({ onNavigate }: { onNavigate?: (screen: S
           <View style={styles.header}>
             <Text style={styles.logoText}>Sato</Text>
             <View style={styles.bellWrap}>
-              <BellLineIcon color={bloomPalette.ink} />
               <View style={styles.notificationDot} />
             </View>
           </View>
@@ -71,103 +66,16 @@ export default function PortraitScreen({ onNavigate }: { onNavigate?: (screen: S
           </View>
         </ScrollView>
 
-        <View style={styles.bottomNav}>
-          <NavItem icon="portrait" label="Portrait" active />
-          <NavItem icon="foods" label="Foods" onPress={() => handleNavPress("Foods")} />
-          <NavItem icon="discover" label="Discover" onPress={() => handleNavPress("Insights")} />
-          <NavItem icon="sato" label="Sato" />
-          <NavItem icon="profile" label="Profile" onPress={() => handleNavPress("Profile")} />
-        </View>
+        <TabBar active="portrait" onPress={(tab) => {
+          if (tab !== 'portrait') {
+            const screenMap: any = { discover: 'Discover', foods: 'Foods', sato: 'Sato', profile: 'Profile' };
+            onNavigate?.(screenMap[tab]);
+          }
+        }} />
       </SafeAreaView>
     </GestureHandlerRootView>
   );
-}
 
-function NavItem({ icon, label, active, onPress }: NavItemProps) {
-  const color = active ? "#D97748" : "#80786F";
-  return (
-    <Pressable onPress={onPress} style={styles.navItem}>
-      <View style={styles.navIconWrap}>
-        {icon === "portrait" ? <BlossomIcon color={color} size={25} /> : null}
-        {icon === "foods" ? <UtensilsLineIcon color={color} /> : null}
-        {icon === "discover" ? <MessageLineIcon color={color} /> : null}
-        {icon === "profile" ? <UserLineIcon color={color} /> : null}
-        {icon === "sato" ? <BlossomIcon color={color} size={22} filled /> : null}
-      </View>
-      <Text style={[styles.navLabel, active && styles.navLabelActive]}>{label}</Text>
-      {active && <View style={styles.navDot} />}
-    </Pressable>
-  );
-}
-
-function BlossomIcon({ color, size = 26, filled = false }: { color: string; size?: number; filled?: boolean }) {
-  const petalLong = size * 0.62;
-  const petalShort = size * 0.31;
-  const offset = size * 0.18;
-  return (
-    <View style={[styles.blossomIcon, { width: size, height: size }]}>
-      {[0, 1, 2, 3].map((index) => (
-        <View
-          key={index}
-          style={[
-            styles.blossomPetal,
-            {
-              width: petalShort,
-              height: petalLong,
-              borderRadius: petalLong,
-              backgroundColor: filled ? color : "transparent",
-              borderColor: color,
-              opacity: filled ? 0.72 : 0.95,
-              transform: [{ rotate: `${index * 90 + 45}deg` }, { translateY: -offset }],
-            },
-          ]}
-        />
-      ))}
-      <View style={[styles.blossomCenter, { backgroundColor: color }]} />
-    </View>
-  );
-}
-
-function BellLineIcon({ color }: { color: string }) {
-  return (
-    <View style={styles.bellIconBox}>
-      <View style={[styles.bellDome, { borderColor: color }]} />
-      <View style={[styles.bellBase, { borderColor: color }]} />
-      <View style={[styles.bellClapper, { backgroundColor: color }]} />
-    </View>
-  );
-}
-
-function UtensilsLineIcon({ color }: { color: string }) {
-  return (
-    <View style={styles.iconBox}>
-      <View style={styles.forkTines}>
-        <View style={[styles.tine, { backgroundColor: color }]} />
-        <View style={[styles.tine, { backgroundColor: color }]} />
-        <View style={[styles.tine, { backgroundColor: color }]} />
-      </View>
-      <View style={[styles.forkHandle, { backgroundColor: color }]} />
-      <View style={[styles.knife, { borderColor: color }]} />
-    </View>
-  );
-}
-
-function MessageLineIcon({ color }: { color: string }) {
-  return (
-    <View style={styles.iconBox}>
-      <View style={[styles.messageBubble, { borderColor: color }]} />
-      <View style={[styles.messageTail, { borderRightColor: color, borderBottomColor: color, backgroundColor: "rgba(255,255,255,0.74)" }]} />
-    </View>
-  );
-}
-
-function UserLineIcon({ color }: { color: string }) {
-  return (
-    <View style={styles.iconBox}>
-      <View style={[styles.userHead, { borderColor: color }]} />
-      <View style={[styles.userShoulders, { borderColor: color }]} />
-    </View>
-  );
 }
 
 const styles = StyleSheet.create({

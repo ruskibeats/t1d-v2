@@ -25,6 +25,7 @@ import {
 } from "@expo-google-fonts/cormorant-garamond";
 import { ScreenName } from "../navigation/types";
 
+
 type Discovery = {
   id: string;
   title: string;
@@ -214,8 +215,8 @@ function BottomNav({ onNavigate }: { onNavigate?: (screen: ScreenName) => void }
   const items: { label: string; icon: React.ReactNode; screen?: ScreenName }[] = [
     { label: "Portrait", icon: <Flower2 size={22} color="#857D74" />, screen: "Portrait" },
     { label: "Foods", icon: <UtensilsCrossed size={20} color="#857D74" />, screen: "Foods" },
-    { label: "Discover", icon: <Sparkles size={24} color="#D97947" />, screen: "Insights" },
-    { label: "Sato", icon: null },
+    { label: "Discover", icon: <Sparkles size={24} color="#D97947" />, screen: "Discover" },
+    { label: "Sato", icon: null, screen: "Sato" },
     { label: "Profile", icon: <User size={20} color="#857D74" />, screen: "Profile" },
   ];
 

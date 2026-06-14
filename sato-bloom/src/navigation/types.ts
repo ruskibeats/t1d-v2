@@ -1,4 +1,4 @@
-export type ScreenName = "Portrait" | "Insights" | "Foods" | "Profile";
+export type ScreenName = "Portrait" | "Discover" | "Foods" | "Profile" | "Sato";
 
 export type Navigate = (screen: ScreenName) => void;
 

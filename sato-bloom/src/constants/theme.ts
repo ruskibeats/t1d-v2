@@ -117,9 +117,9 @@ export const TypeScale = {
   },
   cardTitle: {
     // Pattern card titles in lists
-    fontFamily: 'Inter_500Medium',
-    fontSize: 16,
-    lineHeight: 22,
+    fontFamily: 'CormorantGaramond_500Medium',
+    fontSize: 22,
+    lineHeight: 26,
     letterSpacing: -0.1,
   },
   screenTitle: {
@@ -129,11 +129,11 @@ export const TypeScale = {
     letterSpacing: -0.3,
   },
   sectionTitle: {
-    // "Recently uncovered"
-    fontFamily: 'Inter_600SemiBold',
-    fontSize: 16,
-    lineHeight: 22,
-    letterSpacing: 0.2,
+    // "Recently uncovered", "Other foods"
+    fontFamily: 'CormorantGaramond_500Medium',
+    fontSize: 26,
+    lineHeight: 30,
+    letterSpacing: -0.2,
   },
   logoMark: {
     // "Sato" in header

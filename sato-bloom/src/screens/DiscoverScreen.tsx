@@ -15,33 +15,18 @@ import Svg, { Path } from 'react-native-svg';
 import { Colors, Spacing, Radius, TypeScale, Fonts } from '@/constants/theme';
 import { PATTERNS, FEATURED_PATTERN } from '@/constants/patterns';
 import { BloomFlower } from '@/components/BloomFlower';
-import { TabBar } from '@/components/TabBar';
-import { PaperBackground } from '@/components/PaperBackground';
+import { useNavigation } from '../navigation/NavigationProvider';
 
-export default function DiscoverScreen({ onNavigate }: { onNavigate?: (screen: any) => void }) {
+export default function DiscoverScreen() {
+  const nav = useNavigation();
   const insets = useSafeAreaInsets();
 
-  const goToPattern = (id: string) => {};
+  const goToPattern = (id: string) => {
+    nav.openRevelation({ id });
+  };
 
   return (
-    <PaperBackground>
-      <View style={[styles.root, { paddingTop: insets.top }]}>
-      {/* Header */}
-      <View style={styles.header}>
-        <View style={styles.headerLeft}>
-          <Image 
-            source={require('../../assets/sato_logo_mark.png')} 
-            style={styles.logoImage} 
-            resizeMode="contain"
-          />
-          <Text style={styles.logoText}>Sato</Text>
-        </View>
-        <Pressable style={styles.bellWrap}>
-          <Ionicons name="notifications-outline" size={26} color={Colors.ink} />
-          <View style={styles.bellDot} />
-        </Pressable>
-      </View>
-
+    <View style={styles.root}>
       <ScrollView
         style={styles.scroll}
         contentContainerStyle={styles.scrollContent}
@@ -88,7 +73,9 @@ export default function DiscoverScreen({ onNavigate }: { onNavigate?: (screen: a
         {/* Recently uncovered */}
         <View style={styles.sectionHeader}>
           <Text style={styles.sectionTitle}>Recently uncovered</Text>
-          <Text style={styles.seeAll}>See all</Text>
+          <TouchableOpacity onPress={() => nav.openAllDiscoveries()} hitSlop={10}>
+            <Text style={styles.seeAll}>See all</Text>
+          </TouchableOpacity>
         </View>
 
         <View style={styles.patternList}>
@@ -123,35 +110,14 @@ export default function DiscoverScreen({ onNavigate }: { onNavigate?: (screen: a
         </View>
       </ScrollView>
 
-      <TabBar active="discover" onPress={(tab) => {
-        if (tab !== 'discover') {
-          const screenMap: any = { portrait: 'Portrait', foods: 'Foods', sato: 'Sato', profile: 'Profile' };
-          onNavigate?.(screenMap[tab]);
-        }
-      }} />
-      </View>
-    </PaperBackground>
+      {/* Tab bar overlap padding */}
+      <View style={{ height: 20 }} />
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: 'transparent' },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: Spacing.xxl,
-    paddingVertical: Spacing.md,
-  },
-  headerLeft: { flexDirection: 'row', alignItems: 'center', gap: 12 },
-  logoImage: { width: 56, height: 56 },
-  logoText: {
-    fontFamily: Fonts.serifSemiBold,
-    fontWeight: 'bold',
-    color: Colors.ink,
-    fontSize: 38,
-    lineHeight: 42,
-  },
   bellWrap: { position: 'relative', padding: 4 },
   bellDot: {
     position: 'absolute',

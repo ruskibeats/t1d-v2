@@ -235,20 +235,21 @@
 - [[sources/obs-2026-06-12-69-t1d-meal-review-safety-mobile-review-completed]] — "Observation: #69 T1D meal review safety mobile review completed" *(created: 2026-06-12)*
 - [[sources/obs-2026-06-12-sato-bloom-context-report-written]] — "Observation: Sato Bloom context report written" *(created: 2026-06-12)*
 - [[sources/obs-2026-06-12-t1d-bot2-sato-theme-scout-completed]] — "Observation: T1D Bot2 Sato theme scout completed" *(created: 2026-06-12)*
+- [[sources/obs-2026-06-14-root-mobile-app-architecture-review-candidates]] — "Observation: Root mobile app architecture review candidates" *(created: 2026-06-14)*
 - [[sources/sato-watercolor-visualization-system]] — "Sato watercolor visualization system" *(created: 2026-06-07)*
 - [[sources/sparky-bloom-architecture-synthesis]] — "Sparky-Bloom four-layer architecture synthesized" *(created: 2026-06-09)*
-- [[sources/SRC-2026-06-07-001]] — SRC-2026-06-07-001 *(created: 2026-06-12)*
-- [[sources/SRC-2026-06-07-002]] — SRC-2026-06-07-002 *(created: 2026-06-12)*
-- [[sources/SRC-2026-06-07-003]] — SRC-2026-06-07-003 *(created: 2026-06-12)*
-- [[sources/SRC-2026-06-07-004]] — SRC-2026-06-07-004 *(created: 2026-06-12)*
-- [[sources/SRC-2026-06-07-005]] — SRC-2026-06-07-005 *(created: 2026-06-12)*
-- [[sources/SRC-2026-06-07-006]] — SRC-2026-06-07-006 *(created: 2026-06-12)*
-- [[sources/SRC-2026-06-07-007]] — SRC-2026-06-07-007 *(created: 2026-06-12)*
-- [[sources/SRC-2026-06-07-008]] — SRC-2026-06-07-008 *(created: 2026-06-12)*
-- [[sources/SRC-2026-06-07-009]] — SRC-2026-06-07-009 *(created: 2026-06-12)*
-- [[sources/SRC-2026-06-07-010]] — SRC-2026-06-07-010 *(created: 2026-06-12)*
-- [[sources/SRC-2026-06-07-011]] — SRC-2026-06-07-011 *(created: 2026-06-12)*
-- [[sources/SRC-2026-06-07-012]] — SRC-2026-06-07-012 *(created: 2026-06-12)*
+- [[sources/SRC-2026-06-07-001]] — SRC-2026-06-07-001 *(created: 2026-06-14)*
+- [[sources/SRC-2026-06-07-002]] — SRC-2026-06-07-002 *(created: 2026-06-14)*
+- [[sources/SRC-2026-06-07-003]] — SRC-2026-06-07-003 *(created: 2026-06-14)*
+- [[sources/SRC-2026-06-07-004]] — SRC-2026-06-07-004 *(created: 2026-06-14)*
+- [[sources/SRC-2026-06-07-005]] — SRC-2026-06-07-005 *(created: 2026-06-14)*
+- [[sources/SRC-2026-06-07-006]] — SRC-2026-06-07-006 *(created: 2026-06-14)*
+- [[sources/SRC-2026-06-07-007]] — SRC-2026-06-07-007 *(created: 2026-06-14)*
+- [[sources/SRC-2026-06-07-008]] — SRC-2026-06-07-008 *(created: 2026-06-14)*
+- [[sources/SRC-2026-06-07-009]] — SRC-2026-06-07-009 *(created: 2026-06-14)*
+- [[sources/SRC-2026-06-07-010]] — SRC-2026-06-07-010 *(created: 2026-06-14)*
+- [[sources/SRC-2026-06-07-011]] — SRC-2026-06-07-011 *(created: 2026-06-14)*
+- [[sources/SRC-2026-06-07-012]] — SRC-2026-06-07-012 *(created: 2026-06-14)*
 
 ---
-*Last updated: 2026-06-12T21:02:16.710Z* | *Total pages: 239*
+*Last updated: 2026-06-14T12:38:35.191Z* | *Total pages: 240*

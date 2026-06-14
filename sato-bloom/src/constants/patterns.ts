@@ -14,6 +14,7 @@ export interface Pattern {
   graphData: number[]; // normalised 0-1, used for sparkline
   graphLabels: string[];
   insight: string;
+  category: 'Food' | 'Activity' | 'Sleep' | 'Stress' | 'Routine';
 }
 
 export const PATTERNS: Pattern[] = [
@@ -30,6 +31,7 @@ export const PATTERNS: Pattern[] = [
     graphData: [0, 0, 0.1, 0.3, 0.9, 0.7, 0.4, 0.2],
     graphLabels: ['6PM', '7PM', '8PM', '9PM', '10PM', '11PM', '12AM', '1AM'],
     insight: 'Consider pre-bolusing 20 min earlier on pizza nights.',
+    category: 'Food',
   },
   {
     id: 'walks',
@@ -44,6 +46,7 @@ export const PATTERNS: Pattern[] = [
     graphData: [0.5, 0.4, 0.7, 0.9, 0.6, 0.3, 0.2, 0.1],
     graphLabels: ['12PM', '1PM', '2PM', '3PM', '4PM', '5PM', '6PM', '7PM'],
     insight: 'Walk days show 34% more time-in-range between 2–5pm.',
+    category: 'Activity',
   },
   {
     id: 'mornings',
@@ -58,6 +61,7 @@ export const PATTERNS: Pattern[] = [
     graphData: [0.3, 0.35, 0.3, 0.32, 0.28, 0.3, 0.31, 0.29],
     graphLabels: ['6AM', '7AM', '7:30', '8AM', '8:30', '9AM', '9:30', '10AM'],
     insight: 'Morning CV dropped from 28% to 14% over the past month.',
+    category: 'Routine',
   },
   {
     id: 'jiujitsu',
@@ -72,6 +76,7 @@ export const PATTERNS: Pattern[] = [
     graphData: [0.2, 0.2, 0.3, 0.7, 0.85, 0.6, 0.4, 0.3],
     graphLabels: ['8PM', '10PM', '12AM', '2AM', '3AM', '4AM', '6AM', '8AM'],
     insight: 'Try a small protein snack post-session to blunt the dawn effect.',
+    category: 'Activity',
   },
   {
     id: 'sleep',
@@ -86,6 +91,7 @@ export const PATTERNS: Pattern[] = [
     graphData: [0.2, 0.4, 0.8, 0.95, 0.7, 0.5, 0.4, 0.3],
     graphLabels: ['6AM', '7AM', '8AM', '9AM', '10AM', '11AM', '12PM', '1PM'],
     insight: 'Short-sleep mornings need ~15% more breakfast insulin on average.',
+    category: 'Sleep',
   },
 ];
 

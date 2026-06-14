@@ -8,7 +8,6 @@ import {
   View,
   Image,
 } from "react-native";
-import { useFonts } from "expo-font";
 import {
   Bell,
   ChevronRight,
@@ -16,6 +15,9 @@ import {
   Sparkles,
   User,
   Flower2,
+  Moon,
+  Clock,
+  Activity,
 } from "lucide-react-native";
 import {
   CormorantGaramond_400Regular,
@@ -23,7 +25,8 @@ import {
   CormorantGaramond_600SemiBold,
   CormorantGaramond_700Bold,
 } from "@expo-google-fonts/cormorant-garamond";
-import { ScreenName } from "../navigation/types";
+import { MainTab } from "../navigation/types";
+type ScreenName = string;
 
 
 type Discovery = {
@@ -83,16 +86,6 @@ export default function InsightsScreen({
 }: {
   onNavigate?: (screen: ScreenName) => void;
 }) {
-  const [fontsLoaded] = useFonts({
-    CormorantGaramond_400Regular,
-    CormorantGaramond_500Medium,
-    CormorantGaramond_600SemiBold,
-    CormorantGaramond_700Bold,
-  });
-
-  if (!fontsLoaded) {
-    return null;
-  }
 
   return (
     <SafeAreaView style={styles.safe}>
@@ -100,8 +93,8 @@ export default function InsightsScreen({
         <AppHeader />
 
         <View style={styles.heroSection}>
-          <Text style={styles.pageTitle}>Discover</Text>
-          <Text style={styles.pageSubtitle}>Patterns Sato has quietly noticed in your life.</Text>
+          <Text style={styles.pageTitle}>Profile</Text>
+          <Text style={styles.pageSubtitle}>Your personal settings and insights.</Text>
         </View>
 
         <FeaturedCard />
@@ -161,7 +154,7 @@ function DiscoveryCard({ discovery }: { discovery: Discovery }) {
         <FlowerIcon />
       ) : (
         <View style={[styles.iconContainer, { backgroundColor: bgColor }]}>
-          <Text style={styles.iconPlaceholder}>🌿</Text>
+          {getCategoryIcon(discovery.category, "#181614")}
         </View>
       )}
 
@@ -181,6 +174,24 @@ function DiscoveryCard({ discovery }: { discovery: Discovery }) {
       </Pressable>
     </Pressable>
   );
+}
+
+function getCategoryIcon(category: string, color: string) {
+  const size = 20;
+  switch (category) {
+    case 'food':
+      return <UtensilsCrossed size={size} color={color} />;
+    case 'activity':
+      return <Activity size={size} color={color} />;
+    case 'sleep':
+      return <Moon size={size} color={color} />;
+    case 'stress':
+      return <Activity size={size} color={color} />;
+    case 'routine':
+      return <Clock size={size} color={color} />;
+    default:
+      return <Sparkles size={size} color={color} />;
+  }
 }
 
 function FlowerIcon() {
@@ -223,7 +234,7 @@ function BottomNav({ onNavigate }: { onNavigate?: (screen: ScreenName) => void }
   return (
     <View style={styles.bottomNav}>
       {items.map((item) => {
-        const active = item.label === "Discover";
+        const active = item.label === "Profile";
         return (
           <Pressable
             key={item.label}

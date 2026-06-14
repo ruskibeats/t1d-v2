@@ -407,3 +407,6 @@
 ## [2026-06-12T21:02:16.703Z] retro
 - slug: "mobile-integration-review-and-tracking-issues", title: "Mobile integration review findings and tracking issue implementation", category: "architecture"
 
+## [2026-06-14T12:38:35.186Z] observe
+- slug: "obs-2026-06-14-root-mobile-app-architecture-review-candidates", title: "Root mobile app architecture review candidates", relevance: "high"
+

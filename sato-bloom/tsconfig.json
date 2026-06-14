@@ -10,5 +10,5 @@
       "@/*": ["./src/*"]
     }
   },
-  "exclude": ["Dad_Resources ", "node_modules"]
+  "exclude": ["Dad_Resources ", "Dad_Resources /**", "node_modules", "**/node_modules"]
 }

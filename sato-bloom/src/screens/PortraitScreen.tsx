@@ -3,41 +3,28 @@ import {
   View,
   Text,
   StyleSheet,
-  SafeAreaView,
   ScrollView,
   Dimensions,
   Pressable,
 } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { BloomClock } from "../features/bloom/BloomClock";
 import { todayBloomWindows } from "../features/bloom/bloomSampleData";
 import { bloomPalette } from "../features/bloom/bloomColors";
-import { TabBar } from "../components/TabBar";
-
-type ScreenName = "Portrait" | "Discover" | "Foods" | "Profile" | "Sato";
+import { Colors, TypeScale } from '@/constants/theme';
+import { useNavigation } from "../navigation/NavigationProvider";
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 
-
-export default function PortraitScreen({ onNavigate }: { onNavigate?: (screen: ScreenName) => void }) {
-  const handleNavPress = (screen: ScreenName) => {
-    onNavigate?.(screen);
-  };
+export default function PortraitScreen() {
+  const nav = useNavigation();
+  const insets = useSafeAreaInsets();
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <SafeAreaView style={styles.safe}>
-        <ScrollView
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={styles.scrollContent}
-        >
-          {/* Header */}
-          <View style={styles.header}>
-            <Text style={styles.logoText}>Sato</Text>
-            <View style={styles.bellWrap}>
-              <View style={styles.notificationDot} />
-            </View>
-          </View>
+      <View style={styles.safe}>
+        <ScrollView contentContainerStyle={styles.scrollContent}>
 
           <Text style={styles.greeting}>Good morning, Tom</Text>
 
@@ -65,14 +52,7 @@ export default function PortraitScreen({ onNavigate }: { onNavigate?: (screen: S
             </Text>
           </View>
         </ScrollView>
-
-        <TabBar active="portrait" onPress={(tab) => {
-          if (tab !== 'portrait') {
-            const screenMap: any = { discover: 'Discover', foods: 'Foods', sato: 'Sato', profile: 'Profile' };
-            onNavigate?.(screenMap[tab]);
-          }
-        }} />
-      </SafeAreaView>
+      </View>
     </GestureHandlerRootView>
   );
 
@@ -81,12 +61,12 @@ export default function PortraitScreen({ onNavigate }: { onNavigate?: (screen: S
 const styles = StyleSheet.create({
   safe: {
     flex: 1,
-    backgroundColor: bloomPalette.paper,
+    backgroundColor: "transparent",
   },
   scrollContent: {
     paddingHorizontal: 26,
     paddingTop: 18,
-    paddingBottom: 146,
+    paddingBottom: 100,
   },
   header: {
     flexDirection: "row",

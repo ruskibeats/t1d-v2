@@ -134,3 +134,4 @@
 {"timestamp":"2026-06-12T20:49:51.608Z","kind":"observe","slug":"obs-2026-06-12-69-t1d-meal-review-safety-mobile-review-completed","title":"#69 T1D meal review safety mobile review completed","relevance":"medium"}
 {"timestamp":"2026-06-12T21:00:22.918Z","kind":"observe","slug":"obs-2026-06-12-026-and-027-tracking-issues-implemented","title":"#026 and #027 tracking issues implemented","relevance":"high"}
 {"timestamp":"2026-06-12T21:02:16.703Z","kind":"retro","slug":"mobile-integration-review-and-tracking-issues","title":"Mobile integration review findings and tracking issue implementation","category":"architecture"}
+{"timestamp":"2026-06-14T12:38:35.186Z","kind":"observe","slug":"obs-2026-06-14-root-mobile-app-architecture-review-candidates","title":"Root mobile app architecture review candidates","relevance":"high"}

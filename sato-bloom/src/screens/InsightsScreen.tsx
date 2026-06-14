@@ -9,7 +9,7 @@ import {
 } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { bloomPalette } from "../features/bloom/bloomColors";
-import { ScreenName } from "../navigation/types";
+type ScreenName = "Portrait" | "Foods" | "Profile" | "Sato" | "Insights" | string;
 
 type Page = "home" | "discoveries" | "revelation";
 type FilterKey = "All" | "Foods" | "Rhythms" | "Life" | "Watch";

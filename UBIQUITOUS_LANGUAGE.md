@@ -1,114 +1,667 @@
-# Ubiquitous Language — T1D Companion v2
+# T1D Food Graph - Ubiquitous Language Glossary
 
-## State Bloom (Visual System)
-
-The State Bloom is the end-to-end visual system that transforms health metrics into a living watercolor cloud visualization on mobile. It is built with Skia rendering and driven by five health dimensions.
-
-### Core concepts
-
-| Term | Definition | Aliases to avoid |
-|------|------------|------------------|
-| **State Bloom** | The end-to-end visual system that transforms health metrics into a living watercolor cloud. Comprises the pigment model, bloom engine (Skia renderer), Bloom Card UI, and haptic feedback. | Bloom system, cloud visualizer |
-| **Bloom** | The watercolor cloud visualization itself — the layered, translucent petal structure rendered on the Skia canvas. | Orb, cloud, visualization |
-| **Bloom Card** | The pressable UI card that contains the State Bloom visualization. Includes the Skia canvas, profile eyebrow, title, subtitle, and pigment legend. Triggers haptic feedback on press. | Orb card, state card |
-| **Health Dimension** | One of five normalized (0–1) inputs that shape the State Bloom: Time in Range, Variability, Activity, Consistency, and Feeling. Each dimension maps to a pigment color and angular position in the bloom. | Input, metric, signal |
-| **Pigment** | A colored, semi-transparent layer in the State Bloom derived from a single health dimension. Each pigment has a primary color, a secondary color, an angular position, and an intensity. Rendered as clusters of translucent oval petals that overlap to form the bloom. | Drop, stain, blob |
-| **Core** | The dense center of the State Bloom where all five pigments overlap and blend into a unified color representing the combined state. Rendered as semi-transparent oval washes. | Heart, nucleus, center |
-| **Petal** | A single translucent oval rendered by Skia that forms part of a pigment cluster. Each pigment produces multiple petals across three concentric rings. | Oval, blob, shape |
-| **Profile** | A named metabolic archetype that configures the State Bloom with a specific color palette and pre-set health dimension values. Current profiles: Balanced (green), Spike (blue), Calm (orange). Each profile maps to a distinct visual identity across the bloom, tab accent, and card. | Tab, preset, mode |
-| **Bloom engine** | The Skia-based renderer that composes the bloom from pigments. Responsible for generating petal geometry, center wash, glow, texture overlay, and paper base. | Renderer, canvas, Skia renderer |
-| **Palette** | The set of primary and secondary colors assigned to pigments for a given profile. Each profile defines one palette with five color pairs (one per health dimension). | Color scheme, theme |
-
-### State Bloom relationships
-
-- The **State Bloom** processes five **Health Dimensions** to produce a **Bloom** rendered by the **Bloom engine** inside a **Bloom Card**.
-- Each **Health Dimension** produces one **Pigment** with a **Palette** derived from the active **Profile**.
-- Each **Pigment** is rendered as multiple translucent **Petals** arranged in concentric rings around the **Core**.
-- A **Profile** determines the **Palette** and the default **Health Dimension** values.
-- The **Bloom Card** is tappable and responds with haptics and visual press feedback.
-- There are three **Profiles**: Balanced, Spike, and Calm. Profile name appears on the card eyebrow, e.g. "Balanced state bloom".
-- Pigments overlap in the **Core** to form a blended color that represents the user's combined metabolic state.
-
-### Flagged ambiguities (State Bloom)
-
-- "Bloom" was used to mean both the **State Bloom** (whole system) and the **Bloom** (the cloud visual). Resolved: "State Bloom" = system, "Bloom" = the watercolor cloud itself.
-- "Orb" was used in early variable names (`orbPanel`, `orbCopy`) but refers to the **Bloom Card**. Code names should migrate toward "bloom" terminology.
-- "Profile" has two meanings resolved by context: In the **meal/forecast domain**, it is a **Legend**'s anchor type and numeric profile config. In the **State Bloom**, it is a named metabolic archetype (Balanced/Spike/Calm) that sets the palette and default metrics. The term is intentionally shared — both describe a person's characteristic metabolic pattern.
+**Version:** 1.0
+**Date:** 2026-06-14
+**Scope:** MemGraphRAG-style food/recipe knowledge graph for T1D management
 
 ---
 
-## Profiles (Meal/Forecast Domain)
+## Core Concepts
 
-| Term | Definition | Aliases to avoid |
-|------|------------|------------------|
-| **Legend** | A simulated T1D user with a name, age, diagnosis duration, anchor type, 90-day food history, current CGM reading, and characteristic questions | Sim user, synthetic user, test user |
-| **Anchor type** | A named physiological profile category (e.g. `high_fat_delayed`, `dawn_phenomenon`) that determines calibration constants and typical meal response patterns | Profile type, anchor, profile |
-| **Profile config** | The concrete numeric parameters for an anchor type: basal glucose, carb ratio, insulin sensitivity, fat delay hours, exercise drop factor | Patient config, profile parameters |
+### Graph / Knowledge Graph
+> A semantic network that represents food/recipe relationships as nodes (entities) and edges (relationships). Used to reason about nutrition and glucose response patterns.
 
-## Meal pipeline
+**Relations:**
+- **Property Graph**: Graph with typed edges and properties (implemented via Apache AGE)
+- **MemGraphRAG Graph**: Graph layer with schema → facts → passage hierarchy (inspired by MemGraphRAG)
 
-| Term | Definition | Aliases to avoid |
-|------|------------|------------------|
-| **Parsed food** | A single food item extracted from free-text meal input, carrying `item`, `quantity`, `unit`, and `search_terms` | Food item, detected food |
-| **Food candidate** | A possible database match for a parsed food, with nutrition per 100g and a match score | Product match, DB result |
-| **Food evidence** | The selected best-match candidate with computed macros, confidence, warnings, carb range, and decomposed uncertainty fields | Nutrition result, food lookup |
-| **Meal totals** | Aggregated macros across all foods in a meal, plus total carb range, confidence, top carb contributor, absorption profile, and uncertainty items | Meal summary, meal result |
-| **Carb range** | A `(low, high)` tuple representing uncertainty in the estimated total carbs | Carb uncertainty band |
+**Examples:**
+- `(:FoodItem)-[:HAS_CARBS]->(:NutrientFact)`
+- `(:Meal)-[:ATE]->(:FoodItem)`
 
-## Forecast
+---
 
-| Term | Definition | Aliases to avoid |
-|------|------------|------------------|
-| **Forecast result** | The full output of the physiology model: peak glucose, time-to-peak, baseline, forecast points, nighttime points, uncertainty band, top drivers, evidence fields | Prediction, forecast output |
-| **Uncertainty band** | A low/point/high forecast triplet induced by carb-estimation uncertainty, with peak and time ranges | Uncertainty range, confidence band |
-| **Absorption profile** | A label (`fast`, `delayed`, `mixed`, `standard`) describing the expected glucose rise shape based on meal sugar/fat composition | Absorption type, rise pattern |
-| **Physiology model** | The 3-compartment gut + insulin + glucose mass-balance compartment model | Body simulator, forecast model |
+## Entities
 
-## Context & history
+### FoodItem
+> A specific food or food variant with a unique identifier (barcode, OpenFoodFacts code, or canonical name).
 
-| Term | Definition | Aliases to avoid |
-|------|------------|------------------|
-| **Historical meal summary** | Aggregated statistics from similar meals in the user's food history: count, avg peak delta, avg peak time, range, observations | Similar meals, historical context |
-| **Response band** | The observed min–max range of peak glucose rise for similar historical meals | Peak range, historical range |
+**Attributes:**
+- `name`: Human-readable name (e.g., "oatmeal rolled grains")
+- `canonical_name`: Normalized name for matching (e.g., "oatmeal")
+- `off_code`: OpenFoodFacts product code
+- `barcode`: Product barcode
+- `category`: Food category (e.g., "grains", "fruit")
+- `source_tier`: Trust level of source (see Trust Hierarchy)
 
-## Safety
+**Examples:**
+- "banana medium" → FoodItem: `banana-200g`
+- "sourdough bread 30g slice" → FoodItem: `sourdough-bread-slice`
 
-| Term | Definition | Aliases to avoid |
-|------|------------|------------------|
-| **Safety scaffold** | The emergency keyword, dosing-pattern, and treatment-pattern validator. The final veto gate before any output reaches the user. | Safety gate, guardrail, content filter |
-| **Banned word** | A term the companion must never output (e.g. "insulin", "bolus", "dose", "inject") | Blocked term, forbidden word |
-| **Dosing pattern** | A regex pattern matching insulin-unit language (e.g. "take 3 units") | Dosing regex, medication pattern |
+---
 
-## UI / Cards
+### Recipe
+> A structured set of ingredients and instructions for preparing a meal. Can be user-created or external (from recipe databases).
 
-| Term | Definition | Aliases to avoid |
-|------|------------|------------------|
-| **Card** | A single piece of companion output shown on one press of Enter. Cards form a progressive narrative. | Screen, state, section |
-| **Showcase** | The press-Enter walkthrough of a random legend's profile, history, CGM, question, and answer | Demo, walkthrough, tour |
-| **Intent** | The classified purpose of user input: meal, what-if, troubleshoot high, troubleshoot low, situation, morning call, lunch presser, evening roundup, insights | Question type, command type |
+**Attributes:**
+- `name`: Recipe name (e.g., "Spaghetti bolognese")
+- `author_id`: User who created the recipe
+- `servings`: Number of servings
+- `ingredients`: JSONB array of `{food_item_id, grams, portion_label}`
+- `method`: Step-by-step instructions
+- `nutrition_overview`: Aggregated nutrition totals
+
+**Examples:**
+- User's homemade chili recipe
+- Scraped recipe from online source
+
+---
+
+### MealEvent
+> A logged meal consumed by a user at a specific time. Links foods consumed in a single eating occasion.
+
+**Attributes:**
+- `user_id`: User who ate the meal
+- `meal_id`: Recipe used (or NULL for custom entry)
+- `custom_name`: Custom meal name if not using a recipe
+- `eaten_at`: Timestamp of meal consumption
+- `total_carbs_g`: Total carbohydrates consumed
+- `recorded_by`: 'user', 'simulator', or 'manual'
+
+**Examples:**
+- "Breakfast at 8:30am on June 14, 2026"
+
+---
+
+### Portion
+> A standardized measurement of food quantity (e.g., "1 slice", "200g", "medium").
+
+**Attributes:**
+- `food_item_id`: Food this portion belongs to
+- `label`: Human-readable label (e.g., "1 slice", "medium banana")
+- `quantity`: Numeric amount (e.g., 30.0 for 30g)
+- `unit`: Unit of measurement (e.g., "g", "slice", "cup")
+- `is_default`: Whether this is the recommended/default portion
+
+**Examples:**
+- Portion: "1 slice" of bread = 30g carbs
+- Portion: "medium" banana = 105g carbs
+
+---
+
+### NutrientFact
+> An atomic nutrition value extracted from a source (label, database, or measurement).
+
+**Attributes:**
+- `food_item_id`: Food this fact belongs to
+- `nutrient_type`: Nutrient type (carbs, protein, fat, fiber, calories)
+- `value_numeric`: Numeric value (e.g., 27.5 for 27.5g)
+- `value_unit`: Unit (e.g., "g", "mg/dL", "kcal")
+- `percent_dv`: Percent of Daily Value
+- `source`: Source system (openfoodfacts, usda, manufacturer)
+- `override_by_user_id`: User who manually set this value
+
+**Examples:**
+- Carbs: 27g per 100g (Open Food Facts)
+- Protein: 4g per serving (USDA)
+
+---
+
+### GuidelineStatement
+> A diabetes management rule or guideline (from NICE, ADA, etc.) that applies to food/meal decisions.
+
+**Attributes:**
+- `guideline_type`: Type of guideline (carb_counting, spike_timing, etc.)
+- `title`: Brief summary
+- `content_text`: Full guideline text
+- `source`: Authority (nices, ada, diabetes_uk)
+- `trust_tier`: Trust level
+- `valid_from`: When this guideline applies
+- `valid_to`: When this guideline no longer applies
+
+**Examples:**
+- "Carb counting: Focus on total carbohydrate grams on the label"
+- "1 CP (carbohydrate portion) = 10g carbs"
+
+---
 
 ## Relationships
 
-- A **Legend** has one **Anchor type** and one **Profile config**.
-- A **Legend** has 90 days of **Food entries** (breakfast, morning snack, lunch, afternoon snack, dinner, evening snack).
-- A **Legend** has a **Current CGM reading**.
-- A **Legend** has several characteristic **Questions** mapped to **Intents**.
-- A **Parsed food** is produced from user text by the parser (LLM or deterministic).
-- A **Parsed food** produces zero or more **Food candidates** from the database.
-- **Food evidence** is computed from the top-ranked **Food candidate**.
-- Multiple **Food evidence** items are combined into **Meal totals**.
-- **Meal totals** are fed to the **Forecast engine** → **Forecast result**.
-- **Forecast result** + **Historical meal summary** are combined into an **Evidence bundle**.
-- **Evidence bundle** passes through the **Safety scaffold** before becoming a **Card**.
+### ATE
+> User → MealEvent relationship. Indicates a user consumed a meal at a specific time.
 
-- The **State Bloom** processes five **Health Dimensions** to produce a **Bloom** rendered inside a **Bloom Card**.
-- Each **Health Dimension** produces one **Pigment**; overlapping **Petals** form the **Core**.
+**Attributes:**
+- `confidence`: Confidence score (0.0-1.0)
+- `timestamp`: When the meal was eaten
 
-## Flagged ambiguities
+**Example:**
+```
+(:User {id: "user-123"})-[:ATE]->(:MealEvent {id: "meal-456"})
+```
 
-- "Anchor" was used to mean both the **anchor type** string and the CLI `--anchor` argument — these are resolved (both refer to the same thing).
-- "Profile" was used to mean both the **anchor type** (high-level category) and the **profile config** (numeric parameters). These are now distinct: `anchor type` = category, `profile config` = numbers. In the State Bloom context, "Profile" also refers to a named metabolic archetype (Balanced/Spike/Calm). Context disambiguates.
-- "Forecast" was used to mean both the **forecast result** (full output) and the forecast **card** (UI presentation). These are now distinct: `forecast result` = data, `card` = UI.
-- "Sim user" was deprecated in favour of **Legend** — legends are more than just simulation parameters; they have names, backstories, and questions.
-- "Bloom" was used ambiguously between the system and the visual. Now: **State Bloom** = system, **Bloom** = watercolor cloud.
-- "Orb" was deprecated in favour of **Bloom Card** — legacy code variable names still contain `orb` but should migrate.
+---
+
+### CONTAINS
+> Recipe → FoodItem relationship. Indicates a recipe includes a specific ingredient.
+
+**Attributes:**
+- `grams`: Weight of ingredient in grams
+- `portion_label`: Human-readable portion description
+
+**Example:**
+```
+(:Recipe {name: "MyChilli"})-[:CONTAINS]->(:FoodItem {name: "kidney beans"})
+```
+
+---
+
+### DERIVED_FROM
+> Portion → Recipe relationship. Indicates a portion size is derived from a recipe's serving definition.
+
+**Attributes:**
+- `label`: Portion label (e.g., "1 slice")
+
+**Example:**
+```
+(:Portion {label: "1 slice"})-[:DERIVED_FROM]->(:Recipe {name: "Sourdough"})
+```
+
+---
+
+### HAS_NUTRIENT
+> FoodItem → NutrientFact relationship. Links a food to its nutrition values.
+
+**Attributes:**
+- None (flattened in NutrientFact table)
+
+**Example:**
+```
+(:FoodItem {name: "oatmeal"})-[:HAS_NUTRIENT]->(:NutrientFact {carbs: 27g})
+```
+
+---
+
+### SUPPORTED_BY
+> Passage → FactClaim relationship. Links supporting evidence to a factual claim.
+
+**Attributes:**
+- `weight`: Relevance/importance of source
+- `source_type`: Type of source (food_entry, fingerprint, openfoodfacts, etc.)
+
+**Example:**
+```
+(:Passage {content: "Oatmeal has 27g carbs per 100g"})-[:SUPPORTED_BY]->(:FactClaim {carbs: 27g})
+```
+
+---
+
+### SIMILAR_TO
+> FoodItem → FoodItem relationship. Indicates two foods are nutritionally similar.
+
+**Attributes:**
+- `similarity_score`: Numeric similarity (0.0-1.0)
+
+**Example:**
+```
+(:FoodItem {name: "white rice"})-[:SIMILAR_TO]->(:FoodItem {name: "brown rice"})
+```
+
+---
+
+## MemGraphRAG Layer
+
+### SourceDocument
+> Original source document (label, manufacturer, user recipe) that serves as evidence for facts.
+
+**Attributes:**
+- `doc_type`: Type of document (openfoodfacts, manufacturer_label, user_recipe, cgm_observation)
+- `source_uri`: URL or identifier for source
+- `title`: Document title
+- `content_text`: Full document content (for passages)
+- `trust_tier`: Source trust level
+
+**Examples:**
+- "Open Food Facts record for banana 200g"
+- "User manual label for cereal box"
+
+---
+
+### SourcePassage
+> Chunked text passage from a source document, optionally with embedding.
+
+**Attributes:**
+- `passage_type`: Type of passage (nutrition_fact, ingredient_list, cgm_observation)
+- `content_text`: Passage text
+- `embedding`: Vector embedding (halfvec 768)
+- `trust_tier`: Trust level of passage
+
+**Examples:**
+- "Nutrition per 100g: Carbs 27g, Protein 4g"
+- "User logged 8:30am breakfast with oatmeal"
+
+---
+
+### FactClaim
+> Atomic, conflict-aware fact extracted from passages.
+
+**Attributes:**
+- `claim_type`: Type of claim (nutrition_per_100g, glycemic_response, etc.)
+- `subject_type`: Entity type (FoodItem, Recipe, MealEvent)
+- `subject_id`: Entity identifier
+- `subject_label`: Human-readable label
+- `predicate`: Relationship being asserted (has_carbs, produced_spike, etc.)
+- `value_numeric`: Numeric value
+- `confidence`: Confidence score (0.0-1.0)
+- `confidence_tier`: confidence level (low, medium, high)
+- `trust_tier`: Source trust level
+- `valid_from`: When this fact applies
+- `valid_to`: When this fact no longer applies
+
+**Examples:**
+- (FoodItem: banana, has_carbs_per_100g, 20g)
+- (MealEvent: breakfast 8:30am, produced_delta_mg_dl, 25)
+
+---
+
+### Conflict
+> Explicit record of conflicting facts that cannot be automatically resolved.
+
+**Attributes:**
+- `conflict_type`: Type of conflict (value_mismatch, granularity_mismatch, source_trust_mismatch, temporal_mismatch, recipe_version)
+- `resolution`: Resolution decision (keep_both, prefer_a, prefer_b, merged, requires_review)
+- `resolution_note`: Human-readable explanation of resolution
+
+**Examples:**
+- **Value Mismatch**: Oatmeal carbs listed as 27g vs 33g from different sources
+- **Source Trust Mismatch**: User measured 30g carbs vs database says 20g
+
+---
+
+## Measurement Concepts
+
+### Carbs / Carbohydrates
+> Total carbohydrate content in food, measured in grams (g).
+
+**Relation:**
+- `has_carbs_per_100g`: Carbs per 100g of food
+- `has_carbs`: Carbs per serving or portion
+- `produced_delta_mg_dl`: Carbs' effect on blood glucose (in mg/dL increase)
+
+**Examples:**
+- "Oatmeal has 27g carbs per 100g"
+- "This meal produced 25mg/dL glucose spike"
+
+---
+
+### GI / Glycemic Index
+> How quickly a food raises blood glucose levels. Represented as Low/Medium/High categories.
+
+**Attributes:**
+- `gi_category`: Category (rapid_acting, low_gi, medium_gi, high_gi)
+
+**Examples:**
+- "White rice: medium GI"
+- "Sweet potato: low GI"
+
+---
+
+### CP / Carbohydrate Portion
+> A unit of carbohydrate measurement where 1 CP = 10g carbs. Used in diabetes management for dosing insulin.
+
+**Attributes:**
+- `has_cp`: Number of CPs in a food
+
+**Examples:**
+- "1 slice bread = 3 CPs"
+- "This meal requires 8 CPs for insulin dosing"
+
+---
+
+## Data Quality Concepts
+
+### Trust Hierarchy
+> Ordered ranking of source trust levels from most to least reliable.
+
+**Levels (from highest to lowest):**
+1. `official_database` (USDA, official diabetes guidelines)
+2. `manufacturer_barcode` (manufacturer label)
+3. `openfoodfacts` (Open Food Facts database)
+4. `structured_user_recipe` (user-organized recipes)
+5. `scraped_recipe` (web-scraped recipes)
+6. `user_note` (user's manual entry)
+
+**Usage:**
+```typescript
+function getPreferredTier(tierA: string, tierB: string): string {
+  return rank(tierA) < rank(tierB) ? tierA : tierB;
+}
+```
+
+---
+
+### Confidence Tier
+> Level of confidence in a fact, based on data quality and sample size.
+
+**Levels:**
+- `high`: High confidence (≥3+ measurements, official source, clinically validated)
+- `medium`: Medium confidence (1-2 measurements, reasonably reliable source)
+- `low`: Low confidence (single measurement, user note, experimental)
+
+**Derived from:**
+- Sample size of measurements
+- Source trust level
+- Data consistency across sources
+
+---
+
+### Uncertainty
+> Measure of how confident we are in the provided answer, accounting for data gaps and conflicts.
+
+**Components:**
+- `level`: low / medium / high
+- `reasons`: Reasons reducing confidence (limited data, conflicts, etc.)
+- `dataGaps`: Missing data that would improve accuracy
+
+**Examples:**
+- `level: low`, `reasons: ["Only 1 food diary entry matched this food"]`
+- `level: high`, `reasons: ["3 conflicting carb values detected"]`
+
+---
+
+## System Concepts
+
+### AGE (Apache AGE)
+> Apache AGE extension for PostgreSQL that provides property graph capabilities and Cypher-like querying.
+
+**Purpose:**
+- Query food relationships with graph patterns
+- Support complex multi-hop traversals
+- Alternative to deep SQL recursive CTEs
+
+**Usage:**
+```cypher
+MATCH (f:FoodItem {name: "oatmeal"})-[e]-(related)
+RETURN f.id, type(e) as edge_type, related.id as related_id
+```
+
+---
+
+### Graph Sync
+> Background process that populates Apache AGE property graph from canonical PostgreSQL tables.
+
+**Components:**
+- `syncAgeGraph()`: Main sync function
+- `syncSourceDocuments()`: Sync source documents as vertices
+- `syncFactClaims()`: Sync fact claims and source edges
+- `syncFoodEntries()`: Sync user meal events
+- `syncMealResponseFingerprints()`: Sync CGM-backed meal fingerprints
+
+**Non-fatal behavior:**
+- If AGE unavailable, logs "skipped" status
+- Individual vertex/edge failures don't block entire sync
+- Errors recorded in `t1d_graph_sync_log`
+
+---
+
+### Seed Graph Data
+> Process of initializing the graph from existing relational data without new user input.
+
+**Sources:**
+- Food entries → Source documents, passages, fact claims
+- Meal response fingerprints → CGM observation passages and claims
+
+**Benefits:**
+- Builds graph from historical data
+- Improves query accuracy over time
+- Creates baseline knowledge for new users
+
+---
+
+## Query Concepts
+
+### Natural Language Query
+> User's conversational question about food/recipes (e.g., "Why does pizza spike me?").
+
+**Processing:**
+1. Extract food name using NER or heuristics
+2. Map to canonical FoodItem
+3. Aggregate facts from multiple sources
+4. Build explanatory answer
+5. Detect and report conflicts
+6. Compute uncertainty
+
+---
+
+### Multi-Hop Query
+> Graph traversal that follows multiple relationships to find patterns.
+
+**Examples:**
+- User → MealEvent → FoodItem → NutrientFact
+- Meal → Contains → Ingredient → HAS_NUTRIENT → Carbs
+- Food → SIMILAR_TO → Alternative Food → HAS_NUTRIENT → Alternative Carbs
+
+**Implemented via:**
+- SQL recursive CTEs for native graph
+- Apache AGE Cypher queries for graph DB
+- Service layer aggregation for MemGraphRAG facts
+
+---
+
+### Fact Trace
+> Explicit chain of evidence linking query answer back to source documents.
+
+**Format:**
+```json
+{
+  "query": "Why does pizza spike me?",
+  "answer": "**Pizza** — typical serving: 30g carbs...",
+  "facts": [
+    {
+      "id": "entry:abc-123",
+      "subjectLabel": "Pizza slice",
+      "predicate": "per_serving_nutrition",
+      "valueText": "30g carbs, 12g protein",
+      "confidenceTier": "medium",
+      "sources": ["Entry log from 8:30am"]
+    }
+  ],
+  "sources": [...],
+  "conflicts": [...],
+  "policyNote": "Educational only — not medical advice"
+}
+```
+
+---
+
+## Conflict Resolution Concepts
+
+### Value Mismatch
+> Two facts assert the same attribute with different numeric values (>30% difference).
+
+**Example:**
+- Claim A: Oatmeal = 27g carbs (user note)
+- Claim B: Oatmeal = 33g carbs (CGM measurement)
+- Difference: 22% (27 vs 33)
+
+**Resolution:** Default "keep_both", user compares
+
+---
+
+### Granularity Mismatch
+> Facts differ because they use different measurement units (per-100g vs per-serving).
+
+**Example:**
+- Claim A: 27g carbs per 100g (per-100g)
+- Claim B: 30g carbs per serving (per-serving)
+- Not a direct contradiction
+
+**Resolution:** Normalize units, keep both
+
+---
+
+### Source Trust Mismatch
+> Facts differ due to different source trust levels.
+
+**Example:**
+- Claim A: 20g carbs (official_database, USDA)
+- Claim B: 30g carbs (user_note, user logged)
+- User may be measuring different portion
+
+**Resolution:** Prefer official, flag user measurement
+
+---
+
+### Temporal Mismatch
+> Facts differ because guidance or values changed over time.
+
+**Example:**
+- Claim A: Valid from 2020-2025
+- Claim B: Valid from 2025-2030
+- Old guideline superseded by new
+
+**Resolution:** Track valid_from/valid_to, surface as temporal conflict
+
+---
+
+## Ambiguities and Terminology Conflicts
+
+### `food_name` vs `canonical_name`
+> **Conflict:** Two fields used for food identification
+- `food_name`: Human-readable name as user logs it (e.g., "oatmeal rolled grains")
+- `canonical_name`: Normalized name for matching (e.g., "oatmeal")
+
+**Resolution:** Use `canonical_name` for database lookups, `food_name` for display
+
+---
+
+### `recipe` vs `meal`
+> **Conflict:** Terms for eating occasions
+
+**Resolution:**
+- `recipe`: Structured set of ingredients and instructions
+- `meal`: Logged eating occasion with timestamp
+
+---
+
+### `eaten_at` vs `logged_at`
+> **Conflict:** When did user consume meal vs when was it logged
+
+**Resolution:**
+- `eaten_at`: Timestamp of actual consumption
+- `logged_at`: Timestamp of data entry (when user logged in app)
+
+---
+
+### `spike` vs `glucose_spike`
+> **Conflict:** Informal vs formal term
+
+**Resolution:**
+- Use `glucose_spike` for database fields and technical queries
+- Use `spike` in user-facing answers and natural language queries
+
+---
+
+## Consistency Guidelines
+
+### When to Use Each Term
+
+**Graph Terms:**
+- Use `FoodItem` when referring to database entities
+- Use `food item` when talking to users
+- Use `vertex` when implementing AGE queries
+
+**Measurement Terms:**
+- Use `carbs` in user-facing text (familiar)
+- Use `carbohydrates` in formal documentation
+- Use `carbs_g` in database fields
+
+**Time Terms:**
+- Use `timestamp` for timestamps
+- Use `ate_at` for meal consumption
+- Use `logged_at` for data entry time
+
+**Quality Terms:**
+- Use `trust_tier` for database enum
+- Use `confidence_tier` for data confidence
+- Use `uncertainty` for answer quality metric
+
+---
+
+## Domain Rules
+
+### Rule 1: Never Use Averaged Nutrition as Primary Fact
+> Never average nutrition values across sources as the "truth." Instead, present all sources and let user decide.
+
+**Example:**
+```json
+// Bad
+{
+  "answer": "Oatmeal has 30g carbs per serving"
+}
+
+// Good
+{
+  "facts": [
+    {"value": "27g carbs", "source": "User log"},
+    {"value": "33g carbs", "source": "CGM measurement"}
+  ],
+  "uncertainty": {"level": "high", "reasons": ["Discrepancy between sources"]}
+}
+```
+
+### Rule 2: Always Show Provenance for Every Fact
+> Every fact must link back to its source document or measurement.
+
+**Example:**
+```json
+{
+  "facts": [{
+    "id": "claim:abc-123",
+    "subjectLabel": "Oatmeal",
+    "predicate": "has_carbs",
+    "valueText": "30g carbs",
+    "sources": [
+      {
+        "id": "doc:off-456",
+        "title": "Open Food Facts record",
+        "trustTier": "openfoodfacts"
+      }
+    ]
+  }]
+}
+```
+
+### Rule 3: Conflict Must Be Surface Above Answer
+> When conflicts exist, highlight them before giving a final answer.
+
+**Example:**
+```
+Answer: Based on your data, oatmeal has about 30g carbs per serving.
+
+⚠️ Conflict detected: Sources report 27g vs 33g carbs.
+   See conflict details below for resolution options.
+```
+
+### Rule 4: Confidence Tier Labels Must Be Consistent
+> Use exact enum values in code and display names in UI.
+
+**Enforcement:**
+- Code: `confidence_tier: 'high' | 'medium' | 'low'`
+- UI labels: "High confidence" | "Medium confidence" | "Low confidence"
+- Never mix or use synonyms
+
+---
+
+## Evolution History
+
+| Version | Date | Changes |
+|---------|------|---------|
+| 1.0 | 2026-06-14 | Initial glossary from food graph implementation |
+
+---
+
+## Related Documentation
+
+- [Graph API Reference](./server/docs/graph-api-reference.md)
+- [Graph Architecture](./server/docs/graph-architecture.md)
+- [MemGraphRAG Paper](https://arxiv.org/pdf/2606.00610)

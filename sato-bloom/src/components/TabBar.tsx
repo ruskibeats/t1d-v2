@@ -1,24 +1,26 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Platform } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Platform, Animated, Dimensions } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Feather } from '@expo/vector-icons';
 import { Colors, Spacing } from '@/constants/theme';
 
-export type TabName = 'portrait' | 'foods' | 'discover' | 'sato' | 'profile';
+import { MainTab } from '../navigation/types';
+import { useNavigation } from '../navigation/NavigationProvider';
 
 interface TabBarProps {
-  active: TabName;
-  onPress: (tab: TabName) => void;
+  active?: MainTab;
+  onSelect: (tab: MainTab) => void;
 }
 
-const TABS: { name: TabName; label: string; icon: (active: boolean) => React.ReactNode }[] = [
+type TabItem = { name: MainTab | 'log'; label: string; icon: (active: boolean) => React.ReactNode; isAction?: boolean };
+
+const TABS: TabItem[] = [
   {
     name: 'portrait',
     label: 'Portrait',
     icon: (active) => (
-      <View style={[styles.iconWrap]}>
-        {/* Person silhouette */}
-        <View style={[styles.iconCircle, { borderColor: active ? Colors.burntOrange : Colors.softStone }]} />
-        <View style={[styles.iconBody, { backgroundColor: active ? Colors.burntOrange : Colors.softStone }]} />
+      <View style={styles.iconWrap}>
+        <Feather name="clock" size={20} color={active ? Colors.burntOrange : Colors.softStone} />
       </View>
     ),
   },
@@ -26,12 +28,18 @@ const TABS: { name: TabName; label: string; icon: (active: boolean) => React.Rea
     name: 'foods',
     label: 'Foods',
     icon: (active) => (
-      <View style={[styles.iconWrap]}>
-        <View style={[styles.iconFoodRow]}>
-          {[0, 1, 2].map(i => (
-            <View key={i} style={[styles.iconDot, { backgroundColor: active ? Colors.burntOrange : Colors.softStone }]} />
-          ))}
-        </View>
+      <View style={styles.iconWrap}>
+        <Feather name="coffee" size={20} color={active ? Colors.burntOrange : Colors.softStone} />
+      </View>
+    ),
+  },
+  {
+    name: 'log',
+    label: '',
+    isAction: true,
+    icon: () => (
+      <View style={styles.actionIconWrap}>
+        <Feather name="plus" size={22} color={Colors.burntOrange} />
       </View>
     ),
   },
@@ -39,10 +47,8 @@ const TABS: { name: TabName; label: string; icon: (active: boolean) => React.Rea
     name: 'discover',
     label: 'Discover',
     icon: (active) => (
-      <View style={[styles.iconWrap]}>
-        <View style={[styles.iconDiscover, { borderColor: active ? Colors.burntOrange : Colors.softStone }]}>
-          <View style={[styles.iconDiscoverTail, { backgroundColor: active ? Colors.burntOrange : Colors.softStone }]} />
-        </View>
+      <View style={styles.iconWrap}>
+        <Feather name="compass" size={20} color={active ? Colors.burntOrange : Colors.softStone} />
       </View>
     ),
   },
@@ -50,44 +56,98 @@ const TABS: { name: TabName; label: string; icon: (active: boolean) => React.Rea
     name: 'sato',
     label: 'Sato',
     icon: (active) => (
-      <View style={[styles.iconWrap]}>
-        <View style={[styles.iconFlower, { backgroundColor: active ? Colors.burntOrange : Colors.softStone }]} />
-      </View>
-    ),
-  },
-  {
-    name: 'profile',
-    label: 'Profile',
-    icon: (active) => (
-      <View style={[styles.iconWrap]}>
-        <View style={[styles.iconHeadCircle, { borderColor: active ? Colors.burntOrange : Colors.softStone }]} />
-        <View style={[styles.iconShoulders, { borderColor: active ? Colors.burntOrange : Colors.softStone }]} />
+      <View style={styles.iconWrap}>
+        <Feather name="message-circle" size={20} color={active ? Colors.burntOrange : Colors.softStone} />
       </View>
     ),
   },
 ];
 
-export function TabBar({ active, onPress }: TabBarProps) {
+const getTabIndex = (tabName: string): number => {
+  switch (tabName) {
+    case 'portrait': return 0;
+    case 'foods': return 1;
+    case 'log': return 2;
+    case 'discover': return 3;
+    case 'sato': return 4;
+    default: return 0;
+  }
+};
+
+const SCREEN_WIDTH = Dimensions.get('window').width;
+const CONTAINER_WIDTH = SCREEN_WIDTH - 40; // left: 20, right: 20
+const TAB_WIDTH = CONTAINER_WIDTH / 5;
+const CAPSULE_WIDTH = TAB_WIDTH - 12;
+
+export function TabBar({ active, onSelect }: TabBarProps) {
   const insets = useSafeAreaInsets();
+  const nav = useNavigation();
+
+  const [activeAnim] = React.useState(() => new Animated.Value(getTabIndex(active || 'portrait')));
+
+  React.useEffect(() => {
+    if (active) {
+      Animated.spring(activeAnim, {
+        toValue: getTabIndex(active),
+        useNativeDriver: true,
+        tension: 50,
+        friction: 8,
+      }).start();
+    }
+  }, [active]);
+
+  const translateX = activeAnim.interpolate({
+    inputRange: [0, 1, 2, 3, 4],
+    outputRange: [
+      TAB_WIDTH * 0 + 6,
+      TAB_WIDTH * 1 + 6,
+      TAB_WIDTH * 2 + 6, // Glides organically behind central action button
+      TAB_WIDTH * 3 + 6,
+      TAB_WIDTH * 4 + 6,
+    ],
+  });
 
   return (
-    <View style={[styles.container, { paddingBottom: insets.bottom + 4 }]}>
+    <View 
+      style={[
+        styles.container, 
+        { bottom: insets.bottom > 0 ? insets.bottom + 8 : 16 }
+      ]}
+    >
+      <Animated.View
+        style={[
+          styles.capsuleSlider,
+          {
+            width: CAPSULE_WIDTH,
+            transform: [{ translateX }],
+          },
+        ]}
+      />
+
       {TABS.map((tab) => {
         const isActive = tab.name === active;
         return (
           <TouchableOpacity
             key={tab.name}
-            onPress={() => onPress(tab.name)}
+            onPress={() => {
+              if (tab.name === 'log') {
+                nav.openLog();
+              } else {
+                onSelect(tab.name as MainTab);
+              }
+            }}
             style={styles.tab}
+            activeOpacity={0.7}
             accessibilityRole="button"
             accessibilityLabel={tab.label}
             accessibilityState={{ selected: isActive }}
           >
             {tab.icon(isActive)}
-            <Text style={[styles.label, isActive && styles.labelActive]}>
-              {tab.label}
-            </Text>
-            {isActive && <View style={styles.activeDot} />}
+            {!tab.isAction && (
+              <Text style={[styles.label, isActive && styles.labelActive]}>
+                {tab.label}
+              </Text>
+            )}
           </TouchableOpacity>
         );
       })}
@@ -98,59 +158,80 @@ export function TabBar({ active, onPress }: TabBarProps) {
 const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
-    backgroundColor: Colors.navBg,
-    borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: Colors.border,
-    paddingTop: 10,
-    paddingHorizontal: Spacing.sm,
+    position: 'absolute',
+    left: 20,
+    right: 20,
+    height: 64,
+    backgroundColor: 'rgba(252, 250, 246, 0.96)',
+    borderWidth: 1,
+    borderColor: '#ECE6DB',
+    borderRadius: 32,
+    alignItems: 'center',
     ...Platform.select({
       ios: {
-        shadowColor: Colors.ink,
-        shadowOffset: { width: 0, height: -1 },
-        shadowOpacity: 0.04,
-        shadowRadius: 4,
+        shadowColor: '#181614',
+        shadowOffset: { width: 0, height: 6 },
+        shadowOpacity: 0.06,
+        shadowRadius: 16,
+      },
+      android: {
+        elevation: 8,
       },
     }),
+    zIndex: 99,
   },
   tab: {
     flex: 1,
     alignItems: 'center',
-    gap: 2,
+    justifyContent: 'center',
+    height: '100%',
+    zIndex: 2,
   },
   label: {
-    fontSize: 10,
+    fontSize: 9.5,
     color: Colors.softStone,
-    fontWeight: '500',
+    fontFamily: 'Inter_500Medium',
+    marginTop: 2,
+    textAlign: 'center',
   },
   labelActive: {
     color: Colors.burntOrange,
-    fontWeight: '700',
-  },
-  activeDot: {
-    width: 4,
-    height: 4,
-    borderRadius: 2,
-    backgroundColor: Colors.burntOrange,
-    marginTop: 1,
+    fontFamily: 'Inter_600SemiBold',
   },
   iconWrap: {
-    width: 24,
-    height: 24,
+    width: 22,
+    height: 22,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  // Portrait
-  iconCircle: { width: 10, height: 10, borderRadius: 5, borderWidth: 1.5, marginBottom: 1 },
-  iconBody: { width: 14, height: 7, borderRadius: 7 },
-  // Foods
-  iconFoodRow: { flexDirection: 'row', gap: 2 },
-  iconDot: { width: 4, height: 4, borderRadius: 2 },
-  // Discover (chat bubble)
-  iconDiscover: { width: 16, height: 13, borderRadius: 4, borderWidth: 1.5, position: 'relative' },
-  iconDiscoverTail: { position: 'absolute', bottom: -4, left: 3, width: 5, height: 5, borderRadius: 2 },
-  // Sato (small flower)
-  iconFlower: { width: 8, height: 8, borderRadius: 4 },
-  // Profile
-  iconHeadCircle: { width: 8, height: 8, borderRadius: 4, borderWidth: 1.5, marginBottom: 1 },
-  iconShoulders: { width: 14, height: 6, borderRadius: 7, borderWidth: 1.5 },
+  actionIconWrap: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    borderWidth: 1.5,
+    borderColor: Colors.burntOrange,
+    backgroundColor: 'rgba(217, 121, 71, 0.04)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    ...Platform.select({
+      ios: {
+        shadowColor: Colors.burntOrange,
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.08,
+        shadowRadius: 4,
+      },
+      android: {
+        elevation: 2,
+      },
+    }),
+  },
+  capsuleSlider: {
+    position: 'absolute',
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: 'rgba(217, 121, 71, 0.08)',
+    top: 10,
+    zIndex: 1,
+  },
 });
+

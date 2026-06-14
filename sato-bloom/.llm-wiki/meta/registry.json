@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "last_updated": "2026-06-12T21:02:16.710Z",
+  "last_updated": "2026-06-14T12:38:35.191Z",
   "pages": {
     "[sources/SRC-2026-06-07-001": {
       "type": "concept",
@@ -1120,7 +1120,7 @@
     "sources/SRC-2026-06-07-001": {
       "type": "source",
       "title": "SRC-2026-06-07-001",
-      "created": "2026-06-12",
+      "created": "2026-06-14",
       "updated": "2026-06-07",
       "format": "file",
       "source_id": "SRC-2026-06-07-001",
@@ -1131,7 +1131,7 @@
     "sources/SRC-2026-06-07-002": {
       "type": "source",
       "title": "SRC-2026-06-07-002",
-      "created": "2026-06-12",
+      "created": "2026-06-14",
       "updated": "2026-06-07",
       "format": "file",
       "source_id": "SRC-2026-06-07-002",
@@ -1142,7 +1142,7 @@
     "sources/SRC-2026-06-07-003": {
       "type": "source",
       "title": "SRC-2026-06-07-003",
-      "created": "2026-06-12",
+      "created": "2026-06-14",
       "updated": "2026-06-07",
       "format": "file",
       "source_id": "SRC-2026-06-07-003",
@@ -1153,7 +1153,7 @@
     "sources/SRC-2026-06-07-004": {
       "type": "source",
       "title": "SRC-2026-06-07-004",
-      "created": "2026-06-12",
+      "created": "2026-06-14",
       "updated": "2026-06-07",
       "format": "file",
       "source_id": "SRC-2026-06-07-004",
@@ -1164,7 +1164,7 @@
     "sources/SRC-2026-06-07-005": {
       "type": "source",
       "title": "SRC-2026-06-07-005",
-      "created": "2026-06-12",
+      "created": "2026-06-14",
       "updated": "2026-06-07",
       "format": "file",
       "source_id": "SRC-2026-06-07-005",
@@ -1175,7 +1175,7 @@
     "sources/SRC-2026-06-07-006": {
       "type": "source",
       "title": "SRC-2026-06-07-006",
-      "created": "2026-06-12",
+      "created": "2026-06-14",
       "updated": "2026-06-07",
       "format": "json",
       "source_id": "SRC-2026-06-07-006",
@@ -1186,7 +1186,7 @@
     "sources/SRC-2026-06-07-007": {
       "type": "source",
       "title": "SRC-2026-06-07-007",
-      "created": "2026-06-12",
+      "created": "2026-06-14",
       "updated": "2026-06-07",
       "format": "markdown",
       "source_id": "SRC-2026-06-07-007",
@@ -1197,7 +1197,7 @@
     "sources/SRC-2026-06-07-008": {
       "type": "source",
       "title": "SRC-2026-06-07-008",
-      "created": "2026-06-12",
+      "created": "2026-06-14",
       "updated": "2026-06-07",
       "format": "markdown",
       "source_id": "SRC-2026-06-07-008",
@@ -1208,7 +1208,7 @@
     "sources/SRC-2026-06-07-009": {
       "type": "source",
       "title": "SRC-2026-06-07-009",
-      "created": "2026-06-12",
+      "created": "2026-06-14",
       "updated": "2026-06-07",
       "format": "markdown",
       "source_id": "SRC-2026-06-07-009",
@@ -1219,7 +1219,7 @@
     "sources/SRC-2026-06-07-010": {
       "type": "source",
       "title": "SRC-2026-06-07-010",
-      "created": "2026-06-12",
+      "created": "2026-06-14",
       "updated": "2026-06-07",
       "format": "markdown",
       "source_id": "SRC-2026-06-07-010",
@@ -1230,8 +1230,8 @@
     "sources/SRC-2026-06-07-011": {
       "type": "source",
       "title": "SRC-2026-06-07-011",
-      "created": "2026-06-12",
-      "updated": "2026-06-12",
+      "created": "2026-06-14",
+      "updated": "2026-06-14",
       "format": "markdown",
       "source_id": "SRC-2026-06-07-011",
       "raw_path": "raw/sources/SRC-2026-06-07-011/extracted.md",
@@ -1241,8 +1241,8 @@
     "sources/SRC-2026-06-07-012": {
       "type": "source",
       "title": "SRC-2026-06-07-012",
-      "created": "2026-06-12",
-      "updated": "2026-06-12",
+      "created": "2026-06-14",
+      "updated": "2026-06-14",
       "format": "markdown",
       "source_id": "SRC-2026-06-07-012",
       "raw_path": "raw/sources/SRC-2026-06-07-012/extracted.md",
@@ -2797,6 +2797,22 @@
         "intercom"
       ],
       "source_context": "\"T1D-bot2 read-only design-context scout for issue #58\""
+    },
+    "sources/obs-2026-06-14-root-mobile-app-architecture-review-candidates": {
+      "type": "source",
+      "title": "\"Observation: Root mobile app architecture review candidates\"",
+      "created": "2026-06-14",
+      "updated": "2026-06-14",
+      "slug": "obs-2026-06-14-root-mobile-app-architecture-review-candidates",
+      "status": "observation",
+      "relevance": "high",
+      "observed_at": "2026-06-14T12:38:35.186Z",
+      "tags": [
+        "architecture",
+        "mobile",
+        "review"
+      ],
+      "source_context": "\"Architecture review of root Expo mobile app\""
     },
     "sources/sato-watercolor-visualization-system": {
       "type": "source",

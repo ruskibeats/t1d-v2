@@ -58,11 +58,11 @@ export default function RevelationScreen({ revelationId }: { revelationId: strin
       {/* Nav bar */}
       <View style={styles.navBar}>
         <TouchableOpacity onPress={() => nav.goBack()} style={styles.backBtn}>
-          <Text style={styles.backArrow}>‹</Text>
+          <Feather name="chevron-left" size={20} color={Colors.ink} />
           <Text style={styles.backLabel}>Discover</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.moreBtn}>
-          <Text style={styles.moreIcon}>•••</Text>
+          <Feather name="more-horizontal" size={20} color={Colors.softStone} />
         </TouchableOpacity>
       </View>
 
@@ -164,7 +164,7 @@ export default function RevelationScreen({ revelationId }: { revelationId: strin
               return (
                 <TouchableOpacity
                   key={p.id}
-                  style={[styles.relatedRow, { backgroundColor: rb.cardBg }]}
+                  style={styles.relatedRow}
                   onPress={() => nav.openRevelation({ id: p.id })}
                   activeOpacity={0.88}
                 >
@@ -177,7 +177,7 @@ export default function RevelationScreen({ revelationId }: { revelationId: strin
                     />
                   </View>
                   <Text style={styles.relatedLabel} numberOfLines={1}>{p.title}</Text>
-                  <Text style={styles.relatedChevron}>›</Text>
+                  <Feather name="chevron-right" size={16} color={Colors.softStone} />
                 </TouchableOpacity>
               );
             })}
@@ -198,11 +198,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.xl,
     paddingVertical: Spacing.sm,
   },
-  backBtn: { flexDirection: 'row', alignItems: 'center', gap: 2 },
-  backArrow: { fontSize: 28, color: Colors.ink, lineHeight: 32 },
+  backBtn: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   backLabel: { ...TypeScale.body, color: Colors.ink, fontWeight: '500' },
   moreBtn: { padding: 4 },
-  moreIcon: { fontSize: 14, color: Colors.softStone, letterSpacing: 2 },
 
   scroll: { flex: 1 },
   scrollContent: { paddingHorizontal: Spacing.xxl },
@@ -237,17 +235,12 @@ const styles = StyleSheet.create({
 
   // Cards
   card: {
-    backgroundColor: Colors.card,
-    borderRadius: Radius.lg,
-    padding: Spacing.xl,
-    marginBottom: Spacing.md,
-    borderTopWidth: 1,
-    borderTopColor: 'rgba(255,255,255,0.45)',
-    shadowColor: '#000000',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.015,
-    shadowRadius: 18,
-    elevation: 1,
+    backgroundColor: 'transparent',
+    paddingVertical: Spacing.xl,
+    paddingHorizontal: 0,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(231, 222, 207, 0.3)',
+    marginBottom: Spacing.xs,
   },
   cardLabel: {
     ...TypeScale.label,
@@ -273,22 +266,14 @@ const styles = StyleSheet.create({
   relatedRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: Colors.card,
-    borderRadius: Radius.md,
-    padding: Spacing.md,
-    marginBottom: Spacing.sm,
-    borderTopWidth: 1,
-    borderTopColor: 'rgba(255,255,255,0.45)',
-    shadowColor: '#000000',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.015,
-    shadowRadius: 18,
-    elevation: 1,
+    backgroundColor: 'transparent',
+    paddingVertical: Spacing.md,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(231, 222, 207, 0.3)',
     gap: Spacing.md,
   },
   relatedIcon: { width: 44, height: 44, borderRadius: 10, alignItems: 'center', justifyContent: 'center' },
   relatedLabel: { flex: 1, ...TypeScale.body, fontWeight: '500', color: Colors.ink },
-  relatedChevron: { fontSize: 20, color: Colors.softStone },
 
   nextTimeDesc: {
     ...TypeScale.body,

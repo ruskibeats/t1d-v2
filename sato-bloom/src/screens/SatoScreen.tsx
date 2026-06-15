@@ -15,7 +15,6 @@ import * as Haptics from 'expo-haptics';
 import { Colors, Spacing, Radius, TypeScale } from '@/constants/theme';
 import { useNavigation } from '../navigation/NavigationProvider';
 import { useLogs } from '../context/LogContext';
-import { DataDashboard } from '../components/data/DataDashboard';
 import { getSatoPageData } from '../services/api';
 import { SatoPageData } from '../types/data';
 
@@ -34,6 +33,14 @@ interface Message {
   role: 'sato' | 'user';
   text: string;
   actions?: ActionOption[];
+  customCard?: {
+    type: 'sleep' | 'walk' | 'glucose';
+    title: string;
+    value: string;
+    subtext: string;
+    icon: string;
+    color: string;
+  };
 }
 
 const INITIAL_MESSAGES: Message[] = [
@@ -249,11 +256,44 @@ export default function SatoScreen() {
       ];
     }
 
+    // Custom Card association
+    let customCard = undefined;
+    const lower = text.toLowerCase();
+    if (lower.includes('sleep')) {
+      customCard = {
+        type: 'sleep' as const,
+        title: 'Sleep Duration & Quality',
+        value: '8h 00m',
+        subtext: 'Quality: 85% · Sleep target met',
+        icon: 'moon-outline',
+        color: Colors.burntOrange,
+      };
+    } else if (lower.includes('walk')) {
+      customCard = {
+        type: 'walk' as const,
+        title: 'Daily Walk Activity',
+        value: '10,420 steps today',
+        subtext: 'Walked 20m at 2:30pm · Natural stabilizer',
+        icon: 'footprints-outline',
+        color: '#5795C7',
+      };
+    } else if (lower.includes('low') || lower.includes('hypo')) {
+      customCard = {
+        type: 'glucose' as const,
+        title: 'Daily Glucose Stability',
+        value: '78% Time In Range',
+        subtext: 'Time in range: 70-180 mg/dL',
+        icon: 'heart-outline',
+        color: Colors.burntOrange,
+      };
+    }
+
     const satoReply: Message = {
       id: (Date.now() + 1).toString(),
       role: 'sato',
       text: replyText,
       actions: replyActions.length > 0 ? replyActions : undefined,
+      customCard,
     };
     
     setMessages((prev) => [...prev, userMsg, satoReply]);
@@ -304,21 +344,6 @@ export default function SatoScreen() {
         contentContainerStyle={[styles.messageContent, { paddingBottom: insets.bottom + 100 }]}
         showsVerticalScrollIndicator={false}
       >
-        {/* Data Dashboard - shows meals, check-ins, exercises, sleep, goals */}
-        {pageData && (
-          <View style={styles.dashboardContainer}>
-            <DataDashboard
-              data={pageData}
-              meals={MOCK_MEALS}
-              checkIn={MOCK_CHECK_IN}
-              exercises={MOCK_EXERCISES}
-              sleep={MOCK_SLEEP}
-              goals={MOCK_GOALS}
-              isLoading={isLoading}
-            />
-            <View style={styles.dashboardDivider} />
-          </View>
-        )}
 
         {messages.map((msg, index) => (
           <View
@@ -338,6 +363,20 @@ export default function SatoScreen() {
             <Text style={[styles.messageText, msg.role === 'user' && styles.messageTextUser]}>
               {msg.text}
             </Text>
+
+            {/* Custom interactive card inside message */}
+            {msg.role === 'sato' && msg.customCard && (
+              <View style={styles.customCard}>
+                <View style={styles.customCardIconWrap}>
+                  <Ionicons name={msg.customCard.icon as any} size={20} color={msg.customCard.color} />
+                </View>
+                <View style={styles.customCardInfo}>
+                  <Text style={styles.customCardTitle}>{msg.customCard.title}</Text>
+                  <Text style={styles.customCardValue}>{msg.customCard.value}</Text>
+                  <Text style={styles.customCardSubtext}>{msg.customCard.subtext}</Text>
+                </View>
+              </View>
+            )}
 
             {/* Action suggestions — inline text links */}
             {msg.role === 'sato' && msg.actions && msg.actions.length > 0 && (
@@ -417,40 +456,43 @@ export default function SatoScreen() {
 function getSatoReply(text: string): string {
   const lower = text.toLowerCase();
   if (lower.includes('low') || lower.includes('hypo'))
-    return "Your 3pm dip is a pattern I've noticed on days you skip lunch or push back your meal. You were at 3.8 mmol/L — treated quickly though. Well handled.";
+    return "Your afternoon dip is a pattern commonly observed on days you skip or delay meals. For informational purposes, taking fast-acting glucose (like juice or honey) can help restore baseline levels. Discuss recurring dips with your care team.";
   if (lower.includes('walk'))
-    return "The 20-minute walk you took at 2:30pm likely contributed to a 1.2 mmol/L drop over 90 minutes. Walks are one of your most consistent stabilisers — I've seen this 14 times.";
+    return "A brief 15-20 minute walk after meals is an established physiological stabilizer that increases muscle glucose uptake and smooths out post-meal curves. Across similar entries, walks are linked to a calmer glucose trajectory.";
   if (lower.includes('pizza') || lower.includes('carbonara') || lower.includes('pasta'))
-    return "Pizza and pasta nights typically cause a delayed spike — usually peaking around 2–3 hours later due to the fat slowing absorption. I'd suggest pre-bolusing 20 minutes earlier than usual and splitting your dose.";
+    return "Foods rich in fats and proteins (like pizza or carbonara) slow down stomach emptying. This typically shifts the glycemic peak outward, often causing a delayed rise 3 to 4 hours post-meal. Some individuals discuss timing offsets or split-dosing strategies with their diabetes care team to align with this prolonged absorption curve.";
+  if (lower.includes('rice'))
+    return "White rice is a complex starch that digests into simple sugars. When paired with protein or fats, stomach emptying slows, which can delay the glycemic peak to 3 or 4 hours after eating, creating a prolonged rise. Discuss timing and pairing strategies with your clinician.";
   if (lower.includes('sleep'))
-    return "Short sleep (under 6 hours) is linked to higher morning glucose variability for you. On those days, you've needed roughly 15% more insulin at breakfast. This is an emerging signal — 9 observations so far.";
-  return "That's a great question. Based on your data from the past 30 days, I can see some patterns forming. Let me dig into that for you — give me a moment.";
+    return "Shorter sleep duration (under 6 hours) is associated with higher morning cortisol levels. This can temporarily increase insulin resistance at breakfast, leading to higher glycemic variability. This is a common physiological response to restricted rest.";
+  return "That's a helpful question. Based on your logged diary entries from the past 30 days, we can observe some repeating patterns. Let me search through your logs to provide educational context — give me a moment.";
 }
 
 function getSatoActions(text: string): ActionOption[] | undefined {
   const lower = text.toLowerCase();
   if (lower.includes('low') || lower.includes('hypo')) {
     return [
-      { id: 'remind-lunch', label: 'Add lunch reminder', icon: 'calendar-outline', type: 'reminder', completedLabel: 'Lunch reminder scheduled' },
-      { id: 'watch-low', label: 'Watch afternoon dip', icon: 'analytics-outline', type: 'watch', completedLabel: 'Watching afternoon dip' }
+      { id: 'remind-lunch', label: 'Set check-in reminder for lunch', icon: 'calendar-outline', type: 'reminder', completedLabel: 'Lunch check-in scheduled' },
+      { id: 'watch-low', label: 'Track post-meal dips in diary', icon: 'analytics-outline', type: 'watch', completedLabel: 'Tracking post-meal dips' }
     ];
   }
   if (lower.includes('walk')) {
     return [
-      { id: 'start-timer', label: 'Start walk timer (20m)', icon: 'timer-outline', type: 'timer', completedLabel: 'Walk timer active' },
-      { id: 'remind-walk', label: 'Remind me after lunch', icon: 'alarm-outline', type: 'reminder', completedLabel: 'Walk reminder scheduled' }
+      { id: 'start-timer', label: 'Set 20m post-meal timer', icon: 'timer-outline', type: 'timer', completedLabel: 'Timer active' },
+      { id: 'remind-walk', label: 'Remind me to move after lunch', icon: 'alarm-outline', type: 'reminder', completedLabel: 'Movement reminder scheduled' }
     ];
   }
-  if (lower.includes('pizza') || lower.includes('carbonara') || lower.includes('pasta')) {
+  if (lower.includes('pizza') || lower.includes('carbonara') || lower.includes('pasta') || lower.includes('rice')) {
     return [
-      { id: 'remind-bolus', label: 'Set bolus reminder (20m early)', icon: 'time-outline', type: 'reminder', completedLabel: 'Bolus reminder scheduled' },
-      { id: 'view-pizza-memory', label: 'View Pizza Memory', icon: 'book-outline', type: 'view', target: 'carbonara' }
+      { id: 'remind-check-onset', label: 'Set 20m pre-meal check reminder', icon: 'time-outline', type: 'reminder', completedLabel: 'Pre-meal check scheduled' },
+      { id: 'remind-delayed-rise', label: 'Set 4h delayed rise check reminder', icon: 'alarm-outline', type: 'reminder', completedLabel: '4h check-in scheduled' },
+      { id: 'view-pizza-memory', label: 'View Linked Food Memory', icon: 'book-outline', type: 'view', target: lower.includes('rice') ? 'Spaghetti' : 'carbonara' }
     ];
   }
   if (lower.includes('sleep')) {
     return [
-      { id: 'track-sleep', label: 'Track sleep tonight', icon: 'bed-outline', type: 'reminder', completedLabel: 'Sleep tracking active' },
-      { id: 'view-sleep-insights', label: 'View sleep insights', icon: 'bar-chart-outline', type: 'watch', completedLabel: 'Sleep insights added' }
+      { id: 'track-sleep', label: 'Record sleep logs retrospectively', icon: 'bed-outline', type: 'reminder', completedLabel: 'Sleep tracking active' },
+      { id: 'view-sleep-insights', label: 'Track rest trends in diary', icon: 'bar-chart-outline', type: 'watch', completedLabel: 'Sleep tracking added' }
     ];
   }
   return undefined;
@@ -591,5 +633,46 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.divider,
     marginVertical: Spacing.xl,
     marginHorizontal: -Spacing.xl, // extend edge-to-edge
+  },
+  customCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'transparent',
+    borderTopWidth: 1,
+    borderBottomWidth: 1,
+    borderTopColor: 'rgba(231, 222, 207, 0.4)',
+    borderBottomColor: 'rgba(231, 222, 207, 0.4)',
+    paddingVertical: Spacing.md,
+    marginTop: Spacing.md,
+    gap: Spacing.md,
+  },
+  customCardIconWrap: {
+    width: 24,
+    height: 24,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  customCardInfo: {
+    flex: 1,
+  },
+  customCardTitle: {
+    fontFamily: 'Inter_500Medium',
+    fontSize: 9.5,
+    color: Colors.softStone,
+    textTransform: 'uppercase',
+    letterSpacing: 1.0,
+  },
+  customCardValue: {
+    fontFamily: 'CormorantGaramond_600SemiBold',
+    fontSize: 22,
+    color: Colors.ink,
+    marginTop: 1,
+  },
+  customCardSubtext: {
+    fontFamily: 'Inter_400Regular',
+    fontSize: 12,
+    color: Colors.softStone,
+    marginTop: 2,
+    lineHeight: 16,
   },
 });

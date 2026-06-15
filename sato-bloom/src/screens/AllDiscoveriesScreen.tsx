@@ -57,37 +57,38 @@ export default function AllDiscoveriesScreen() {
             {filteredPatterns.length === 0 ? (
               <Text style={styles.emptyText}>No discoveries in this category yet.</Text>
             ) : (
-              filteredPatterns.map((pattern) => (
-                <TouchableOpacity
-                  key={pattern.id}
-                  style={styles.patternRow}
-                  onPress={() => nav.openRevelation({ id: pattern.id })}
-                  activeOpacity={0.9}
-                >
-                  <View style={styles.patternIcon}>
-                    <BloomFlower
-                      petal1={Colors.bloom[pattern.bloom].petal1}
-                      petal2={Colors.bloom[pattern.bloom].petal2}
-                      petal3={Colors.bloom[pattern.bloom].petal3}
-                      size={52}
-                    />
-                  </View>
-
-                  <View style={styles.patternInfo}>
-                    <Text style={styles.patternTitle} numberOfLines={2}>{pattern.title}</Text>
-                    <View style={styles.patternMeta}>
-                      <Text style={styles.patternStrength}>
-                        {pattern.strength === 'strong' ? 'Recurring pattern' : 'Emerging signal'}
-                      </Text>
-                      <Text style={styles.patternSeen}>· Seen {pattern.seenCount} times</Text>
+              filteredPatterns.map((pattern, i) => {
+                const isLast = i === filteredPatterns.length - 1;
+                return (
+                  <TouchableOpacity
+                    key={pattern.id}
+                    style={[styles.patternRow, isLast && { borderBottomWidth: 0 }]}
+                    onPress={() => nav.openRevelation({ id: pattern.id })}
+                    activeOpacity={0.9}
+                  >
+                    <View style={styles.patternIcon}>
+                      <BloomFlower
+                        petal1={Colors.bloom[pattern.bloom].petal1}
+                        petal2={Colors.bloom[pattern.bloom].petal2}
+                        petal3={Colors.bloom[pattern.bloom].petal3}
+                        size={52}
+                      />
                     </View>
-                  </View>
-                  
-                  <View style={styles.chevronWrap}>
-                    <Text style={styles.chevron}>›</Text>
-                  </View>
-                </TouchableOpacity>
-              ))
+
+                    <View style={styles.patternInfo}>
+                      <Text style={styles.patternTitle} numberOfLines={2}>{pattern.title}</Text>
+                      <View style={styles.patternMeta}>
+                        <Text style={styles.patternStrength}>
+                          {pattern.strength === 'strong' ? 'Recurring pattern' : 'Emerging signal'}
+                        </Text>
+                        <Text style={styles.patternSeen}>· Seen {pattern.seenCount} times</Text>
+                      </View>
+                    </View>
+                    
+                    <Feather name="chevron-right" size={16} color={Colors.softStone} />
+                  </TouchableOpacity>
+                );
+              })
             )}
           </View>
         </ScrollView>
@@ -133,19 +134,14 @@ const styles = StyleSheet.create({
   filterChip: {
     paddingHorizontal: Spacing.lg,
     paddingVertical: Spacing.sm,
-    borderRadius: 20,
-    backgroundColor: 'rgba(0,0,0,0.04)',
+    borderRadius: 999,
+    backgroundColor: 'transparent',
     borderWidth: 1,
-    borderColor: 'transparent',
+    borderColor: 'rgba(24, 22, 20, 0.15)',
   },
   filterChipActive: {
-    backgroundColor: Colors.white,
-    borderColor: Colors.border,
-    shadowColor: Colors.ink,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
-    elevation: 2,
+    backgroundColor: Colors.ink,
+    borderColor: Colors.ink,
   },
   filterText: {
     fontFamily: 'Inter_500Medium',
@@ -153,8 +149,8 @@ const styles = StyleSheet.create({
     color: Colors.softStone,
   },
   filterTextActive: {
-    color: Colors.ink,
-    fontWeight: '600',
+    color: '#FCFAF6',
+    fontFamily: 'Inter_600SemiBold',
   },
   list: {
     paddingHorizontal: Spacing.xxl,
@@ -165,7 +161,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: Spacing.xl,
     borderBottomWidth: 1,
-    borderBottomColor: Colors.divider,
+    borderBottomColor: 'rgba(231, 222, 207, 0.3)',
     gap: Spacing.lg,
   },
   patternIcon: {
@@ -195,19 +191,6 @@ const styles = StyleSheet.create({
   patternSeen: {
     ...TypeScale.metadata,
     color: Colors.softStone,
-  },
-  chevronWrap: {
-    width: 36,
-    height: 36,
-    borderRadius: 999,
-    backgroundColor: Colors.chipBg,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  chevron: {
-    fontSize: 18,
-    color: Colors.ink,
-    marginTop: -1,
   },
   emptyText: {
     ...TypeScale.body,

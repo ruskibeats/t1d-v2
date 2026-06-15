@@ -1,20 +1,19 @@
 /**
  * Data Dashboard Component
  *
- * Displays a grid of data cards for meals, check-ins, exercises, sleep, and goals.
+ * Displays a flat ledger grid of metric points for meals, check-ins, exercises, sleep, and goals.
+ * Sits flat on the paper background without shadow boxes or carousels.
  */
 
 import React from 'react';
-import { ScrollView, View, StyleSheet, Text } from 'react-native';
+import { View, StyleSheet, Text } from 'react-native';
 import { Colors, Spacing, Radius } from '@/constants/theme';
-import { DataCard } from './DataCard';
 import {
-  FoodEntry,
+  MealSummary,
   CheckInData,
   ExerciseEntry,
   SleepData,
   GoalProgress,
-  MealSummary,
   SatoPageData,
 } from '@/types/data';
 
@@ -28,6 +27,25 @@ interface DataDashboardProps {
   isLoading?: boolean;
 }
 
+interface LedgerRowProps {
+  title: string;
+  detail?: string;
+  value: string;
+  isLast?: boolean;
+}
+
+function LedgerRow({ title, detail, value, isLast = false }: LedgerRowProps) {
+  return (
+    <View style={[styles.ledgerRow, isLast && { borderBottomWidth: 0 }]}>
+      <View style={styles.ledgerInfo}>
+        <Text style={styles.ledgerTitle}>{title}</Text>
+        {detail ? <Text style={styles.ledgerDetail}>{detail}</Text> : null}
+      </View>
+      <Text style={styles.ledgerValue}>{value}</Text>
+    </View>
+  );
+}
+
 export function DataDashboard({
   meals,
   checkIn,
@@ -37,18 +55,68 @@ export function DataDashboard({
   data,
   isLoading = false,
 }: DataDashboardProps) {
-  // Format number with units
+  // Format helpers
   const formatCalories = (val: number) => `${val} kcal`;
   const formatCarbs = (val: number) => `${val}g`;
   const formatWeight = (val: number) => `${val} lbs`;
   const formatSteps = (val: number) => `${val.toLocaleString()}`;
-  const formatMinutes = (val: number) => `${val}m`;
+  const formatMinutes = (val: number) => {
+    const hrs = Math.floor(val / 60);
+    const mins = val % 60;
+    return hrs > 0 ? `${hrs}h ${mins}m` : `${mins}m`;
+  };
   const formatPercentage = (val: number) => `${val.toFixed(0)}%`;
+
+  // Calculate retrospective glycemic stats (Class I SaMD educational context)
+  const getRetrospectiveMetrics = (mealsList?: MealSummary[]) => {
+    let totalVelocity = 0;
+    let totalAuc = 0;
+    let lateRiseCount = 0;
+    let bufferStreak = 0;
+    let count = 0;
+
+    if (mealsList && mealsList.length > 0) {
+      mealsList.forEach((meal) => {
+        count++;
+        const carbs = meal.carbs || 0;
+        const fat = meal.fat || 0;
+        const protein = meal.protein || 0;
+        
+        const isLateRise = fat > 12 && carbs > 35;
+        if (isLateRise) {
+          lateRiseCount++;
+        }
+
+        if (carbs > 0 && (protein > 10 || fat > 8)) {
+          bufferStreak++;
+        }
+
+        const baseVelocity = carbs > 60 ? 2.1 : carbs > 30 ? 1.5 : 0.8;
+        const fatBuffering = fat > 12 ? 0.65 : 1.0;
+        const velocity = baseVelocity * fatBuffering;
+        totalVelocity += velocity;
+
+        totalAuc += (carbs * 55) + (fat * 25);
+      });
+    }
+
+    const avgVelocity = count > 0 ? (totalVelocity / count).toFixed(2) : '0.00';
+    const avgAuc = count > 0 ? Math.round(totalAuc / count) : 0;
+
+    return {
+      avgVelocity,
+      avgAuc,
+      lateRiseCount,
+      bufferStreak,
+    };
+  };
+
+  const retro = getRetrospectiveMetrics(meals);
 
   if (isLoading) {
     return (
       <View style={styles.container}>
-        <Text style={styles.noData}>Loading your data...</Text>
+        <Text style={styles.noData}>Loading Calibration Logs...</Text>
       </View>
     );
   }
@@ -56,194 +124,263 @@ export function DataDashboard({
   if (!data) {
     return (
       <View style={styles.container}>
-        <Text style={styles.noData}>No data available</Text>
+        <Text style={styles.noData}>No calibration logs available</Text>
       </View>
     );
   }
 
   return (
     <View style={styles.container}>
-      {/* Section: Today's Meals */}
+      {/* Section: Today's Nutrition */}
       {meals && meals.length > 0 && (
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Today's Nutrition</Text>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.cardRow}>
-            {meals.slice(0, 3).map((meal, idx) => (
-              <DataCard
-                key={idx}
-                title="Calories"
-                value={formatCalories(meal.calories)}
-                subtext={`${formatCarbs(meal.carbs)} carbs • ${formatCarbs(meal.protein)} protein`}
-                icon="restaurant"
-                trend="neutral"
-                color={Colors.burntOrange} // Using burnt orange for active data
-              />
-            ))}
-          </ScrollView>
+        <View style={styles.ledgerBlock}>
+          <Text style={styles.sectionHeader}>Today's Nutrition</Text>
+          {meals.map((meal, idx) => (
+            <LedgerRow
+              key={idx}
+              title={`Meal Entry ${idx + 1}`}
+              detail={`${formatCarbs(meal.carbs)} carbs · ${formatCarbs(meal.protein)} protein · ${formatCarbs(meal.fat)} fat`}
+              value={formatCalories(meal.calories)}
+              isLast={idx === meals.length - 1}
+            />
+          ))}
         </View>
       )}
 
       {/* Section: Check-In */}
       {checkIn && (
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Body Metrics</Text>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.cardRow}>
-            {checkIn.weight && (
-              <DataCard
-                key="weight"
-                title="Weight"
-                value={formatWeight(checkIn.weight)}
-                subtext={checkIn.body_fat_percentage ? `${formatCalories(checkIn.body_fat_percentage)} body fat` : ''}
-                icon="scale-outline"
-                trend="neutral"
-                color={Colors.burntOrange}
-              />
-            )}
-            {checkIn.steps && (
-              <DataCard
-                key="steps"
-                title="Steps"
-                value={formatSteps(checkIn.steps)}
-                subtext="Daily activity"
-                icon="footprints"
-                trend="neutral"
-                color={Colors.burntOrange}
-              />
-            )}
-          </ScrollView>
+        <View style={styles.ledgerBlock}>
+          <Text style={styles.sectionHeader}>Body Metrics</Text>
+          <LedgerRow
+            title="Weight Telemetry"
+            detail={checkIn.body_fat_percentage ? `${checkIn.body_fat_percentage}% body fat` : 'Fasting scale'}
+            value={checkIn.weight ? formatWeight(checkIn.weight) : '--'}
+          />
+          <LedgerRow
+            title="Steps Activity"
+            detail="Recorded step count"
+            value={checkIn.steps ? formatSteps(checkIn.steps) : '0'}
+            isLast={true}
+          />
         </View>
       )}
 
       {/* Section: Recent Exercises */}
       {exercises && exercises.length > 0 && (
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Recent Exercises</Text>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.cardRow}>
-            {exercises.slice(0, 3).map((exercise) => (
-              <DataCard
-                key={exercise.id}
-                title="Burn"
-                value={formatCalories(exercise.calories_burned || 0)}
-                subtext={formatMinutes(exercise.duration_minutes || 0)}
-                icon="flame"
-                trend="neutral"
-                color={Colors.burntOrange}
-              />
-            ))}
-          </ScrollView>
+        <View style={styles.ledgerBlock}>
+          <Text style={styles.sectionHeader}>Recent Exercises</Text>
+          {exercises.map((exercise, idx) => (
+            <LedgerRow
+              key={exercise.id}
+              title={exercise.exercise_name || 'Exercise'}
+              detail={`Duration: ${formatMinutes(exercise.duration_minutes || 0)}`}
+              value={`-${formatCalories(exercise.calories_burned || 0)}`}
+              isLast={idx === exercises.length - 1}
+            />
+          ))}
         </View>
       )}
 
       {/* Section: Sleep */}
       {sleep && sleep.length > 0 && (
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Sleep</Text>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.cardRow}>
-            {sleep.slice(0, 3).map((sleepDay) => (
-              <DataCard
-                key={sleepDay.id}
-                title="Duration"
-                value={formatMinutes(sleepDay.sleep_duration_minutes || 0)}
-                subtext={sleepDay.sleep_quality_score ? `Quality: ${formatPercentage(sleepDay.sleep_quality_score)}` : ''}
-                icon="moon"
-                trend="neutral"
-                color={Colors.burntOrange}
-              />
-            ))}
-          </ScrollView>
+        <View style={styles.ledgerBlock}>
+          <Text style={styles.sectionHeader}>Sleep Track</Text>
+          {sleep.map((sleepDay, idx) => (
+            <LedgerRow
+              key={sleepDay.id}
+              title="Rest Quality Index"
+              detail={sleepDay.sleep_quality_score ? `Quality Score: ${formatPercentage(sleepDay.sleep_quality_score)}` : 'Sleep tracking active'}
+              value={formatMinutes(sleepDay.sleep_duration_minutes || 0)}
+              isLast={idx === sleep.length - 1}
+            />
+          ))}
         </View>
       )}
 
       {/* Section: Goals */}
       {goals && goals.length > 0 && (
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Goals Progress</Text>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.cardRow}>
-            {goals.slice(0, 3).map((goal) => (
-              <DataCard
-                key={goal.id}
-                title={goal.goal_name}
-                value={formatPercentage(goal.progress_percentage)}
-                subtext={`${goal.current_value}/${goal.target_value}`}
-                icon="trophy"
-                trend={goal.achieved ? 'neutral' : 'neutral'}
-                color={Colors.burntOrange}
-              />
-            ))}
-          </ScrollView>
+        <View style={styles.ledgerBlock}>
+          <Text style={styles.sectionHeader}>Goals Progress</Text>
+          {goals.map((goal, idx) => (
+            <LedgerRow
+              key={goal.id}
+              title={goal.goal_name}
+              detail={`Value: ${goal.current_value}/${goal.target_value}`}
+              value={`${formatPercentage(goal.progress_percentage)} met`}
+              isLast={idx === goals.length - 1}
+            />
+          ))}
         </View>
       )}
 
-      {/* Section: Food Graph Summary */}
-      {data.graphSummary && (
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Food Memory Graph</Text>
-          <View style={styles.graphCard}>
-            <View style={styles.graphInfo}>
-              <Text style={styles.graphValue}>{data.graphSummary.vertices}</Text>
-              <Text style={styles.graphLabel}>vertices</Text>
-            </View>
-            <View style={styles.divider} />
-            <View style={styles.graphInfo}>
-              <Text style={styles.graphValue}>{data.graphSummary.edges}</Text>
-              <Text style={styles.graphLabel}>edges</Text>
-            </View>
+      {/* Section: Retrospective Glycemic Insights */}
+      {meals && meals.length > 0 && (
+        <View style={styles.ledgerBlock}>
+          <Text style={styles.sectionHeader}>Retrospective Glycemic Insights</Text>
+          
+          <LedgerRow
+            title="Avg Rate of Rise"
+            detail="Estimated velocity of glycemic trajectory"
+            value={`${retro.avgVelocity} mg/dL/m`}
+          />
+          <LedgerRow
+            title="Glycemic Exposure"
+            detail="Pancreatic burden area-under-the-curve"
+            value={`${retro.avgAuc.toLocaleString()} AUC`}
+          />
+          <LedgerRow
+            title="Late Rises"
+            detail="Digestion peaks delayed 3–4 hours"
+            value={`${retro.lateRiseCount} detected`}
+          />
+          <LedgerRow
+            title="Buffer Streak"
+            detail="Macronutrient pairing sequences logged"
+            value={`${retro.bufferStreak} meals`}
+            isLast={true}
+          />
+          
+          <View style={styles.footnoteRow}>
+            <Text style={styles.footnoteText}>
+              * Retrospective analysis calculated from general metabolic curves. Strictly educational; does not predict clinical values or guide insulin dosing.
+            </Text>
           </View>
         </View>
       )}
+
+      {/* Section: Metabolic Twin Calibration */}
+      {data.graphSummary && (() => {
+        const calibrationPercent = Math.min(100, Math.round((data.graphSummary.vertices / 50) * 100));
+        return (
+          <View style={styles.calibrationSection}>
+            <Text style={styles.sectionHeader}>Metabolic Twin Calibration</Text>
+            
+            <View style={styles.calibrationInfoRow}>
+              <Text style={styles.calibrationPercent}>{calibrationPercent}% Calibrated</Text>
+              <Text style={styles.calibrationStats}>
+                {data.graphSummary.vertices} memories · {data.graphSummary.edges} glycemic links
+              </Text>
+            </View>
+
+            {/* Flat line progress indicator */}
+            <View style={styles.progressBarOuter}>
+              <View style={[styles.progressBarInner, { width: `${calibrationPercent}%` }]} />
+            </View>
+            
+            <Text style={styles.calibrationFootnote}>
+              Retrospective modeling accuracy increases as you record more food memories.
+            </Text>
+          </View>
+        );
+      })()}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    paddingHorizontal: Spacing.xl,
-    paddingTop: Spacing.lg,
-  },
-  section: {
-    marginBottom: Spacing.xl,
-  },
-  sectionTitle: {
-    fontFamily: 'Inter_500Medium',
-    fontSize: 11,
-    color: Colors.softStone,
-    textTransform: 'uppercase',
-    letterSpacing: 1.2,
-    marginBottom: Spacing.md,
-  },
-  cardRow: {
-    flexDirection: 'row',
-    gap: Spacing.md,
+    paddingTop: Spacing.xs,
   },
   noData: {
+    fontFamily: 'Inter_400Regular',
     textAlign: 'center',
     color: Colors.softStone,
     fontSize: 14,
+    paddingVertical: Spacing.xl,
   },
-  graphCard: {
-    flexDirection: 'row',
-    padding: Spacing.md,
-    borderRadius: Radius.lg,
-    backgroundColor: Colors.ink,
+  ledgerBlock: {
+    marginHorizontal: Spacing.xxl,
+    marginBottom: Spacing.md,
   },
-  graphInfo: {
-    flex: 1,
-    alignItems: 'center',
-  },
-  graphValue: {
-    fontFamily: 'CormorantGaramond_600SemiBold',
-    fontSize: 24,
-    color: Colors.burntOrange,
-    letterSpacing: -0.5,
-  },
-  graphLabel: {
-    fontFamily: 'Inter_400Regular',
+  sectionHeader: {
+    fontFamily: 'Inter_600SemiBold',
     fontSize: 11,
+    color: Colors.softStone,
+    textTransform: 'uppercase',
+    letterSpacing: 1.5,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(231, 222, 207, 0.3)',
+    paddingBottom: 8,
+    marginBottom: Spacing.xs,
+  },
+  ledgerRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 14,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(231, 222, 207, 0.3)',
+  },
+  ledgerInfo: {
+    flex: 1,
+    paddingRight: Spacing.md,
+  },
+  ledgerTitle: {
+    fontFamily: 'Inter_500Medium',
+    fontSize: 14,
+    color: Colors.ink,
+  },
+  ledgerDetail: {
+    fontFamily: 'Inter_400Regular',
+    fontSize: 12,
     color: Colors.softStone,
     marginTop: 2,
   },
-  divider: {
-    width: 1,
-    backgroundColor: 'rgba(255,255,255,0.2)',
+  ledgerValue: {
+    fontFamily: 'CormorantGaramond_500Medium',
+    fontSize: 20,
+    color: Colors.ink,
+    textAlign: 'right',
+  },
+  footnoteRow: {
+    marginTop: 10,
+    marginBottom: 6,
+  },
+  footnoteText: {
+    fontFamily: 'CormorantGaramond_400Regular_Italic',
+    fontSize: 12.5,
+    lineHeight: 17,
+    color: Colors.softStone,
+  },
+  calibrationSection: {
+    marginHorizontal: Spacing.xxl,
+    marginTop: Spacing.md,
+    marginBottom: Spacing.xl,
+  },
+  calibrationInfoRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'baseline',
+    marginBottom: 8,
+    marginTop: Spacing.xs,
+  },
+  calibrationPercent: {
+    fontFamily: 'CormorantGaramond_600SemiBold',
+    fontSize: 22,
+    color: Colors.ink,
+  },
+  calibrationStats: {
+    fontFamily: 'Inter_400Regular',
+    fontSize: 12,
+    color: Colors.softStone,
+  },
+  progressBarOuter: {
+    width: '100%',
+    height: 2,
+    backgroundColor: 'rgba(24, 22, 20, 0.08)',
+    borderRadius: Radius.full,
+    overflow: 'hidden',
+  },
+  progressBarInner: {
+    height: '100%',
+    backgroundColor: Colors.ink,
+    borderRadius: Radius.full,
+  },
+  calibrationFootnote: {
+    fontFamily: 'Inter_400Regular',
+    fontSize: 11,
+    lineHeight: 16,
+    color: Colors.softStone,
+    marginTop: 8,
   },
 });

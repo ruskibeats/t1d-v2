@@ -1,9 +1,8 @@
-import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Platform, Animated, Dimensions } from 'react-native';
+import React, { useEffect, useRef } from 'react';
+import { View, Text, TouchableOpacity, StyleSheet, Animated } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Feather } from '@expo/vector-icons';
+import Svg, { Path as SvgPath, Circle as SvgCircle } from 'react-native-svg';
 import { Colors, Spacing } from '@/constants/theme';
-
 import { MainTab } from '../navigation/types';
 import { useNavigation } from '../navigation/NavigationProvider';
 
@@ -12,120 +11,164 @@ interface TabBarProps {
   onSelect: (tab: MainTab) => void;
 }
 
-type TabItem = { name: MainTab | 'log'; label: string; icon: (active: boolean) => React.ReactNode; isAction?: boolean };
+type TabItem = { 
+  name: MainTab | 'log'; 
+  label: string; 
+  icon: (active: boolean) => React.ReactNode; 
+  isAction?: boolean; 
+};
+
+// Calligraphy-style Japanese custom SVGs replacing generic outline icons
+const PortraitIcon = ({ active }: { active: boolean }) => (
+  <Svg width={20} height={20} viewBox="0 0 20 20">
+    <SvgPath
+      d="M 10 2 L 10 18"
+      stroke={active ? '#181614' : '#7E756A'}
+      strokeWidth={1.3}
+      strokeLinecap="round"
+    />
+  </Svg>
+);
+
+const FoodsIcon = ({ active }: { active: boolean }) => (
+  <Svg width={20} height={20} viewBox="0 0 20 20">
+    <SvgCircle
+      cx={10}
+      cy={10}
+      r={4}
+      stroke={active ? '#181614' : '#7E756A'}
+      strokeWidth={1.3}
+      fill="none"
+    />
+    <SvgCircle
+      cx={10}
+      cy={10}
+      r={8}
+      stroke={active ? '#181614' : '#7E756A'}
+      strokeWidth={1.3}
+      fill="none"
+      strokeDasharray="2,2"
+    />
+  </Svg>
+);
+
+const LogIcon = ({ active }: { active: boolean }) => (
+  <Svg width={20} height={20} viewBox="0 0 20 20">
+    <SvgPath
+      d="M 4 10 L 16 10 M 10 4 L 10 16"
+      stroke={active ? '#181614' : '#7E756A'}
+      strokeWidth={1.5}
+      strokeLinecap="round"
+    />
+  </Svg>
+);
+
+const DiscoverIcon = ({ active }: { active: boolean }) => (
+  <Svg width={20} height={20} viewBox="0 0 20 20">
+    <SvgPath
+      d="M 16 10 A 6 6 0 1 1 10 4 A 6 6 0 0 1 15 5.8"
+      stroke={active ? '#181614' : '#7E756A'}
+      strokeWidth={1.3}
+      strokeLinecap="round"
+      fill="none"
+    />
+  </Svg>
+);
+
+const SatoIcon = ({ active }: { active: boolean }) => (
+  <Svg width={20} height={20} viewBox="0 0 20 20">
+    <SvgCircle
+      cx={10}
+      cy={6}
+      r={1.8}
+      fill={active ? '#181614' : '#7E756A'}
+    />
+    <SvgCircle
+      cx={10}
+      cy={14}
+      r={1.8}
+      fill={active ? '#181614' : '#7E756A'}
+    />
+  </Svg>
+);
 
 const TABS: TabItem[] = [
   {
     name: 'portrait',
     label: 'Portrait',
-    icon: (active) => (
-      <View style={styles.iconWrap}>
-        <Feather name="clock" size={20} color={active ? Colors.burntOrange : Colors.softStone} />
-      </View>
-    ),
-  },
-  {
-    name: 'foods',
-    label: 'Foods',
-    icon: (active) => (
-      <View style={styles.iconWrap}>
-        <Feather name="coffee" size={20} color={active ? Colors.burntOrange : Colors.softStone} />
-      </View>
-    ),
-  },
-  {
-    name: 'log',
-    label: '',
-    isAction: true,
-    icon: () => (
-      <View style={styles.actionIconWrap}>
-        <Feather name="plus" size={22} color={Colors.burntOrange} />
-      </View>
-    ),
+    icon: (active) => <PortraitIcon active={active} />,
   },
   {
     name: 'discover',
     label: 'Discover',
-    icon: (active) => (
-      <View style={styles.iconWrap}>
-        <Feather name="compass" size={20} color={active ? Colors.burntOrange : Colors.softStone} />
-      </View>
-    ),
+    icon: (active) => <DiscoverIcon active={active} />,
+  },
+  {
+    name: 'log',
+    label: 'Record',
+    isAction: true,
+    icon: (active) => <LogIcon active={active} />,
+  },
+  {
+    name: 'foods',
+    label: 'Foods',
+    icon: (active) => <FoodsIcon active={active} />,
   },
   {
     name: 'sato',
     label: 'Sato',
-    icon: (active) => (
-      <View style={styles.iconWrap}>
-        <Feather name="message-circle" size={20} color={active ? Colors.burntOrange : Colors.softStone} />
-      </View>
-    ),
+    icon: (active) => <SatoIcon active={active} />,
   },
 ];
 
 const getTabIndex = (tabName: string): number => {
   switch (tabName) {
     case 'portrait': return 0;
-    case 'foods': return 1;
+    case 'discover': return 1;
     case 'log': return 2;
-    case 'discover': return 3;
+    case 'foods': return 3;
     case 'sato': return 4;
     default: return 0;
   }
 };
 
-const SCREEN_WIDTH = Dimensions.get('window').width;
-const CONTAINER_WIDTH = SCREEN_WIDTH - 40; // left: 20, right: 20
-const TAB_WIDTH = CONTAINER_WIDTH / 5;
-const CAPSULE_WIDTH = TAB_WIDTH - 12;
-
 export function TabBar({ active, onSelect }: TabBarProps) {
   const insets = useSafeAreaInsets();
   const nav = useNavigation();
 
-  const [activeAnim] = React.useState(() => new Animated.Value(getTabIndex(active || 'portrait')));
+  // Opacity indicators array for pigment-settling fade transition
+  const tabOpacities = useRef(
+    [0, 1, 2, 3, 4].map((i) => new Animated.Value(i === getTabIndex(active || 'portrait') ? 1 : 0))
+  ).current;
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (active) {
-      Animated.spring(activeAnim, {
-        toValue: getTabIndex(active),
-        useNativeDriver: true,
-        tension: 50,
-        friction: 8,
-      }).start();
+      const activeIdx = getTabIndex(active);
+      const animations = tabOpacities.map((anim, idx) => {
+        return Animated.timing(anim, {
+          toValue: idx === activeIdx ? 1 : 0,
+          duration: 300, // SATO normal timing
+          useNativeDriver: true,
+        });
+      });
+      Animated.parallel(animations).start();
     }
   }, [active]);
-
-  const translateX = activeAnim.interpolate({
-    inputRange: [0, 1, 2, 3, 4],
-    outputRange: [
-      TAB_WIDTH * 0 + 6,
-      TAB_WIDTH * 1 + 6,
-      TAB_WIDTH * 2 + 6, // Glides organically behind central action button
-      TAB_WIDTH * 3 + 6,
-      TAB_WIDTH * 4 + 6,
-    ],
-  });
 
   return (
     <View 
       style={[
         styles.container, 
-        { bottom: insets.bottom > 0 ? insets.bottom + 8 : 16 }
+        { 
+          height: 60 + insets.bottom,
+          paddingBottom: insets.bottom 
+        }
       ]}
     >
-      <Animated.View
-        style={[
-          styles.capsuleSlider,
-          {
-            width: CAPSULE_WIDTH,
-            transform: [{ translateX }],
-          },
-        ]}
-      />
-
-      {TABS.map((tab) => {
+      {TABS.map((tab, idx) => {
         const isActive = tab.name === active;
+        const opacity = tabOpacities[idx];
+
         return (
           <TouchableOpacity
             key={tab.name}
@@ -142,12 +185,18 @@ export function TabBar({ active, onSelect }: TabBarProps) {
             accessibilityLabel={tab.label}
             accessibilityState={{ selected: isActive }}
           >
-            {tab.icon(isActive)}
-            {!tab.isAction && (
-              <Text style={[styles.label, isActive && styles.labelActive]}>
-                {tab.label}
-              </Text>
-            )}
+            {/* Zen Icon */}
+            <View style={styles.iconWrap}>
+              {tab.icon(isActive)}
+            </View>
+
+            {/* Typographic navigation label */}
+            <Text style={[styles.label, isActive && styles.labelActive]}>
+              {tab.label}
+            </Text>
+
+            {/* Quiet active indicator mark (Atmospheric fade-in) */}
+            <Animated.View style={[styles.activeIndicator, { opacity }]} />
           </TouchableOpacity>
         );
       })}
@@ -159,25 +208,13 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     position: 'absolute',
-    left: 20,
-    right: 20,
-    height: 64,
-    backgroundColor: 'rgba(252, 250, 246, 0.96)',
-    borderWidth: 1,
-    borderColor: '#ECE6DB',
-    borderRadius: 32,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: '#F2ECDF', // Primary Surface (1% luminance shift from #F1EBDD)
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(231, 222, 207, 0.3)', // Borders avoid/light 30% opacity
     alignItems: 'center',
-    ...Platform.select({
-      ios: {
-        shadowColor: '#181614',
-        shadowOffset: { width: 0, height: 6 },
-        shadowOpacity: 0.06,
-        shadowRadius: 16,
-      },
-      android: {
-        elevation: 8,
-      },
-    }),
     zIndex: 99,
   },
   tab: {
@@ -185,53 +222,32 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     height: '100%',
-    zIndex: 2,
-  },
-  label: {
-    fontSize: 9.5,
-    color: Colors.softStone,
-    fontFamily: 'Inter_500Medium',
-    marginTop: 2,
-    textAlign: 'center',
-  },
-  labelActive: {
-    color: Colors.burntOrange,
-    fontFamily: 'Inter_600SemiBold',
+    paddingTop: 8,
+    position: 'relative',
   },
   iconWrap: {
     width: 22,
     height: 22,
     alignItems: 'center',
     justifyContent: 'center',
+    marginBottom: 3,
   },
-  actionIconWrap: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    borderWidth: 1.5,
-    borderColor: Colors.burntOrange,
-    backgroundColor: 'rgba(217, 121, 71, 0.04)',
-    alignItems: 'center',
-    justifyContent: 'center',
-    ...Platform.select({
-      ios: {
-        shadowColor: Colors.burntOrange,
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.08,
-        shadowRadius: 4,
-      },
-      android: {
-        elevation: 2,
-      },
-    }),
+  label: {
+    fontSize: 11,
+    fontFamily: 'Inter_500Medium', // Instrument Sans fallback
+    color: '#7E756A', // Secondary SATO text color
+    textAlign: 'center',
   },
-  capsuleSlider: {
+  labelActive: {
+    color: '#181614', // Active SATO text color
+    fontFamily: 'Inter_500Medium',
+  },
+  activeIndicator: {
     position: 'absolute',
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: 'rgba(217, 121, 71, 0.08)',
-    top: 10,
-    zIndex: 1,
+    bottom: 4,
+    width: 10,
+    height: 1.2,
+    backgroundColor: '#181614',
+    borderRadius: 0.6,
   },
 });
-

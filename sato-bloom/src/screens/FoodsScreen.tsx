@@ -15,7 +15,7 @@ import { BloomFlower } from '@/components/BloomFlower';
 import { Feather, Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '../navigation/NavigationProvider';
 import { PaperBackground } from '@/components/PaperBackground';
-import Svg, { Path as SvgPath, Line as SvgLine, Text as SvgText, Circle as SvgCircle } from 'react-native-svg';
+import Svg, { Path as SvgPath, Line as SvgLine, Text as SvgText, Circle as SvgCircle, Defs, LinearGradient, Stop } from 'react-native-svg';
 import * as Haptics from 'expo-haptics';
 
 const { width } = Dimensions.get('window');
@@ -89,6 +89,14 @@ export default function FoodsScreen() {
   const [compareList, setCompareList] = useState<string[]>([]);
   const [showComparisonModal, setShowComparisonModal] = useState(false);
 
+  // Meal Sequencing Sandbox State
+  const [isSandboxExpanded, setIsSandboxExpanded] = useState(false);
+  const [sandboxBase, setSandboxBase] = useState<'Rice' | 'Pasta' | 'Potatoes' | 'Bread'>('Pasta');
+  const [sandboxHasFiber, setSandboxHasFiber] = useState(false);
+  const [sandboxHasProtein, setSandboxHasProtein] = useState(false);
+  const [sandboxHasFat, setSandboxHasFat] = useState(false);
+  const [sandboxSequence, setSandboxSequence] = useState<'carbsFirst' | 'balanced' | 'fibersFirst'>('carbsFirst');
+
   // Sorting logic
   const sortFoods = (foodsList: typeof ALL_FOODS) => {
     const listCopy = [...foodsList];
@@ -128,22 +136,129 @@ export default function FoodsScreen() {
     }
   };
 
+  const getMinutes = (timeStr: string) => {
+    const match = timeStr.match(/(\d+)h\s*(\d+)m/);
+    if (match) return parseInt(match[1]) * 60 + parseInt(match[2]);
+    return 60;
+  };
+
   const getComparisonZenNotes = (foodA: string, foodB: string) => {
+    const fA = foodA.toLowerCase();
+    const fB = foodB.toLowerCase();
+    const curveA = FOOD_CURVES[fA];
+    const curveB = FOOD_CURVES[fB];
+    if (!curveA || !curveB) return "Select two food memories to evaluate their metabolic dynamics.";
+
+    const valA = curveA.peakVal;
+    const valB = curveB.peakVal;
+
+    // Let's create beautiful custom pairing notes
+    if ((fA === 'pasta' && fB === 'carbonara') || (fB === 'pasta' && fA === 'carbonara')) {
+      return "Plain Pasta triggers a fast, unbuffered spike peaking at 1h 15m. Carbonara, despite having similar pasta noodles, introduces cheese, egg yolk, and guanciale (fats and proteins). These macronutrients act as a strong metabolic brake, delaying the peak by 30 minutes and reducing the peak rise by 22%. To duplicate this buffering effect on plain pasta, always sequence your meal by eating a fiber starter first.";
+    }
+    if ((fA === 'pasta' && fB === 'creamy pasta') || (fB === 'pasta' && fA === 'creamy pasta')) {
+      return "Creamy Pasta exhibits a classic lipid-buffered profile. Its peak rise (+28 mg/dL) is 48% lower than plain Pasta, delayed to a late 2h 30m. However, the heavy cream creates a prolonged tail, keeping your glucose slightly elevated at the 4-hour mark. Standard Pasta is a quick surge and drop. Pre-meal insulin timing (bolus offset) should be adjusted earlier for plain Pasta, and split or delayed for Creamy Pasta.";
+    }
+    if ((fA === 'pasta' && fB === 'parmesan') || (fB === 'pasta' && fA === 'parmesan')) {
+      return "This is a study in macronutrient opposites. Parmesan is virtually pure protein and fat, yielding a stable 'Whispering Meadow' response (+8 mg/dL). Plain Pasta is a rapid carbohydrate that spikes to +54 mg/dL. Adding a generous amount of Parmesan cheese to your pasta is a proven metabolic hack: the lipid layer slows down carbohydrate enzyme access, flattening the curve.";
+    }
+    if ((fA === 'carbonara' && fB === 'creamy pasta') || (fB === 'carbonara' && fA === 'creamy pasta')) {
+      return "Creamy Pasta has higher fat content than Carbonara, resulting in a flatter, more delayed curve (+28 mg/dL at 2h 30m) compared to Carbonara's (+42 mg/dL at 1h 45m). Both are highly buffered by fats, but Creamy Pasta's absorption is so delayed that it might lead to a late-night glucose spike if eaten close to bedtime.";
+    }
+    if ((fA === 'spaghetti' && fB === 'pasta') || (fB === 'spaghetti' && fA === 'pasta')) {
+      return "Plain Pasta spikes higher and faster (+54 mg/dL at 1h 15m) than Spaghetti (+36 mg/dL at 2h 00m). Spaghetti has a longer boiling time or a different grain density, resulting in a more moderate absorption speed. Consider cooking your pasta 'al dente' to retain resistant starch, which lowers the rate of rise.";
+    }
+    
+    // Dynamic general notes generator if no hardcoded match
+    const higher = valA > valB ? foodA : foodB;
+    const lower = valA > valB ? foodB : foodA;
+    const curveHigher = valA > valB ? curveA : curveB;
+    const curveLower = valA > valB ? curveB : curveA;
+    const valDiff = Math.abs(valA - valB);
+
+    return `${lower} provides a much gentler metabolic trajectory, with a peak that is ${valDiff} mg/dL lower than ${higher}. Furthermore, ${lower} peaks at ${curveLower.peakTime} compared to ${higher} at ${curveHigher.peakTime}, showing that adding protein, fat, or fiber plays an essential role in smoothing out simple starch spikes.`;
+  };
+
+  const getMetabolicComparisonSummary = (foodA: string, foodB: string) => {
     const fA = foodA.toLowerCase();
     const fB = foodB.toLowerCase();
     const valA = FOOD_CURVES[fA]?.peakVal || 30;
     const valB = FOOD_CURVES[fB]?.peakVal || 30;
     
-    if (fA.includes('parmesan') || fB.includes('parmesan')) {
-      return "Parmesan cheese represents a fat-protein stabilizer. Combining it with high-glycemic carbohydrates will significantly reduce their absorption rate and smooth the peak curve.";
+    if (valA === valB) {
+      return { text: `${foodA} and ${foodB} show an identical average glucose peak.`, diffPercent: 0 };
     }
-    if (valA > valB) {
-      return `Comparing curves reveals that ${foodA} triggers a higher average spike (+${valA}) than ${foodB} (+${valB}). Incorporating fibrous greens or healthy fats into a ${foodA} meal can help buffer the glycemic impact to match the flatter profile of ${foodB}.`;
-    }
-    return `Comparing curves reveals that ${foodB} triggers a higher average spike (+${valB}) than ${foodA} (+${valA}). Incorporating fibrous greens or healthy fats into a ${foodB} meal can help buffer the glycemic impact to match the flatter profile of ${foodA}.`;
+    const diff = Math.abs(valA - valB);
+    const diffPercent = Math.round((diff / Math.min(valA, valB)) * 100);
+    const higherFood = valA > valB ? foodA : foodB;
+    const lowerFood = valA > valB ? foodB : foodA;
+    return {
+      text: `${higherFood} triggers a ${diffPercent}% higher average glucose peak than ${lowerFood}.`,
+      diffPercent,
+    };
   };
 
-  // Draw comparison curves helper
+  // Helper to extract detailed metrics for display
+  const getMetabolicMetrics = (foodName: string) => {
+    const curve = FOOD_CURVES[foodName.toLowerCase()] || { peakVal: 30, peakTime: '1h 00m', endVal: 15, color: '#D97947' };
+    const peakVal = curve.peakVal;
+    const mins = getMinutes(curve.peakTime);
+    const velocity = peakVal / mins;
+    
+    // Estimated Area Under the Curve (AUC)
+    // Triangle rising phase + Trapezoid falling phase (4 hours = 240 mins)
+    const riseArea = 0.5 * peakVal * mins;
+    const fallArea = 0.5 * (peakVal + curve.endVal) * (240 - mins);
+    const auc = Math.round(riseArea + fallArea);
+
+    // Stability Signature mapping
+    let signature = {
+      grade: 'C',
+      label: 'Steep Ridge',
+      color: Colors.burntOrange as string,
+      desc: 'Distinct elevation wave. Moderate carb load with moderate buffering.',
+    };
+    if (peakVal < 15) {
+      signature = {
+        grade: 'A+',
+        label: 'Whispering Meadow',
+        color: '#70824B',
+        desc: 'A peaceful flatline. Protein and fats maintain pristine baseline stability.',
+      };
+    } else if (peakVal < 35) {
+      signature = {
+        grade: 'B+',
+        label: 'Rolling Hills',
+        color: '#7EAEC3',
+        desc: 'A gentle, gradual rise and fall. Excellent glycemic buffering.',
+      };
+    } else if (peakVal < 50) {
+      signature = {
+        grade: 'B-',
+        label: 'Steep Ridge',
+        color: '#D7B36A',
+        desc: 'Moderate elevation wave. Carbohydrates present with moderate fat buffering.',
+      };
+    } else {
+      signature = {
+        grade: 'D',
+        label: 'Mountain Peak',
+        color: '#C65A32',
+        desc: 'Sharp, rapid climb and crash. Fast carbs requiring buffering.',
+      };
+    }
+
+    return {
+      peakVal,
+      mins,
+      velocity: velocity.toFixed(2),
+      auc,
+      signature,
+      curve,
+    };
+  };
+
+  // Draw comparison curves helper with area gradients and annotations
   const renderComparisonChart = () => {
     if (compareList.length < 2) return null;
     const foodA = compareList[0];
@@ -152,13 +267,13 @@ export default function FoodsScreen() {
     const curveB = FOOD_CURVES[foodB.toLowerCase()] || FOOD_CURVES['pasta'];
 
     const chartW = width - 80;
-    const chartH = 140;
+    const chartH = 150;
     const chartLeft = 35;
     const chartRight = chartW - 10;
     const chartWidth = chartRight - chartLeft;
     
-    const baselineY = 110;
-    const valToY = (val: number) => baselineY - val * (80 / 55);
+    const baselineY = 120;
+    const valToY = (val: number) => baselineY - val * (85 / 55);
 
     const getBezierPath = (curve: typeof curveA) => {
       const peakX = chartLeft + chartWidth * curve.peakXPercent;
@@ -167,6 +282,11 @@ export default function FoodsScreen() {
       const endY = valToY(curve.endVal);
       return `M ${chartLeft} ${baselineY} Q ${(chartLeft + peakX) / 2} ${baselineY} ${peakX} ${peakY} Q ${(peakX + endX) / 2} ${peakY} ${endX} ${endY}`;
     };
+
+    const peakAX = chartLeft + chartWidth * curveA.peakXPercent;
+    const peakAY = valToY(curveA.peakVal);
+    const peakBX = chartLeft + chartWidth * curveB.peakXPercent;
+    const peakBY = valToY(curveB.peakVal);
 
     return (
       <View style={styles.chartContainer}>
@@ -183,16 +303,63 @@ export default function FoodsScreen() {
         </View>
 
         <Svg width={chartW} height={chartH}>
+          <Defs>
+            <LinearGradient id="gradA" x1="0%" y1="0%" x2="0%" y2="100%">
+              <Stop offset="0%" stopColor={curveA.color} stopOpacity={0.25} />
+              <Stop offset="100%" stopColor={curveA.color} stopOpacity={0} />
+            </LinearGradient>
+            <LinearGradient id="gradB" x1="0%" y1="0%" x2="0%" y2="100%">
+              <Stop offset="0%" stopColor={curveB.color} stopOpacity={0.25} />
+              <Stop offset="100%" stopColor={curveB.color} stopOpacity={0} />
+            </LinearGradient>
+          </Defs>
+
+          {/* Glycemic Buffer Guideline (+35 mg/dL) */}
+          <SvgLine 
+            x1={chartLeft} 
+            y1={valToY(35)} 
+            x2={chartRight} 
+            y2={valToY(35)} 
+            stroke="rgba(217, 121, 71, 0.2)" 
+            strokeWidth={1} 
+            strokeDasharray="4,4" 
+          />
+          <SvgText 
+            x={chartRight - 5} 
+            y={valToY(35) - 4} 
+            fontSize={8} 
+            fontFamily="Inter_500Medium"
+            fill={Colors.softStone} 
+            textAnchor="end"
+          >
+            Glycemic Buffer (+35)
+          </SvgText>
+
           {/* Baseline */}
           <SvgLine x1={chartLeft} y1={baselineY} x2={chartRight} y2={baselineY} stroke={Colors.border} strokeWidth={1} />
           {/* Guide Line */}
           <SvgLine x1={chartLeft} y1={valToY(30)} x2={chartRight} y2={valToY(30)} stroke={Colors.borderLight} strokeWidth={0.5} strokeDasharray="3,3" />
           <SvgText x={chartLeft - 8} y={valToY(30) + 3} fontSize={9} fill={Colors.softStone} textAnchor="end">30</SvgText>
 
+          {/* Gradient areas under the curves */}
+          <SvgPath d={`${getBezierPath(curveA)} L ${chartLeft + chartWidth * 0.95} ${baselineY} Z`} fill="url(#gradA)" />
+          <SvgPath d={`${getBezierPath(curveB)} L ${chartLeft + chartWidth * 0.95} ${baselineY} Z`} fill="url(#gradB)" />
+
           {/* Curve A */}
           <SvgPath d={getBezierPath(curveA)} fill="none" stroke={curveA.color} strokeWidth={2.5} strokeLinecap="round" />
           {/* Curve B */}
           <SvgPath d={getBezierPath(curveB)} fill="none" stroke={curveB.color} strokeWidth={2.5} strokeLinecap="round" />
+
+          {/* Vertical Guides from peaks */}
+          <SvgLine x1={peakAX} y1={peakAY} x2={peakAX} y2={baselineY} stroke="rgba(126, 117, 106, 0.2)" strokeWidth={1} strokeDasharray="2,2" />
+          <SvgLine x1={peakBX} y1={peakBY} x2={peakBX} y2={baselineY} stroke="rgba(126, 117, 106, 0.2)" strokeWidth={1} strokeDasharray="2,2" />
+
+          {/* Peak Indicators & Labels */}
+          <SvgCircle cx={peakAX} cy={peakAY} r={4.5} fill={curveA.color} stroke="#FCFAF6" strokeWidth={1.5} />
+          <SvgText x={peakAX} y={peakAY - 8} fontSize={9} fontWeight="600" fill={curveA.color} textAnchor="middle">+{curveA.peakVal}</SvgText>
+
+          <SvgCircle cx={peakBX} cy={peakBY} r={4.5} fill={curveB.color} stroke="#FCFAF6" strokeWidth={1.5} />
+          <SvgText x={peakBX} y={peakBY - 8} fontSize={9} fontWeight="600" fill={curveB.color} textAnchor="middle">+{curveB.peakVal}</SvgText>
 
           {/* X axis labels */}
           <SvgText x={chartLeft} y={baselineY + 16} fontSize={8} fill={Colors.softStone} textAnchor="middle">0h</SvgText>
@@ -205,6 +372,88 @@ export default function FoodsScreen() {
     );
   };
 
+  const getSandboxMetrics = () => {
+    let basePeak = 54;
+    let baseTimeMins = 60; // 1h
+    let baseEnd = 10;
+    let color: string = Colors.burntOrange;
+
+    if (sandboxBase === 'Rice') {
+      basePeak = 45;
+      baseTimeMins = 75; // 1h 15m
+      baseEnd = 12;
+      color = '#B5C08D';
+    } else if (sandboxBase === 'Pasta') {
+      basePeak = 54;
+      baseTimeMins = 75;
+      baseEnd = 10;
+      color = '#7EAEC3';
+    } else if (sandboxBase === 'Potatoes') {
+      basePeak = 50;
+      baseTimeMins = 60;
+      baseEnd = 10;
+      color = '#D7B36A';
+    } else if (sandboxBase === 'Bread') {
+      basePeak = 48;
+      baseTimeMins = 60;
+      baseEnd = 8;
+      color = '#E9A07D';
+    }
+
+    // Apply pairing buffers (mutually compounding reductions)
+    let peakReduction = 1.0;
+    let shiftMins = 0;
+    
+    if (sandboxHasFiber) {
+      peakReduction *= 0.75; // 25% drop
+      shiftMins += 15;
+    }
+    if (sandboxHasProtein) {
+      peakReduction *= 0.85; // 15% drop
+      shiftMins += 30;
+    }
+    if (sandboxHasFat) {
+      peakReduction *= 0.85; // 15% drop
+      shiftMins += 60; // fat shifts significantly (pizza effect)
+    }
+
+    // Apply sequencing modifier
+    if (sandboxSequence === 'balanced') {
+      peakReduction *= 0.85; // 15% drop
+      shiftMins += 15;
+    } else if (sandboxSequence === 'fibersFirst') {
+      peakReduction *= 0.65; // 35% drop
+      shiftMins += 30;
+    }
+
+    const calculatedPeak = Math.round(basePeak * peakReduction);
+    const calculatedTimeMins = baseTimeMins + shiftMins;
+
+    // Simulate 3-4 hour delayed peak for high-fat or rice combinations
+    const hasDelayTrigger = sandboxHasFat || (sandboxBase === 'Rice' && (sandboxHasProtein || sandboxHasFat));
+    
+    // Normal 4 hours = 240 mins. Shift peakXPercent accordingly.
+    // 60 mins is 0.25. 240 mins is 1.0.
+    const peakXPercent = Math.min(0.9, calculatedTimeMins / 240);
+    const endVal = Math.round(baseEnd * (sandboxHasFat ? 1.8 : 1.0));
+
+    // Convert peak time in mins to string
+    const hrs = Math.floor(calculatedTimeMins / 60);
+    const mins = calculatedTimeMins % 60;
+    const peakTimeStr = hrs > 0 ? `${hrs}h ${mins}m` : `${mins}m`;
+
+    return {
+      peakVal: calculatedPeak,
+      peakXPercent,
+      endVal,
+      color,
+      peakTime: peakTimeStr,
+      hasDelay: hasDelayTrigger && calculatedTimeMins >= 150,
+    };
+  };
+
+  const sandbox = getSandboxMetrics();
+
   return (
     <View style={styles.root}>
       <ScrollView
@@ -214,6 +463,215 @@ export default function FoodsScreen() {
         <View style={styles.titleSection}>
           <Text style={styles.title}>Foods</Text>
           <Text style={styles.subtitle}>Search your food memories</Text>
+        </View>
+
+        {/* Meal Sequencing Sandbox Collapsible Panel */}
+        <View style={styles.sandboxWrapper}>
+          <TouchableOpacity 
+            activeOpacity={0.8}
+            onPress={() => {
+              Haptics.selectionAsync().catch(() => {});
+              LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+              setIsSandboxExpanded(!isSandboxExpanded);
+            }}
+            style={styles.sandboxHeader}
+          >
+            <Ionicons name="color-filter-outline" size={18} color={Colors.burntOrange} />
+            <Text style={styles.sandboxHeaderTitle}>Meal Sequencing Sandbox</Text>
+            <Feather 
+              name={isSandboxExpanded ? 'chevron-up' : 'chevron-down'} 
+              size={18} 
+              color={Colors.softStone} 
+              style={{ marginLeft: 'auto' }} 
+            />
+          </TouchableOpacity>
+
+          {isSandboxExpanded && (
+            <View style={styles.sandboxContent}>
+              {/* Regulatory Class I Disclaimer */}
+              <View style={styles.sandboxDisclaimer}>
+                <Ionicons name="information-circle-outline" size={14} color={Colors.softStone} style={styles.sandboxDisclaimerIcon} />
+                <Text style={styles.sandboxDisclaimerText}>
+                  Educational Simulation only. Illustrates established food pairing and gastric emptying science. Does not predict clinical readings or determine dosage.
+                </Text>
+              </View>
+
+              {/* SVG Curve Output */}
+              <View style={styles.sandboxChartWrap}>
+                <Text style={styles.sandboxChartTitle}>ESTIMATED ABSORPTION TRAJECTORY</Text>
+                
+                {(() => {
+                  const chartW = width - 76;
+                  const chartH = 120;
+                  const chartLeft = 30;
+                  const chartRight = chartW - 10;
+                  const chartWidth = chartRight - chartLeft;
+                  const baselineY = 95;
+                  const valToY = (val: number) => baselineY - val * (65 / 55);
+
+                  const peakX = chartLeft + chartWidth * sandbox.peakXPercent;
+                  const peakY = valToY(sandbox.peakVal);
+                  const endX = chartLeft + chartWidth * 0.95;
+                  const endY = valToY(sandbox.endVal);
+                  
+                  const path = `M ${chartLeft} ${baselineY} Q ${(chartLeft + peakX) / 2} ${baselineY} ${peakX} ${peakY} Q ${(peakX + endX) / 2} ${peakY} ${endX} ${endY}`;
+                  
+                  return (
+                    <Svg width={chartW} height={chartH}>
+                      {/* Guideline */}
+                      <SvgLine x1={chartLeft} y1={baselineY} x2={chartRight} y2={baselineY} stroke={Colors.border} strokeWidth={1} />
+                      <SvgLine x1={chartLeft} y1={valToY(30)} x2={chartRight} y2={valToY(30)} stroke={Colors.borderLight} strokeWidth={0.5} strokeDasharray="3,3" />
+
+                      {/* Curve area fill */}
+                      <Defs>
+                        <LinearGradient id="sandboxGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                          <Stop offset="0%" stopColor={sandbox.color} stopOpacity={0.25} />
+                          <Stop offset="100%" stopColor={sandbox.color} stopOpacity={0} />
+                        </LinearGradient>
+                      </Defs>
+                      <SvgPath d={`${path} L ${chartLeft + chartWidth * 0.95} ${baselineY} Z`} fill="url(#sandboxGrad)" />
+                      
+                      {/* Path stroke */}
+                      <SvgPath d={path} fill="none" stroke={sandbox.color} strokeWidth={2.5} strokeLinecap="round" />
+
+                      {/* Peak indicator dot */}
+                      <SvgCircle cx={peakX} cy={peakY} r={4} fill={sandbox.color} stroke="#FCFAF6" strokeWidth={1.5} />
+                      <SvgText x={peakX} y={peakY - 8} fontSize={9} fontWeight="600" fill={sandbox.color} textAnchor="middle">+{sandbox.peakVal}</SvgText>
+
+                      {/* X Axis Labels */}
+                      <SvgText x={chartLeft} y={baselineY + 14} fontSize={8} fill={Colors.softStone} textAnchor="middle">0h</SvgText>
+                      <SvgText x={chartLeft + chartWidth * 0.25} y={baselineY + 14} fontSize={8} fill={Colors.softStone} textAnchor="middle">1h</SvgText>
+                      <SvgText x={chartLeft + chartWidth * 0.5} y={baselineY + 14} fontSize={8} fill={Colors.softStone} textAnchor="middle">2h</SvgText>
+                      <SvgText x={chartLeft + chartWidth * 0.75} y={baselineY + 14} fontSize={8} fill={Colors.softStone} textAnchor="middle">3h</SvgText>
+                      <SvgText x={chartLeft + chartWidth * 0.95} y={baselineY + 14} fontSize={8} fill={Colors.softStone} textAnchor="middle">4h</SvgText>
+                    </Svg>
+                  );
+                })()}
+
+                <View style={styles.sandboxStatsSummary}>
+                  <Text style={styles.sandboxStatLabel}>Peak: <Text style={styles.sandboxStatVal}>+{sandbox.peakVal} mg/dL</Text></Text>
+                  <Text style={styles.sandboxStatLabel}>Timing: <Text style={styles.sandboxStatVal}>{sandbox.peakTime}</Text></Text>
+                  {sandbox.hasDelay && (
+                    <View style={styles.delayBadge}>
+                      <Text style={styles.delayBadgeText}>Delayed Curve (3-4h)</Text>
+                    </View>
+                  )}
+                </View>
+              </View>
+
+              {/* Starch Selector */}
+              <View style={styles.sandboxSection}>
+                <Text style={styles.sandboxSectionLabel}>Base Carbohydrate</Text>
+                <View style={styles.sandboxRow}>
+                  {(['Rice', 'Pasta', 'Potatoes', 'Bread'] as const).map((starch) => (
+                    <TouchableOpacity
+                      key={starch}
+                      activeOpacity={0.8}
+                      onPress={() => {
+                        Haptics.selectionAsync().catch(() => {});
+                        setSandboxBase(starch);
+                      }}
+                      style={[styles.sandboxButton, sandboxBase === starch && styles.sandboxButtonActive]}
+                    >
+                      <Text style={[styles.sandboxButtonText, sandboxBase === starch && styles.sandboxButtonTextActive]}>
+                        {starch}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              </View>
+
+              {/* Buffer Modifiers */}
+              <View style={styles.sandboxSection}>
+                <Text style={styles.sandboxSectionLabel}>Macronutrient Buffers</Text>
+                <View style={styles.sandboxRow}>
+                  <TouchableOpacity
+                    activeOpacity={0.8}
+                    onPress={() => {
+                      Haptics.selectionAsync().catch(() => {});
+                      setSandboxHasFiber(!sandboxHasFiber);
+                    }}
+                    style={[styles.sandboxAddonPill, sandboxHasFiber && styles.sandboxAddonPillActive]}
+                  >
+                    <Text style={[styles.sandboxAddonText, sandboxHasFiber && styles.sandboxAddonTextActive]}>
+                      +Fiber (Salad)
+                    </Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    activeOpacity={0.8}
+                    onPress={() => {
+                      Haptics.selectionAsync().catch(() => {});
+                      setSandboxHasProtein(!sandboxHasProtein);
+                    }}
+                    style={[styles.sandboxAddonPill, sandboxHasProtein && styles.sandboxAddonPillActive]}
+                  >
+                    <Text style={[styles.sandboxAddonText, sandboxHasProtein && styles.sandboxAddonTextActive]}>
+                      +Protein (Chicken)
+                    </Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    activeOpacity={0.8}
+                    onPress={() => {
+                      Haptics.selectionAsync().catch(() => {});
+                      setSandboxHasFat(!sandboxHasFat);
+                    }}
+                    style={[styles.sandboxAddonPill, sandboxHasFat && styles.sandboxAddonPillActive]}
+                  >
+                    <Text style={[styles.sandboxAddonText, sandboxHasFat && styles.sandboxAddonTextActive]}>
+                      +Fat (Avocado/Oil)
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+
+              {/* Ingestion Sequence */}
+              <View style={styles.sandboxSection}>
+                <Text style={styles.sandboxSectionLabel}>Eating Sequence</Text>
+                <View style={styles.sandboxRow}>
+                  <TouchableOpacity
+                    activeOpacity={0.8}
+                    onPress={() => {
+                      Haptics.selectionAsync().catch(() => {});
+                      setSandboxSequence('carbsFirst');
+                    }}
+                    style={[styles.sandboxButton, sandboxSequence === 'carbsFirst' && styles.sandboxButtonActive]}
+                  >
+                    <Text style={[styles.sandboxButtonText, sandboxSequence === 'carbsFirst' && styles.sandboxButtonTextActive]}>
+                      Carbs First
+                    </Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    activeOpacity={0.8}
+                    onPress={() => {
+                      Haptics.selectionAsync().catch(() => {});
+                      setSandboxSequence('balanced');
+                    }}
+                    style={[styles.sandboxButton, sandboxSequence === 'balanced' && styles.sandboxButtonActive]}
+                  >
+                    <Text style={[styles.sandboxButtonText, sandboxSequence === 'balanced' && styles.sandboxButtonTextActive]}>
+                      Mixed Plate
+                    </Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    activeOpacity={0.8}
+                    onPress={() => {
+                      Haptics.selectionAsync().catch(() => {});
+                      setSandboxSequence('fibersFirst');
+                    }}
+                    style={[styles.sandboxButton, sandboxSequence === 'fibersFirst' && styles.sandboxButtonActive]}
+                  >
+                    <Text style={[styles.sandboxButtonText, sandboxSequence === 'fibersFirst' && styles.sandboxButtonTextActive]}>
+                      Fiber/Fat First
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            </View>
+          )}
         </View>
 
         {/* Search Bar */}
@@ -362,8 +820,9 @@ export default function FoodsScreen() {
             <View style={styles.otherFoodsList}>
               {otherFoods.map((food, i) => {
                 const isComparing = compareList.includes(food.name);
+                const isLast = i === otherFoods.length - 1;
                 return (
-                  <View key={i} style={styles.otherFoodRowContainer}>
+                  <View key={i} style={[styles.otherFoodRowContainer, isLast && { borderBottomWidth: 0 }]}>
                     <TouchableOpacity 
                       style={styles.otherFoodRow}
                       onPress={() => nav.openFoodMemory({ foodId: food.name })}
@@ -403,7 +862,7 @@ export default function FoodsScreen() {
 
       {/* Floating Compare Action Bar */}
       {compareList.length > 0 && (
-        <View style={[styles.floatingCompareBar, { bottom: insets.bottom + 12 }]}>
+        <View style={[styles.floatingCompareBar, { bottom: insets.bottom + 84 }]}>
           <Text style={styles.compareBarText}>
             {compareList.length === 1 
               ? 'Select another food memory' 
@@ -447,49 +906,210 @@ export default function FoodsScreen() {
                 </TouchableOpacity>
               </View>
 
-              <ScrollView 
+               <ScrollView 
                 contentContainerStyle={[styles.compareModalScrollContent, { paddingBottom: insets.bottom + 40 }]}
                 showsVerticalScrollIndicator={false}
               >
                 {/* SVG Curves */}
                 {renderComparisonChart()}
 
-                {/* Comparative Stats Table */}
-                <View style={styles.tableCard}>
-                  <Text style={styles.tableCardTitle}>METABOLIC DATA COMPARISON</Text>
-                  
-                  <View style={styles.tableHeaderRow}>
-                    <Text style={[styles.tableCol, styles.tableColHeader]}></Text>
-                    <Text style={[styles.tableCol, styles.tableColHeader]}>{compareList[0]}</Text>
-                    <Text style={[styles.tableCol, styles.tableColHeader]}>{compareList[1]}</Text>
-                  </View>
+                {/* Metabolic Summary Header */}
+                {(() => {
+                  const summary = getMetabolicComparisonSummary(compareList[0], compareList[1]);
+                  const metricsA = getMetabolicMetrics(compareList[0]);
+                  const metricsB = getMetabolicMetrics(compareList[1]);
+                  const fA = compareList[0].toLowerCase();
+                  const fB = compareList[1].toLowerCase();
 
-                  <View style={styles.tableRow}>
-                    <Text style={styles.tableLabel}>Average Peak</Text>
-                    <Text style={styles.tableVal}>{ALL_FOODS.find(f => f.name === compareList[0])?.peakValStr} mg/dL</Text>
-                    <Text style={styles.tableVal}>{ALL_FOODS.find(f => f.name === compareList[1])?.peakValStr} mg/dL</Text>
-                  </View>
+                  return (
+                    <View style={{ gap: Spacing.xl }}>
+                      {/* Premium Summary Card */}
+                      <View style={styles.comparisonSummaryCard}>
+                        <Text style={styles.comparisonSummaryTitle}>Metabolic Analysis</Text>
+                        <Text style={styles.comparisonSummaryDesc}>{summary.text}</Text>
+                        
+                        {/* Comparison Progress Bars */}
+                        <View style={styles.barsContainer}>
+                          <View style={styles.barItem}>
+                            <Text style={styles.barLabel}>{compareList[0]}</Text>
+                            <View style={styles.barOuter}>
+                              <View style={[styles.barInner, { 
+                                width: `${Math.min(100, (metricsA.peakVal / 60) * 100)}%`,
+                                backgroundColor: metricsA.curve.color || Colors.burntOrange
+                              }]} />
+                            </View>
+                            <Text style={styles.barValue}>+{metricsA.peakVal} mg/dL</Text>
+                          </View>
+                          
+                          <View style={styles.barItem}>
+                            <Text style={styles.barLabel}>{compareList[1]}</Text>
+                            <View style={styles.barOuter}>
+                              <View style={[styles.barInner, { 
+                                width: `${Math.min(100, (metricsB.peakVal / 60) * 100)}%`,
+                                backgroundColor: metricsB.curve.color || Colors.burntOrange
+                              }]} />
+                            </View>
+                            <Text style={styles.barValue}>+{metricsB.peakVal} mg/dL</Text>
+                          </View>
+                        </View>
+                      </View>
 
-                  <View style={styles.tableRow}>
-                    <Text style={styles.tableLabel}>Peak Time</Text>
-                    <Text style={styles.tableVal}>{FOOD_CURVES[compareList[0].toLowerCase()]?.peakTime}</Text>
-                    <Text style={styles.tableVal}>{FOOD_CURVES[compareList[1].toLowerCase()]?.peakTime}</Text>
-                  </View>
+                      {/* Clinical Insights Grid */}
+                      <View style={{ marginTop: Spacing.sm }}>
+                        <Text style={styles.gridSectionTitle}>CLINICAL METABOLIC METRICS</Text>
+                        <View style={styles.insightsGrid}>
+                          {/* Food A Column */}
+                          <View style={styles.gridColumn}>
+                            <Text style={[styles.gridColHeader, { color: metricsA.curve.color }]}>{compareList[0]}</Text>
+                            
+                            {/* Metric 1: Stability Signature */}
+                            <View style={styles.gridCell}>
+                              <Text style={styles.gridCellLabel}>STABILITY SIGNATURE</Text>
+                              <View style={[styles.signatureBadge, { backgroundColor: metricsA.signature.color + '15' }]}>
+                                <Text style={[styles.signatureBadgeText, { color: metricsA.signature.color }]}>
+                                  {metricsA.signature.label}
+                                </Text>
+                              </View>
+                              <Text style={styles.gridCellSub}>{metricsA.signature.desc}</Text>
+                            </View>
 
-                  <View style={styles.tableRow}>
-                    <Text style={styles.tableLabel}>Logs count</Text>
-                    <Text style={styles.tableVal}>{ALL_FOODS.find(f => f.name === compareList[0])?.count} times</Text>
-                    <Text style={styles.tableVal}>{ALL_FOODS.find(f => f.name === compareList[1])?.count} times</Text>
-                  </View>
-                </View>
+                            {/* Metric 2: Metabolic Velocity */}
+                            <View style={styles.gridCell}>
+                              <Text style={styles.gridCellLabel}>METABOLIC VELOCITY</Text>
+                              <Text style={styles.gridCellValue}>{metricsA.velocity} <Text style={styles.gridCellUnit}>mg/dL/min</Text></Text>
+                              <Text style={styles.gridCellSub}>Rate of glucose rise</Text>
+                            </View>
 
-                {/* Zen Insights Summary */}
-                <View style={styles.comparisonInsightsCard}>
-                  <Feather name="info" size={18} color={Colors.burntOrange} style={{ marginTop: 2 }} />
-                  <Text style={styles.comparisonInsightsText}>
-                    {getComparisonZenNotes(compareList[0], compareList[1])}
-                  </Text>
-                </View>
+                            {/* Metric 3: Total Glycemic Exposure */}
+                            <View style={styles.gridCell}>
+                              <Text style={styles.gridCellLabel}>GLYCEMIC EXPOSURE</Text>
+                              <Text style={styles.gridCellValue}>{metricsA.auc} <Text style={styles.gridCellUnit}>AUC</Text></Text>
+                              <Text style={styles.gridCellSub}>Estimated pancreatic load</Text>
+                            </View>
+                          </View>
+
+                          {/* Divider Line */}
+                          <View style={styles.gridVerticalDivider} />
+
+                          {/* Food B Column */}
+                          <View style={styles.gridColumn}>
+                            <Text style={[styles.gridColHeader, { color: metricsB.curve.color }]}>{compareList[1]}</Text>
+                            
+                            {/* Metric 1: Stability Signature */}
+                            <View style={styles.gridCell}>
+                              <Text style={styles.gridCellLabel}>STABILITY SIGNATURE</Text>
+                              <View style={[styles.signatureBadge, { backgroundColor: metricsB.signature.color + '15' }]}>
+                                <Text style={[styles.signatureBadgeText, { color: metricsB.signature.color }]}>
+                                  {metricsB.signature.label}
+                                </Text>
+                              </View>
+                              <Text style={styles.gridCellSub}>{metricsB.signature.desc}</Text>
+                            </View>
+
+                            {/* Metric 2: Metabolic Velocity */}
+                            <View style={styles.gridCell}>
+                              <Text style={styles.gridCellLabel}>METABOLIC VELOCITY</Text>
+                              <Text style={styles.gridCellValue}>{metricsB.velocity} <Text style={styles.gridCellUnit}>mg/dL/min</Text></Text>
+                              <Text style={styles.gridCellSub}>Rate of glucose rise</Text>
+                            </View>
+
+                            {/* Metric 3: Total Glycemic Exposure */}
+                            <View style={styles.gridCell}>
+                              <Text style={styles.gridCellLabel}>GLYCEMIC EXPOSURE</Text>
+                              <Text style={styles.gridCellValue}>{metricsB.auc} <Text style={styles.gridCellUnit}>AUC</Text></Text>
+                              <Text style={styles.gridCellSub}>Estimated pancreatic load</Text>
+                            </View>
+                          </View>
+                        </View>
+                      </View>
+
+                      {/* Raw Comparison Table */}
+                      <View style={styles.tableCard}>
+                        <Text style={styles.tableCardTitle}>DATA LOG COMPARISON</Text>
+                        
+                        <View style={styles.tableHeaderRow}>
+                          <Text style={[styles.tableCol, styles.tableColHeader, { textAlign: 'left' }]}>Metric</Text>
+                          <Text style={[styles.tableCol, styles.tableColHeader]}>{compareList[0]}</Text>
+                          <Text style={[styles.tableCol, styles.tableColHeader]}>{compareList[1]}</Text>
+                        </View>
+
+                        <View style={styles.tableRow}>
+                          <Text style={styles.tableLabel}>Average Peak Rise</Text>
+                          <Text style={styles.tableVal}>+{metricsA.peakVal} mg/dL</Text>
+                          <Text style={styles.tableVal}>+{metricsB.peakVal} mg/dL</Text>
+                        </View>
+
+                        <View style={styles.tableRow}>
+                          <Text style={styles.tableLabel}>Time to Peak</Text>
+                          <Text style={styles.tableVal}>{metricsA.curve.peakTime}</Text>
+                          <Text style={styles.tableVal}>{metricsB.curve.peakTime}</Text>
+                        </View>
+
+                        <View style={styles.tableRow}>
+                          <Text style={styles.tableLabel}>Observations</Text>
+                          <Text style={styles.tableVal}>{ALL_FOODS.find(f => f.name.toLowerCase() === fA)?.count || ALL_FOODS.find(f => f.name === compareList[0])?.count || 0} times</Text>
+                          <Text style={styles.tableVal}>{ALL_FOODS.find(f => f.name.toLowerCase() === fB)?.count || ALL_FOODS.find(f => f.name === compareList[1])?.count || 0} times</Text>
+                        </View>
+                      </View>
+
+                      {/* Zen Insights Summary */}
+                      <View style={styles.comparisonInsightsCard}>
+                        <Feather name="activity" size={20} color="#70824B" style={{ marginTop: 2 }} />
+                        <View style={{ flex: 1 }}>
+                          <Text style={styles.insightsHeaderLabel}>SATO'S SYNAPSE INSIGHT</Text>
+                          <Text style={styles.comparisonInsightsText}>
+                            {getComparisonZenNotes(compareList[0], compareList[1])}
+                          </Text>
+                        </View>
+                      </View>
+
+                      {/* Sato's Actionable Sequence Hack Card */}
+                      <View style={styles.hackCard}>
+                        <View style={styles.hackHeader}>
+                          <Ionicons name="bulb-outline" size={20} color="#B97B3F" />
+                          <Text style={styles.hackHeaderTitle}>SATO'S METABOLIC SEQUENCE HACKS</Text>
+                        </View>
+                        <View style={styles.hackContent}>
+                          <View style={styles.hackItem}>
+                            <View style={styles.hackBulletContainer}>
+                              <Feather name="layers" size={16} color="#B97B3F" />
+                            </View>
+                            <View style={{ flex: 1 }}>
+                              <Text style={styles.hackItemTitle}>Order of Operations (Food Sequencing)</Text>
+                              <Text style={styles.hackItemText}>
+                                Always eat fiber/vegetables first, followed by fats/proteins, and carbohydrates last. This sequencing coats the gut lining and slows glucose absorption, flattening the peak of {metricsA.peakVal > metricsB.peakVal ? compareList[0] : compareList[1]} by up to 35%.
+                              </Text>
+                            </View>
+                          </View>
+                          
+                          <View style={styles.hackItem}>
+                            <View style={styles.hackBulletContainer}>
+                              <Feather name="activity" size={16} color="#B97B3F" />
+                            </View>
+                            <View style={{ flex: 1 }}>
+                              <Text style={styles.hackItemTitle}>Post-Meal Movement Window</Text>
+                              <Text style={styles.hackItemText}>
+                                Plan a brief 10-minute walk starting 30 minutes after your first bite. This matches the onset curve and uses active muscle contraction to absorb excess bloodstream glucose, blunting the speed of rise.
+                              </Text>
+                            </View>
+                          </View>
+
+                          <View style={styles.hackItem}>
+                            <View style={styles.hackBulletContainer}>
+                              <Feather name="clock" size={16} color="#B97B3F" />
+                            </View>
+                            <View style={{ flex: 1 }}>
+                              <Text style={styles.hackItemTitle}>Bolus Timing Buffer</Text>
+                              <Text style={styles.hackItemText}>
+                                {metricsA.peakVal > metricsB.peakVal ? compareList[0] : compareList[1]} is a fast-rising food that benefits from a 15-20 min pre-bolus buffer. But for lipid-rich options like {metricsA.peakVal > metricsB.peakVal ? compareList[1] : compareList[0]}, a split insulin bolus is recommended to prevent early hypo followed by a late rise.
+                              </Text>
+                            </View>
+                          </View>
+                        </View>
+                      </View>
+                    </View>
+                  );
+                })()}
 
                 <TouchableOpacity 
                   activeOpacity={0.8}
@@ -522,10 +1142,12 @@ const styles = StyleSheet.create({
   searchContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(0,0,0,0.03)',
+    backgroundColor: 'rgba(255, 255, 255, 0.45)',
+    borderWidth: 1,
+    borderColor: '#E6DFD3',
     borderRadius: Radius.lg,
     paddingHorizontal: Spacing.md,
-    height: 48,
+    height: 44,
     marginTop: Spacing.md,
     marginBottom: Spacing.sm,
   },
@@ -552,8 +1174,10 @@ const styles = StyleSheet.create({
     paddingVertical: 4,
   },
   sortChip: {
-    backgroundColor: 'rgba(0,0,0,0.03)',
-    borderRadius: Radius.full,
+    backgroundColor: 'rgba(255, 255, 255, 0.65)',
+    borderWidth: 1,
+    borderColor: '#E6DFD3',
+    borderRadius: Radius.md,
     paddingHorizontal: 14,
     paddingVertical: 8,
     flexDirection: 'row',
@@ -561,7 +1185,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   sortChipActive: {
-    backgroundColor: Colors.burntOrange,
+    backgroundColor: Colors.ink,
+    borderColor: Colors.ink,
   },
   sortChipText: {
     fontFamily: 'Inter_500Medium',
@@ -599,10 +1224,9 @@ const styles = StyleSheet.create({
 
   // Hero Card layout
   heroCard: {
-    backgroundColor: '#F3EDE0',
-    borderRadius: Radius.xl,
-    padding: Spacing.xl,
-    marginBottom: Spacing.md,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(231, 222, 207, 0.3)',
+    paddingVertical: Spacing.xl,
   },
   heroCardTop: {
     marginBottom: Spacing.md,
@@ -724,7 +1348,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     borderBottomWidth: 1,
-    borderBottomColor: Colors.divider,
+    borderBottomColor: 'rgba(231, 222, 207, 0.3)',
   },
   otherFoodRow: {
     flex: 1,
@@ -828,13 +1452,11 @@ const styles = StyleSheet.create({
     paddingTop: Spacing.xl,
   },
   chartContainer: {
-    backgroundColor: 'rgba(255,255,255,0.45)',
-    borderWidth: 1,
-    borderColor: '#E6DFD3',
-    borderRadius: Radius.xl,
-    padding: Spacing.xl,
+    paddingVertical: Spacing.xl,
     alignItems: 'center',
     marginBottom: Spacing.xl,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(231, 222, 207, 0.3)',
   },
   chartLegendRow: {
     flexDirection: 'row',
@@ -858,12 +1480,10 @@ const styles = StyleSheet.create({
   },
 
   tableCard: {
-    backgroundColor: 'rgba(255,255,255,0.45)',
-    borderWidth: 1,
-    borderColor: '#E6DFD3',
-    borderRadius: Radius.xl,
-    padding: Spacing.xl,
+    paddingVertical: Spacing.xl,
     marginBottom: Spacing.xl,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(231, 222, 207, 0.3)',
   },
   tableCardTitle: {
     ...TypeScale.metadata,
@@ -910,19 +1530,77 @@ const styles = StyleSheet.create({
   comparisonInsightsCard: {
     flexDirection: 'row',
     gap: Spacing.md,
-    backgroundColor: 'rgba(217, 121, 71, 0.04)',
-    borderWidth: 1,
-    borderColor: 'rgba(217, 121, 71, 0.12)',
-    borderRadius: Radius.lg,
-    padding: Spacing.xl,
+    paddingVertical: Spacing.xl,
     marginBottom: Spacing.xl,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(231, 222, 207, 0.3)',
   },
   comparisonInsightsText: {
-    fontFamily: 'CormorantGaramond_400Regular_Italic',
-    fontSize: 15,
+    fontFamily: 'Inter_400Regular',
+    fontSize: 13.5,
     lineHeight: 20,
     color: Colors.ink,
     flex: 1,
+  },
+  insightsHeaderLabel: {
+    fontFamily: 'Inter_600SemiBold',
+    fontSize: 9.5,
+    color: '#70824B',
+    letterSpacing: 1.2,
+    textTransform: 'uppercase',
+    marginBottom: 4,
+  },
+  comparisonSummaryCard: {
+    paddingVertical: Spacing.xl,
+    marginBottom: Spacing.xl,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(231, 222, 207, 0.3)',
+  },
+  comparisonSummaryTitle: {
+    ...TypeScale.metadata,
+    color: Colors.softStone,
+    letterSpacing: 1.2,
+    marginBottom: Spacing.sm,
+    textTransform: 'uppercase',
+  },
+  comparisonSummaryDesc: {
+    fontFamily: 'CormorantGaramond_500Medium',
+    fontSize: 20,
+    color: Colors.ink,
+    lineHeight: 25,
+    marginBottom: Spacing.lg,
+  },
+  barsContainer: {
+    gap: Spacing.md,
+  },
+  barItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.md,
+  },
+  barLabel: {
+    width: 90,
+    fontFamily: 'Inter_500Medium',
+    fontSize: 12,
+    color: Colors.ink,
+  },
+  barOuter: {
+    flex: 1,
+    height: 8,
+    backgroundColor: 'rgba(0,0,0,0.03)',
+    borderRadius: 4,
+    overflow: 'hidden',
+  },
+  barInner: {
+    height: '100%',
+    borderRadius: 4,
+  },
+  barValue: {
+    width: 60,
+    textAlign: 'right',
+    fontFamily: 'Inter_600SemiBold',
+    fontSize: 12,
+    color: Colors.ink,
   },
 
   resetCompareBtn: {
@@ -938,5 +1616,262 @@ const styles = StyleSheet.create({
     fontFamily: 'Inter_500Medium',
     fontSize: 13,
     color: Colors.softStone,
+  },
+  gridSectionTitle: {
+    ...TypeScale.metadata,
+    color: Colors.softStone,
+    letterSpacing: 1.2,
+    marginBottom: Spacing.md,
+    textTransform: 'uppercase',
+  },
+  insightsGrid: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: Spacing.xl,
+  },
+  gridColumn: {
+    flex: 1,
+  },
+  gridColHeader: {
+    fontFamily: 'CormorantGaramond_600SemiBold',
+    fontSize: 18,
+    textAlign: 'center',
+    marginBottom: Spacing.md,
+  },
+  gridCell: {
+    borderTopWidth: 1,
+    borderColor: 'rgba(231, 222, 207, 0.3)',
+    paddingVertical: Spacing.md,
+    marginBottom: Spacing.sm,
+    minHeight: 110,
+    justifyContent: 'center',
+  },
+  gridCellLabel: {
+    fontFamily: 'Inter_600SemiBold',
+    fontSize: 8.5,
+    letterSpacing: 1,
+    color: Colors.softStone,
+    marginBottom: 4,
+  },
+  gridCellValue: {
+    fontFamily: 'Inter_600SemiBold',
+    fontSize: 18,
+    color: Colors.ink,
+  },
+  gridCellUnit: {
+    fontFamily: 'Inter_400Regular',
+    fontSize: 10,
+    color: Colors.softStone,
+  },
+  gridCellSub: {
+    fontFamily: 'Inter_400Regular',
+    fontSize: 10.5,
+    color: Colors.softStone,
+    marginTop: 2,
+    lineHeight: 14,
+  },
+  signatureBadge: {
+    alignSelf: 'flex-start',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: Radius.sm,
+    marginBottom: 4,
+  },
+  signatureBadgeText: {
+    fontFamily: 'Inter_600SemiBold',
+    fontSize: 10,
+  },
+  gridVerticalDivider: {
+    width: 1,
+    backgroundColor: Colors.border,
+    marginHorizontal: Spacing.md,
+    alignSelf: 'stretch',
+  },
+  hackCard: {
+    paddingVertical: Spacing.xl,
+    marginBottom: Spacing.xl,
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(231, 222, 207, 0.3)',
+  },
+  hackHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: Spacing.md,
+  },
+  hackHeaderTitle: {
+    fontFamily: 'Inter_600SemiBold',
+    fontSize: 10,
+    letterSpacing: 1.2,
+    color: '#B97B3F',
+  },
+  hackContent: {
+    gap: Spacing.md,
+  },
+  hackItem: {
+    flexDirection: 'row',
+    gap: Spacing.md,
+    alignItems: 'flex-start',
+  },
+  hackBulletContainer: {
+    width: 24,
+    height: 24,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 2,
+  },
+  hackBullet: {
+    fontSize: 16,
+    marginTop: 2,
+  },
+  hackItemTitle: {
+    fontFamily: 'Inter_600SemiBold',
+    fontSize: 13,
+    color: Colors.ink,
+    marginBottom: 2,
+  },
+  hackItemText: {
+    fontFamily: 'Inter_400Regular',
+    fontSize: 12.5,
+    lineHeight: 18,
+    color: Colors.softStone,
+  },
+  sandboxWrapper: {
+    borderTopWidth: 1,
+    borderBottomWidth: 1,
+    borderColor: 'rgba(231, 222, 207, 0.3)',
+    marginBottom: Spacing.xl,
+    marginTop: Spacing.md,
+  },
+  sandboxHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: Spacing.xl,
+    gap: 8,
+  },
+  sandboxHeaderTitle: {
+    fontFamily: 'CormorantGaramond_600SemiBold',
+    fontSize: 20,
+    color: Colors.ink,
+  },
+  sandboxContent: {
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(231, 222, 207, 0.3)',
+    paddingBottom: Spacing.xl,
+    paddingHorizontal: Spacing.xl,
+  },
+  sandboxDisclaimer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 10,
+    marginTop: Spacing.md,
+    marginBottom: Spacing.sm,
+    gap: 8,
+  },
+  sandboxDisclaimerIcon: {
+    flexShrink: 0,
+  },
+  sandboxDisclaimerText: {
+    flex: 1,
+    fontFamily: 'Inter_400Regular',
+    fontSize: 11,
+    lineHeight: 15,
+    color: Colors.softStone,
+  },
+  sandboxChartWrap: {
+    paddingVertical: Spacing.md,
+    alignItems: 'center',
+  },
+  sandboxChartTitle: {
+    fontFamily: 'Inter_500Medium',
+    fontSize: 11,
+    color: Colors.softStone,
+    letterSpacing: 0.8,
+    alignSelf: 'flex-start',
+    marginBottom: 8,
+    textTransform: 'uppercase',
+  },
+  sandboxStatsSummary: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    width: '100%',
+    marginTop: Spacing.sm,
+  },
+  sandboxStatLabel: {
+    fontFamily: 'Inter_400Regular',
+    fontSize: 13,
+    color: Colors.softStone,
+  },
+  sandboxStatVal: {
+    fontFamily: 'Inter_600SemiBold',
+    color: Colors.ink,
+  },
+  delayBadge: {
+    backgroundColor: 'rgba(185, 123, 63, 0.08)',
+    borderRadius: Radius.full,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+  },
+  delayBadgeText: {
+    fontFamily: 'Inter_600SemiBold',
+    fontSize: 10,
+    color: '#B97B3F',
+  },
+  sandboxSection: {
+    marginTop: Spacing.lg,
+  },
+  sandboxSectionLabel: {
+    fontFamily: 'Inter_500Medium',
+    fontSize: 11,
+    color: Colors.softStone,
+    letterSpacing: 0.8,
+    marginBottom: Spacing.sm,
+    textTransform: 'uppercase',
+  },
+  sandboxRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: Spacing.sm,
+  },
+  sandboxButton: {
+    borderWidth: 1,
+    borderColor: 'rgba(231, 222, 207, 0.6)',
+    borderRadius: Radius.full,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+  },
+  sandboxButtonActive: {
+    backgroundColor: Colors.ink,
+    borderColor: Colors.ink,
+  },
+  sandboxButtonText: {
+    fontFamily: 'Inter_500Medium',
+    fontSize: 12,
+    color: Colors.softStone,
+  },
+  sandboxButtonTextActive: {
+    color: '#FCFAF6',
+    fontFamily: 'Inter_600SemiBold',
+  },
+  sandboxAddonPill: {
+    borderWidth: 1,
+    borderColor: 'rgba(231, 222, 207, 0.6)',
+    borderRadius: Radius.full,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+  },
+  sandboxAddonPillActive: {
+    backgroundColor: Colors.amber,
+    borderColor: Colors.amber,
+  },
+  sandboxAddonText: {
+    fontFamily: 'Inter_500Medium',
+    fontSize: 12,
+    color: Colors.softStone,
+  },
+  sandboxAddonTextActive: {
+    color: '#FCFAF6',
+    fontFamily: 'Inter_600SemiBold',
   },
 });

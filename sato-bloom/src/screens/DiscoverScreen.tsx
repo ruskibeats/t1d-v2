@@ -1,18 +1,15 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import {
   View,
   Text,
   ScrollView,
   TouchableOpacity,
   StyleSheet,
-  Pressable,
-  Image,
+  Animated,
 } from 'react-native';
-
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Ionicons } from '@expo/vector-icons';
-import Svg, { Path } from 'react-native-svg';
-import { Colors, Spacing, Radius, TypeScale, Fonts } from '@/constants/theme';
+import Svg, { Path, Defs, LinearGradient, Stop } from 'react-native-svg';
+import { Colors, Spacing, TypeScale } from '@/constants/theme';
 import { PATTERNS, FEATURED_PATTERN } from '@/constants/patterns';
 import { BloomFlower } from '@/components/BloomFlower';
 import { useNavigation } from '../navigation/NavigationProvider';
@@ -20,192 +17,261 @@ import { useNavigation } from '../navigation/NavigationProvider';
 export default function DiscoverScreen() {
   const nav = useNavigation();
   const insets = useSafeAreaInsets();
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+
+  // Atmospheric fade transition on mount (resembling pigment settling)
+  useEffect(() => {
+    Animated.timing(fadeAnim, {
+      toValue: 1,
+      duration: 800,
+      useNativeDriver: true,
+    }).start();
+  }, []);
 
   const goToPattern = (id: string) => {
     nav.openRevelation({ id });
   };
 
+  // Helper to generate a smooth cubic Bezier path for the monochrome trace
+  const getMonochromePath = (data: number[]) => {
+    const chartWidth = 300;
+    const chartHeight = 65;
+    const baseline = 80;
+    const points = data.map((val, idx) => {
+      const x = 10 + (idx / (data.length - 1)) * chartWidth;
+      const y = baseline - val * chartHeight;
+      return { x, y };
+    });
+
+    let path = `M ${points[0].x} ${points[0].y}`;
+    for (let i = 0; i < points.length - 1; i++) {
+      const p0 = points[i];
+      const p1 = points[i + 1];
+      const cpX1 = p0.x + (p1.x - p0.x) / 2;
+      const cpY1 = p0.y;
+      const cpX2 = p0.x + (p1.x - p0.x) / 2;
+      const cpY2 = p1.y;
+      path += ` C ${cpX1} ${cpY1}, ${cpX2} ${cpY2}, ${p1.x} ${p1.y}`;
+    }
+    return path;
+  };
+
+  const getClosedPath = (data: number[]) => {
+    const chartWidth = 300;
+    const baseline = 80;
+    const path = getMonochromePath(data);
+    const endX = 10 + chartWidth;
+    return `${path} L ${endX} ${baseline} L 10 ${baseline} Z`;
+  };
+
   return (
-    <View style={styles.root}>
+    <Animated.View style={[styles.root, { opacity: fadeAnim }]}>
       <ScrollView
         style={styles.scroll}
-        contentContainerStyle={styles.scrollContent}
+        contentContainerStyle={[styles.scrollContent, { paddingTop: Spacing.sm, paddingBottom: insets.bottom + 100 }]}
         showsVerticalScrollIndicator={false}
       >
-        {/* Hero text */}
+        {/* Editorial Journal Header */}
         <View style={styles.hero}>
           <Text style={styles.heroTitle}>Discover</Text>
           <Text style={styles.heroSub}>Patterns Sato has quietly noticed in your life.</Text>
         </View>
 
-        {/* Hero Insight composition */}
+        {/* Feature Discovery - Editorial Article Layout */}
         <TouchableOpacity
-          style={styles.featuredLayout}
+          style={styles.articleLayout}
           onPress={() => goToPattern(FEATURED_PATTERN.id)}
-          activeOpacity={0.95}
+          activeOpacity={0.9}
         >
-          <View style={styles.featuredBloom} pointerEvents="none">
-            {/* Ghost Enso watermark */}
-            <Svg width={220} height={220} viewBox="0 0 100 100" style={styles.ensoWatermark}>
-              <Path
-                d="M 80 50 A 30 30 0 1 1 50 20 A 30 30 0 0 1 75 32"
-                fill="none"
-                stroke={Colors.ink}
-                strokeWidth={4.5}
-                strokeLinecap="round"
-              />
-            </Svg>
+          {/* Section Header */}
+          <Text style={styles.categoryBadge}>FEATURED DISCOVERY</Text>
+          <Text style={styles.articleTitle}>{FEATURED_PATTERN.title}</Text>
+          
+          <Text style={styles.articleMeta}>
+            Observed {FEATURED_PATTERN.seenCount} times · Recurring pattern
+          </Text>
+
+          <Text style={styles.articleNarrative}>
+            {FEATURED_PATTERN.description} {FEATURED_PATTERN.insight}
+          </Text>
+
+          {/* Centered Large Bloom Flower floating directly on Paper */}
+          <View style={styles.bloomContainer} pointerEvents="none">
             <BloomFlower
               {...Colors.bloom[FEATURED_PATTERN.bloom]}
-              size={180}
+              size={260}
             />
           </View>
 
-          <View style={styles.featuredContent}>
-            <Text style={styles.featuredTitle}>{FEATURED_PATTERN.title}</Text>
-            <Text style={styles.featuredMeta}>Observed {FEATURED_PATTERN.seenCount} times · Recurring pattern</Text>
-            <Text style={styles.featuredDesc} numberOfLines={2}>
-              A pattern appearing between 7pm and 11pm.
-            </Text>
+          {/* Minimal Monochrome Chart (Evidence) */}
+          <View style={styles.chartWrapper}>
+            <Text style={styles.chartLabel}>GLYCEMIC DURATION OVERVIEW ({FEATURED_PATTERN.timeLabel})</Text>
+            <Svg width={320} height={90}>
+              <Defs>
+                <LinearGradient id="monoGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                  <Stop offset="0%" stopColor="#181614" stopOpacity={0.06} />
+                  <Stop offset="100%" stopColor="#181614" stopOpacity={0} />
+                </LinearGradient>
+              </Defs>
+              {/* Soft pigment area fill */}
+              <Path d={getClosedPath(FEATURED_PATTERN.graphData)} fill="url(#monoGrad)" />
+              {/* Minimal monochrome trace stroke */}
+              <Path d={getMonochromePath(FEATURED_PATTERN.graphData)} fill="none" stroke="#181614" strokeWidth={1.2} />
+            </Svg>
           </View>
         </TouchableOpacity>
 
-        {/* Recently uncovered */}
-        <View style={styles.sectionHeader}>
-          <Text style={styles.sectionTitle}>Recently uncovered</Text>
-          <TouchableOpacity onPress={() => nav.openAllDiscoveries()} hitSlop={10}>
-            <Text style={styles.seeAll}>See all</Text>
-          </TouchableOpacity>
-        </View>
-
-        <View style={styles.patternList}>
-          {PATTERNS.map((pattern) => (
-            <TouchableOpacity
-              key={pattern.id}
-              style={styles.patternRow}
-              onPress={() => goToPattern(pattern.id)}
-              activeOpacity={0.9}
-            >
-              {/* Mini bloom floating directly on paper */}
-              <View style={styles.patternIcon}>
-                <BloomFlower
-                  petal1={Colors.bloom[pattern.bloom].petal1}
-                  petal2={Colors.bloom[pattern.bloom].petal2}
-                  petal3={Colors.bloom[pattern.bloom].petal3}
-                  size={52}
-                />
-              </View>
-
-              <View style={styles.patternInfo}>
-                <Text style={styles.patternTitle} numberOfLines={2}>{pattern.title}</Text>
-                <View style={styles.patternMeta}>
-                  <Text style={styles.patternStrength}>
-                    {pattern.strength === 'strong' ? 'Recurring pattern' : 'Emerging signal'}
-                  </Text>
-                  <Text style={styles.patternSeen}>· Seen {pattern.seenCount} times</Text>
-                </View>
-              </View>
+        {/* Other Discoveries Section */}
+        <View style={styles.secondarySection}>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>Other Observations</Text>
+            <TouchableOpacity onPress={() => nav.openAllDiscoveries()} hitSlop={10}>
+              <Text style={styles.seeAll}>See all</Text>
             </TouchableOpacity>
-          ))}
+          </View>
+
+          {/* simple, text observations spaced 8-12px apart, with no cards */}
+          <View style={styles.observationList}>
+            {PATTERNS.filter(p => p.id !== FEATURED_PATTERN.id).map((pattern) => (
+              <TouchableOpacity
+                key={pattern.id}
+                style={styles.observationRow}
+                onPress={() => goToPattern(pattern.id)}
+                activeOpacity={0.8}
+              >
+                <Text style={styles.observationText}>
+                  {pattern.title} <Text style={styles.observationSub}>· Observed {pattern.seenCount} times</Text>
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
         </View>
       </ScrollView>
-
-      {/* Tab bar overlap padding */}
-      <View style={{ height: 20 }} />
-    </View>
+    </Animated.View>
   );
 }
 
 const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: 'transparent' },
-  bellWrap: { position: 'relative', padding: 4 },
-  bellDot: {
-    position: 'absolute',
-    top: 3,
-    right: 3,
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: Colors.burntOrange,
-    borderWidth: 1.5,
-    borderColor: Colors.bg,
+  root: { 
+    flex: 1, 
+    backgroundColor: '#F1EBDD' // Primary Paper canvas
+  },
+  scroll: { 
+    flex: 1 
+  },
+  scrollContent: { 
+    paddingHorizontal: Spacing.xxl 
   },
 
-  scroll: { flex: 1 },
-  scrollContent: { paddingBottom: 24 },
+  hero: { 
+    paddingTop: Spacing.md, 
+    paddingBottom: Spacing.xxl 
+  },
+  heroTitle: { 
+    ...TypeScale.display, 
+    fontFamily: 'CormorantGaramond_400Regular',
+    fontSize: 56,
+    lineHeight: 62,
+    color: '#181614',
+    letterSpacing: -0.5,
+  },
+  heroSub: { 
+    fontFamily: 'Inter_400Regular',
+    fontSize: 16,
+    lineHeight: 26,
+    color: '#7E756A', 
+    marginTop: 4 
+  },
 
-  hero: { paddingHorizontal: Spacing.xxl, paddingTop: Spacing.sm, paddingBottom: Spacing.lg },
-  heroTitle: { ...TypeScale.display, color: Colors.ink },
-  heroSub: { ...TypeScale.body, color: Colors.softStone, marginTop: 4 },
-
-  // Featured layout
-  featuredLayout: {
-    marginHorizontal: Spacing.xl,
-    paddingHorizontal: Spacing.md,
-    paddingVertical: Spacing.lg,
-    flexDirection: 'row',
-    alignItems: 'center',
+  // Editorial article layout
+  articleLayout: {
+    paddingVertical: Spacing.md,
     marginBottom: Spacing.xxxl,
-    minHeight: 180,
   },
-  featuredBloom: {
-    width: 180,
-    height: 180,
-    position: 'absolute',
-    right: -20,
-    opacity: 0.85,
+  categoryBadge: {
+    fontFamily: 'Inter_600SemiBold',
+    fontSize: 12,
+    letterSpacing: 1.2,
+    color: '#7E756A',
+    marginBottom: Spacing.sm,
+    textTransform: 'uppercase',
+  },
+  articleTitle: { 
+    fontFamily: 'CormorantGaramond_400Regular',
+    fontSize: 28,
+    lineHeight: 34,
+    color: '#181614', 
+    marginBottom: Spacing.xs,
+  },
+  articleMeta: { 
+    fontFamily: 'Inter_400Regular',
+    fontSize: 14,
+    color: '#A09689', 
+    marginBottom: Spacing.lg,
+  },
+  articleNarrative: { 
+    fontFamily: 'Inter_400Regular',
+    fontSize: 18,
+    lineHeight: 30,
+    color: '#7E756A',
+    marginBottom: Spacing.xxl,
+  },
+  bloomContainer: {
     alignItems: 'center',
     justifyContent: 'center',
+    marginVertical: Spacing.xxl,
+    opacity: 0.95,
   },
-  ensoWatermark: {
-    position: 'absolute',
-    opacity: 0.02,
+  chartWrapper: {
+    marginTop: Spacing.xl,
+    alignItems: 'center',
   },
-  featuredContent: { flex: 1, paddingRight: 100 },
-  featuredTitle: { ...TypeScale.heroTitle, color: Colors.ink, marginBottom: 4 },
-  featuredMeta: { ...TypeScale.metadata, color: Colors.softStone, marginBottom: 8 },
-  featuredDesc: { ...TypeScale.caption, color: Colors.softStone },
+  chartLabel: {
+    fontFamily: 'Inter_600SemiBold',
+    fontSize: 8.5,
+    letterSpacing: 1,
+    color: '#A09689',
+    marginBottom: Spacing.md,
+    alignSelf: 'flex-start',
+  },
 
-  // Section header
+  // Secondary section for observations
+  secondarySection: {
+    marginTop: Spacing.xl,
+  },
   sectionHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: Spacing.xxl,
-    marginBottom: Spacing.md,
-  },
-  sectionTitle: { ...TypeScale.sectionTitle, color: Colors.ink },
-  seeAll: { ...TypeScale.button, color: Colors.burntOrange },
-
-  // Pattern list
-  patternList: { paddingHorizontal: Spacing.xl },
-  patternRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: Spacing.xl,
+    paddingBottom: Spacing.md,
     borderBottomWidth: 1,
-    borderBottomColor: Colors.divider,
-    gap: Spacing.lg,
+    borderBottomColor: 'rgba(231, 222, 207, 0.3)', // Borders avoid/light 30% opacity
+    marginBottom: Spacing.xl,
   },
-  patternIcon: {
-    width: 52,
-    height: 52,
-    alignItems: 'center',
-    justifyContent: 'center',
-    flexShrink: 0,
+  sectionTitle: { 
+    fontFamily: 'CormorantGaramond_500Medium',
+    fontSize: 28,
+    color: '#181614',
   },
-  patternInfo: { flex: 1 },
-  patternTitle: { ...TypeScale.cardTitle, color: Colors.ink, marginBottom: 3 },
-  patternMeta: { flexDirection: 'row', alignItems: 'center', gap: 6 },
-  patternStrength: { ...TypeScale.metadata, color: Colors.softStone },
-  patternSeen: { ...TypeScale.metadata, color: Colors.softStone },
-  chevronWrap: {
-    width: 36,
-    height: 36,
-    borderRadius: Radius.full,
-    backgroundColor: Colors.chipBg,
-    alignItems: 'center',
-    justifyContent: 'center',
+  seeAll: { 
+    fontFamily: 'Inter_500Medium',
+    fontSize: 14,
+    color: '#D6784E', // Food primary orange accent tone
   },
-  chevron: { fontSize: 18, color: Colors.ink, marginTop: -1 },
+  observationList: {
+    gap: 10, // Spacing 8-12px minimal separation
+  },
+  observationRow: {
+    paddingVertical: 10,
+  },
+  observationText: {
+    fontFamily: 'CormorantGaramond_500Medium',
+    fontSize: 20,
+    color: '#181614',
+  },
+  observationSub: {
+    fontFamily: 'Inter_400Regular',
+    fontSize: 14,
+    color: '#7E756A',
+  },
 });

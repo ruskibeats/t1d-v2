@@ -732,18 +732,21 @@ export default function FoodMemoryScreen({ foodId }: { foodId: string }) {
                     <View style={styles.momentHeader}>
                       <Text style={styles.momentDate}>{moment.date}</Text>
                       <Text style={styles.momentTime}> · {moment.time}</Text>
-                      {activeOverlaps.length > 0 && (
-                        <View style={styles.overlapBadge}>
-                          <Feather name="layers" size={10} color="#D97947" />
-                          <Text style={styles.overlapBadgeText}>{activeOverlaps[0].food} overlap</Text>
-                        </View>
-                      )}
                       {isSelected && (
-                        <View style={[styles.selectedPill, { backgroundColor: Colors.bloom[moment.bloom].bg }]}>
-                          <Text style={[styles.selectedPillText, { color: Colors.bloom[moment.bloom].text }]}>Selected</Text>
+                        <View style={styles.selectedPill}>
+                          <Text style={styles.selectedPillText}>Selected</Text>
                         </View>
                       )}
                     </View>
+
+                    {activeOverlaps.length > 0 && (
+                      <View style={styles.overlapRow}>
+                        <Feather name="layers" size={10} color="#D97947" />
+                        <Text style={styles.overlapText} numberOfLines={1} ellipsizeMode="tail">
+                          Overlaps with {activeOverlaps[0].food}
+                        </Text>
+                      </View>
+                    )}
                     
                     <View style={styles.momentStatsRow}>
                       <View style={styles.momentStat}>
@@ -1109,16 +1112,14 @@ const styles = StyleSheet.create({
   },
   selectedPill: {
     marginLeft: 'auto',
-    paddingHorizontal: 8,
-    paddingVertical: 2.5,
-    borderRadius: Radius.full,
     alignItems: 'center',
     justifyContent: 'center',
   },
   selectedPillText: {
-    ...TypeScale.badge,
-    fontSize: 9,
-    letterSpacing: 0.5,
+    fontFamily: 'Inter_600SemiBold',
+    fontSize: 9.5,
+    color: Colors.burntOrange,
+    letterSpacing: 1.0,
     textTransform: 'uppercase',
   },
   scrapbookDetails: {
@@ -1155,14 +1156,17 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: Spacing.sm,
+    marginTop: Spacing.sm,
   },
   scrapbookMetaPill: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(0,0,0,0.03)',
-    borderRadius: Radius.sm,
-    paddingHorizontal: 8,
-    paddingVertical: 4,
+    backgroundColor: 'transparent',
+    borderWidth: 1,
+    borderColor: 'rgba(24, 22, 20, 0.12)',
+    borderRadius: Radius.full,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
     gap: 4,
   },
   scrapbookMetaText: {
@@ -1236,21 +1240,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
 
-  overlapBadge: {
+  overlapRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
-    borderWidth: 1,
-    borderColor: '#D97947',
-    backgroundColor: 'rgba(217, 121, 71, 0.05)',
-    borderRadius: Radius.full,
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    marginLeft: 8,
+    gap: 6,
+    marginBottom: Spacing.sm,
+    marginTop: 2,
   },
-  overlapBadgeText: {
+  overlapText: {
     fontFamily: 'Inter_500Medium',
-    fontSize: 9,
+    fontSize: 11,
     color: '#D97947',
   },
   scrapbookOverlapRow: {
@@ -1258,14 +1257,12 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
     gap: 8,
     marginTop: Spacing.sm,
-    backgroundColor: 'rgba(217, 121, 71, 0.04)',
-    borderRadius: Radius.sm,
-    padding: Spacing.md,
+    marginBottom: Spacing.md,
   },
   scrapbookOverlapText: {
     fontFamily: 'CormorantGaramond_400Regular_Italic',
     fontSize: 13,
-    color: '#7E756A',
+    color: Colors.softStone,
     flex: 1,
     lineHeight: 17,
   },

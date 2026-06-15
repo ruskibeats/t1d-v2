@@ -120,8 +120,8 @@ function RouterHost() {
 
             <Text style={styles.alertBody}>
               {isHypo
-                ? "Your glucose levels have dropped below your safe threshold. Please consume fast-acting carbohydrates (juice, candy, tablets) immediately to restore balance."
-                : "Your glucose levels are running higher than target. Check active insulin on board, consider correction therapy, or engage in quiet movement."
+                ? "Your glucose levels are dipping. Ground yourself with a small cup of juice, sweet fruit, or warm honey to restore balance."
+                : "Your glucose levels are rising with warmth. Consider a gentle stroll or active breathing to help the energy settle, or check your insulin balance."
               }
             </Text>
 

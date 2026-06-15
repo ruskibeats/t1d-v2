@@ -11,7 +11,7 @@ export interface LogEntry {
 
 interface LogContextValue {
   logs: LogEntry[];
-  addLog: (text: string, insulin: number | null, food: string | null, timestamp?: string, photoAttachment?: boolean) => void;
+  addLog: (text: string, insulin: number | null, food: string | null, timestamp?: string, photoAttachment?: boolean) => LogEntry;
   updateLog: (id: string, text: string, insulin: number | null, food: string | null, photoAttachment?: boolean) => void;
   deleteLog: (id: string) => void;
 }
@@ -69,7 +69,7 @@ export function LogProvider({ children }: { children: React.ReactNode }) {
     return `${dStr} · ${tStr}`;
   };
 
-  const addLog = (text: string, insulin: number | null, food: string | null, timestamp?: string, photoAttachment?: boolean) => {
+  const addLog = (text: string, insulin: number | null, food: string | null, timestamp?: string, photoAttachment?: boolean): LogEntry => {
     const newLog: LogEntry = {
       id: `log-${Date.now()}`,
       text,
@@ -79,6 +79,7 @@ export function LogProvider({ children }: { children: React.ReactNode }) {
       photoAttachment,
     };
     setLogs((prev) => [newLog, ...prev]);
+    return newLog;
   };
 
   const updateLog = (id: string, text: string, insulin: number | null, food: string | null, photoAttachment?: boolean) => {

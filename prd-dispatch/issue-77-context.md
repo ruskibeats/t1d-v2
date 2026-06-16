@@ -1,1 +1,0 @@
-Let me check if there's any documentation about the chat system:
